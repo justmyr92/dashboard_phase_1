@@ -1,0 +1,74 @@
+    campus_table
+    campus_id varchar(25) // primary key
+    campus_name varchar(50)
+    campus_address varchar(255)
+    campus_phone varchar(25)
+    campus_email varchar(50)
+
+    csd_officer_table
+    csd_officer_id varchar(25) // primary key
+    csd_officer_name varchar(50)
+    csd_officer_email varchar(50)
+    csd_officer_phone varchar(25)
+    csd_officer_password varchar(255)
+
+    sdo_officer_table
+    sdo_officer_id varchar(25) // primary key
+    sdo_officer_name varchar(50)
+    sdo_officer_email varchar(50)
+    sdo_officer_phone varchar(25)
+    sdo_officer_password varchar(255)
+
+    unit_table
+    unit_id varchar(25) // primary key
+    unit_name varchar(50)
+    unit_address varchar(255)
+    unit_phone varchar(25)
+    unit_email varchar(50)
+    unit_password varchar(255)
+    sdo_officer_id varchar(25) // foreign key
+    campus_id varchar(25) // foreign key
+
+    sdg_table
+    sdg_id varchar(25) // primary key
+    sdg_no int
+    sdg_name varchar(50)
+    sdg_description varchar(255)
+
+    accreditation_table
+    accreditation_id varchar(25) // primary key
+    accreditation_program varchar(50)
+    accreditation_program_type varchar(50)
+    accreditation_level varchar(50)
+    accreditation_year varchar(25)
+    campus_id varchar(25) // foreign key
+
+    enrollment_table
+    enrollment_id varchar(25) // primary key
+    enrollment_school_year varchar(50)
+    enrollment_year_level varchar(50)
+    enrollment_gender varchar(50)
+    enrollment_number int
+    campus_id varchar(25) // foreign key
+
+    personnel_table
+    personnel_id varchar(25) // primary key
+    personnel_type varchar (50)
+    personnel_gender varchar(50)
+    personnel_number int
+    campus_id varchar(25) // foreign key
+
+    record_table
+    record_id varchar(25) // primary key
+    record_type varchar(50)
+    sdg_id varchar(25) // foreign key
+
+    record_data_table
+    record_data_id varchar(25) // primary key
+    record_data_value varchar(255)
+    record_date date
+    record_file varchar(255)
+    record_status varchar(50)
+    record_id varchar(25) // foreign key
+    unit_id varchar(25) // foreign key
+

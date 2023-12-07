@@ -1,0 +1,55 @@
+role_table
+1. role_id (PK) varchar(20)
+2. role_name varchar(50)
+
+campus_table
+1. campus_id (PK) varchar(20)
+2. campus_name varchar(50)
+3. campus_address varchar(100)
+4. campus_phone varchar(20)
+5. campus_email varchar(50)
+6. campus_password varchar(150)
+7. role_id (FK) varchar(20)
+
+program_table
+1. program_id (PK) varchar(20)
+2. program_name varchar(50)
+3. program_type varchar(50)
+
+accreditation_table
+1. accreditation_id (PK) varchar(20)
+2. accreditation_name varchar(50)
+
+
+csd_office_table
+1. csd_office_id (PK) varchar(20)
+2. csd_office_name varchar(50)
+3. csd_office_phone varchar(20)
+4. csd_office_email varchar(50)
+5. csd_office_password varchar(150)
+6. role_id (FK) varchar(20)
+
+unit_office_table
+1. unit_office_id (PK) varchar(20)
+2. unit_office_name varchar(50)
+3. unit_office_phone varchar(20)
+4. unit_office_email varchar(50)
+5. unit_office_password varchar(150)
+6. csd_office_id (FK) varchar(20)
+7. role_id (FK) varchar(20)
+
+sdg_table
+1. sdg_id (PK) varchar(20)
+2. sdg_no varchar(20)
+3. sdg_name varchar(50)
+4. sdg_description varchar(100)
+
+sdg_contribution_table
+1. sdg_contribution_id (PK) varchar(20)
+2. sdg_contribution_name varchar(50)
+3. sdg_contribution_description varchar(100)
+
+
+
+
+
