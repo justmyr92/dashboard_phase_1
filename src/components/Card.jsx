@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 
-const Card = ({ sdg }) => {
+const Card = ({ sdg, instrument }) => {
     const [records, setRecords] = useState([]);
     const [recordsData, setRecordsData] = useState([]);
     const [recordValue, setRecordValue] = useState([]);
@@ -16,7 +16,7 @@ const Card = ({ sdg }) => {
         const fetchRecords = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:5000/record/sdg/${sdg}`
+                    `http://localhost:5000/record/sdg/${sdg}/${instrument.instrument_id}`
                 );
                 const data = await response.json();
                 setRecords(data);

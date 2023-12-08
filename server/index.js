@@ -30,17 +30,19 @@ app.post("/sdo_officer", async (req, res) => {
             sdo_officer_email,
             sdo_officer_phone,
             sdo_officer_password,
+            campus_id,
         } = req.body;
         const salt = await bcrypt.genSalt(10);
         const encryptedPassword = await bcrypt.hash(sdo_officer_password, salt);
         const newSdoOfficer = await pool.query(
-            "INSERT INTO sdo_officer_table (sdo_officer_id, sdo_officer_name, sdo_officer_email, sdo_officer_phone, sdo_officer_password) VALUES($1, $2, $3, $4, $5) RETURNING *",
+            "INSERT INTO sdo_officer_table (sdo_officer_id, sdo_officer_name, sdo_officer_email, sdo_officer_phone, sdo_officer_password, campus_id) VALUES($1, $2, $3, $4, $5, $6) RETURNING *",
             [
                 sdo_officer_id,
                 sdo_officer_name,
                 sdo_officer_email,
                 sdo_officer_phone,
                 encryptedPassword,
+                campus_id,
             ]
         );
         res.json(newSdoOfficer.rows[0]);
@@ -143,12 +145,13 @@ app.post("/unit", async (req, res) => {
             unit_password,
             sdo_officer_id,
             campus_id,
+            sdg_id,
         } = req.body;
         console.log(req.body);
         const salt = await bcrypt.genSalt(10);
         const encryptedPassword = await bcrypt.hash(unit_password, salt);
         const newUnit = await pool.query(
-            "INSERT INTO unit_table (unit_id, unit_name, unit_address, unit_phone, unit_email, unit_password, sdo_officer_id, campus_id) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
+            "INSERT INTO unit_table (unit_id, unit_name, unit_address, unit_phone, unit_email, unit_password, sdo_officer_id, campus_id, sdg_id) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *",
             [
                 unit_id,
                 unit_name,
@@ -158,6 +161,7 @@ app.post("/unit", async (req, res) => {
                 encryptedPassword,
                 sdo_officer_id,
                 campus_id,
+                sdg_id,
             ]
         );
         res.json(newUnit.rows[0]);
@@ -171,6 +175,20 @@ app.get("/unit", async (req, res) => {
     try {
         const allUnit = await pool.query("SELECT * FROM unit_table");
         res.json(allUnit.rows);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+//get sdg by unit_id
+app.get("/sdg/unit/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const sdg = await pool.query(
+            "SELECT sdg_table.* FROM sdg_table INNER JOIN unit_table ON sdg_table.sdg_id = unit_table.sdg_id WHERE unit_table.unit_id = $1",
+            [id]
+        );
+        res.json(sdg.rows[0]);
     } catch (err) {
         console.error(err.message);
     }
@@ -310,6 +328,20 @@ app.get("/records/:id", async (req, res) => {
             [id]
         );
         res.json(records.rows);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+//get record by sdg id and instrument id
+app.get("/record/:id/:instrument_id", async (req, res) => {
+    try {
+        const { id, instrument_id } = req.params;
+        const record = await pool.query(
+            "SELECT * FROM record_table WHERE sdg_id = $1 AND instrument_id = $2",
+            [id, instrument_id]
+        );
+        res.json(record.rows);
     } catch (err) {
         console.error(err.message);
     }
@@ -584,13 +616,16 @@ app.get("/accreditation/:id", async (req, res) => {
     }
 });
 
-app.get("/record/sdg/:id", async (req, res) => {
+//:5000/record/sdg/${sdg}/${instrument.instrument_id
+app.get("/record/sdg/:id/:instrument_id", async (req, res) => {
     try {
-        const { id } = req.params;
+        const { id, instrument_id } = req.params;
+        console.log(id, instrument_id);
         const record = await pool.query(
-            "SELECT * FROM record_table WHERE sdg_id = $1",
-            [id]
+            "SELECT * FROM record_table WHERE sdg_id = $1 AND instrument_id = $2",
+            [id, instrument_id]
         );
+        console.log(record.rows);
         res.json(record.rows);
     } catch (err) {
         console.error(err.message);
@@ -665,6 +700,20 @@ app.get("/sdo-officers", async (req, res) => {
             "SELECT * FROM sdo_officer_table INNER JOIN campus_table ON sdo_officer_table.campus_id = campus_table.campus_id"
         );
         res.json(allSdoOfficer.rows);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+//get specific sdo_officer
+app.get("/sdo-officers/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const sdoOfficer = await pool.query(
+            "SELECT * FROM sdo_officer_table where sdo_officer_id = $1",
+            [id]
+        );
+        res.json(sdoOfficer.rows[0]);
     } catch (err) {
         console.error(err.message);
     }
@@ -799,13 +848,6 @@ app.get("/file/:id", async (req, res) => {
     }
 });
 
-// CREATE TABLE annual_reports (
-//     annual_report_id SERIAL PRIMARY KEY,
-//     annual_report_year VARCHAR(4) NOT NULL,
-//     annual_report_file VARCHAR(255),
-//     sdo_officer_id VARCHAR(25) REFERENCES sdo_officer_table(sdo_officer_id) NOT NULL
-// );
-
 app.post(
     "/annual_report",
     upload.single("annual_report_file"),
@@ -900,33 +942,6 @@ app.get("/getRecords/:instrument_id", async (req, res) => {
     }
 });
 
-// const handleEditSubmit = async () => {
-//     try {
-//         // Make API call to update records with editedRecords
-//         const response = await fetch(`http://localhost:5000/updateRecords`, {
-//             method: 'PATCH',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//             },
-//             body: JSON.stringify(editedRecords),
-//         });
-
-//         // Handle the response accordingly
-//         // For example, you can check if the response is successful
-//         if (response.ok) {
-//             console.log('Records updated successfully.');
-//         } else {
-//             console.error('Failed to update records.');
-//         }
-//     } catch (err) {
-//         console.error(err.message);
-//     }
-
-//     // Reset isEdit and fetch updated records
-//     setIsEdit(false);
-//     viewRecord(instrument);
-// };
-
 app.patch("/updateRecords", async (req, res) => {
     try {
         const { record_id, record_name, sdg_id, instrument_id } = req.body;
@@ -935,6 +950,23 @@ app.patch("/updateRecords", async (req, res) => {
         const result = await pool.query(
             "UPDATE record_table SET record_name = $1 WHERE record_id = $2",
             [record_name, record_id]
+        );
+        // Send the updated records back as the response
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+app.patch("/updateInstrumentStatus", async (req, res) => {
+    try {
+        const { instrument_id, status } = req.body;
+        console.log(req.body);
+        // Update the records in the database
+        const result = await pool.query(
+            "UPDATE instrument_table SET status = $1 WHERE instrument_id = $2",
+            [status, instrument_id]
         );
         // Send the updated records back as the response
         res.json(result.rows[0]);

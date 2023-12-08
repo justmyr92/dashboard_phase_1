@@ -1,58 +1,128 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
+
 const AddUnit = ({ showModal, setShowModal, setReload }) => {
     const [unitName, setUnitName] = useState("");
-    const [unitAddress, setUnitAddress] = useState("");
     const [unitPhone, setUnitPhone] = useState("");
     const [unitEmail, setUnitEmail] = useState("");
     const [unitPassword, setUnitPassword] = useState("");
-    const [ID, setID] = useState(localStorage.getItem("ID"));
     const [showPassword, setShowPassword] = useState(false);
 
     const localStorageId = localStorage.getItem("ID");
     const [options, setOptions] = useState([]);
+    const [sdgs, setSdgs] = useState([]);
+    const [sdg, setSdg] = useState([]);
+    const [campus_id, setCampus_id] = useState("");
+    const [sdoNo, setSdoNo] = useState(0);
+    const [sdoOfficers, setSdoOfficers] = useState([]);
+    useEffect(() => {
+        const fetchSdg = async () => {
+            try {
+                const response = await fetch(`http://localhost:5000/sdg`);
+                const data = await response.json();
+                setSdgs(data);
+                setSdg(data[0].sdg_id);
+            } catch (error) {
+                console.error("Error fetching sdg:", error);
+            }
+        };
+
+        fetchSdg();
+    }, []);
 
     useEffect(() => {
-        if (localStorage.getItem("ROLE") === "sdo") {
-            if (localStorageId === "1") {
-                setOptions(["Pablo Borbon", "Lemery", "Rosario", "San Juan"]);
-            } else if (localStorageId === "2") {
-                setOptions(["Alangilan", "Mabini", "Lobo", "Balayan"]);
-            } else if (localStorageId === "3") {
-                setOptions(["Lipa"]);
-            } else if (localStorageId === "4") {
-                setOptions(["Malvar"]);
-            } else if (localStorageId === "5") {
-                setOptions(["ARASOF - Nasugbu"]);
+        const fetchAllSdos = async () => {
+            try {
+                const response = await fetch(
+                    `http://localhost:5000/sdo-officers`
+                );
+                const jsonData = await response.json();
+                setSdoOfficers(jsonData);
+            } catch (error) {
+                console.error("Error fetching sdo officer:", error);
             }
-        } else {
-            setOptions([
-                "Pablo Borbon",
-                "Lemery",
-                "Rosario",
-                "San Juan",
-                "Alangilan",
-                "Mabini",
-                "Lobo",
-                "Balayan",
-                "Lipa",
-                "Malvar",
-                "ARASOF - Nasugbu",
-            ]);
-        }
+        };
+
+        fetchAllSdos();
     }, [localStorageId]);
+
+    useEffect(() => {
+        const getCampus = async () => {
+            try {
+                const response = await fetch(`http://localhost:5000/campus`);
+                const jsonData = await response.json();
+
+                if (localStorage.getItem("ROLE") === "sdo") {
+                    const campus = jsonData.filter((campus) => {
+                        if (campus.sd_no === 1) {
+                            setSdoNo(1);
+                            return (
+                                campus.campus_name ===
+                                    "Pablo Borbon Main Campus" ||
+                                campus.campus_name === "Lemery Campus" ||
+                                campus.campus_name === "Rosario Campus" ||
+                                campus.campus_name === "San Juan Campus"
+                            );
+                        } else if (campus.sd_no === 2) {
+                            setSdoNo(2);
+                            return (
+                                campus.campus_name === "Alangilan Campus" ||
+                                campus.campus_name === "Mabini Campus" ||
+                                campus.campus_name === "Lobo Campus" ||
+                                campus.campus_name === "Balayan Campus"
+                            );
+                        } else if (campus.sd_no === 3) {
+                            setSdoNo(3);
+                            return campus.campus_name === "Lipa Campus";
+                        } else if (campus.sd_no === 4) {
+                            setSdoNo(4);
+                            return campus.campus_name === "Malvar Campus";
+                        } else if (campus.sd_no === 5) {
+                            setSdoNo(5);
+                            return (
+                                campus.campus_name === "ARASOF - Nasugbu Campus"
+                            );
+                        }
+                    });
+                    setOptions(campus);
+                } else {
+                    setOptions(jsonData);
+                }
+            } catch (error) {
+                console.error("Error fetching campus:", error);
+            }
+        };
+
+        getCampus();
+    }, [sdoNo]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const data = {
-            unit_id: "U" + Math.random(10000, 99999),
+            //generate random unit id U + random 5 digit number
+            unit_id: "U" + Math.floor(Math.random() * 100000),
             unit_name: unitName,
-            unit_address: unitAddress,
+            unit_address: options.find(
+                (option) => option.campus_id === campus_id
+            ).campus_name,
             unit_phone: unitPhone,
             unit_email: unitEmail,
             unit_password: unitPassword,
-            sdo_officer_id: ID,
-            campus_id: 1,
+            //get the sdo officer id of the from ths with matching sd_no if the user is an sdo else find fromo the sdo officers with the same sd_no as the campus
+            sdo_officer_id:
+                localStorage.getItem("ROLE") === "sdo"
+                    ? sdoOfficers.find((sdo) => sdo.sd_no === sdoNo)
+                          .sdo_officer_id
+                    : sdoOfficers.find(
+                          (sdo) =>
+                              sdo.sd_no ===
+                              options.find(
+                                  (option) => option.campus_id === campus_id
+                              ).sd_no
+                      ).sdo_officer_id,
+
+            campus_id: campus_id,
+            sdg_id: sdg,
         };
 
         console.log(data);
@@ -139,6 +209,29 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
                             </div>
                             <div className="space-y-2">
                                 <label
+                                    htmlFor="unitSdg"
+                                    className="block font-medium text-gray-900"
+                                >
+                                    Unit SDG
+                                </label>
+                                <select
+                                    id="unitSdg"
+                                    value={sdg}
+                                    onChange={(e) => setSdg(e.target.value)}
+                                    className="w-full p-2 border border-gray-300 rounded"
+                                >
+                                    {sdgs.map((sdg) => (
+                                        <option
+                                            key={sdg.sdg_id}
+                                            value={sdg.sdg_id}
+                                        >
+                                            {sdg.sdg_name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="space-y-2">
+                                <label
                                     htmlFor="unitAddress"
                                     className="block font-medium text-gray-900"
                                 >
@@ -147,9 +240,9 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
                                 {localStorageId ? (
                                     <select
                                         id="unitAddress"
-                                        value={unitAddress}
+                                        value={campus_id}
                                         onChange={(e) =>
-                                            setUnitAddress(e.target.value)
+                                            setCampus_id(e.target.value)
                                         }
                                         className="w-full p-2 border border-gray-300 rounded"
                                     >
@@ -157,8 +250,11 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
                                             Select Unit Address
                                         </option>
                                         {options.map((option) => (
-                                            <option key={option} value={option}>
-                                                {option}
+                                            <option
+                                                key={option.campus_id}
+                                                value={option.campus_id}
+                                            >
+                                                {option.campus_name}
                                             </option>
                                         ))}
                                     </select>
@@ -257,7 +353,7 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
                                 className="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
                                 onClick={() => setShowModal(false)}
                             >
-                                Decline
+                                Cancel
                             </button>
                         </div>
                     </form>

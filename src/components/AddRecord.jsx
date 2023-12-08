@@ -6,11 +6,15 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     const [sdg, setSdg] = useState([]);
     const [records, setRecords] = useState([]);
     const [sdgID, setSdgID] = useState("");
+    const [instruments, setInstruments] = useState([]);
+    const [instrumentID, setInstrumentID] = useState("");
 
     const [recordID, setRecordID] = useState("");
     const [recordFiles, setRecordFiles] = useState([]);
 
     const [recordValues, setRecordValues] = useState({});
+
+    const [reloadKey, setReloadKey] = useState(0);
 
     const handleInputChange = (record_id, value) => {
         setRecordValues((prevValues) => ({
@@ -21,33 +25,75 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     };
 
     useEffect(() => {
+        console.log("Fetching SDG");
         const fetchData = async () => {
-            const response = await fetch("http://localhost:5000/sdg");
+            const response = await fetch(
+                `http://localhost:5000/sdg/unit/${ID}`
+            );
             const data = await response.json();
             if (response.ok) {
+                console.log("SDG Data:", data);
                 setSdg(data);
-                setSdgID(data[0].sdg_id);
+                setSdgID(data.sdg_id);
             }
         };
 
         fetchData();
-    }, []);
+    }, [ID]);
 
     useEffect(() => {
-        const fetchData = async () => {
+        console.log("Fetching Instruments");
+        const fetchInstruments = async () => {
             const response = await fetch(
-                `http://localhost:5000/records/${sdgID}`
+                "http://localhost:5000/getInstruments"
             );
             const data = await response.json();
             if (response.ok) {
+                console.log("Instruments Data:", data);
+                setInstruments(data);
+                //lopp through instruments and get the first instruent that is active
+                const instrument = data.find(
+                    (instrument) => instrument.status === "Active"
+                );
+                if (instrument) {
+                    setInstrumentID(instrument.instrument_id);
+                }
+            }
+        };
+
+        fetchInstruments();
+    }, []);
+
+    useEffect(() => {
+        console.log("Fetching Records");
+        const fetchData = async () => {
+            const response = await fetch(
+                `http://localhost:5000/record/${sdgID}/${instrumentID}`
+            );
+
+            // const response = await fetch(
+            //     `http://localhost:5000/records/${sdgID}`
+            // );
+            const data = await response.json();
+            if (response.ok) {
+                console.log("Records Data:", data);
                 setRecords(data);
                 setRecordID(data[0].record_id);
             }
         };
-        if (sdgID !== "") {
+
+        if (instrumentID !== "") {
             fetchData();
         }
-    }, [sdgID]);
+    }, [instrumentID]);
+
+    console.log("Render", {
+        sdgID,
+        instrumentID,
+        records,
+        recordFiles,
+        recordValues,
+    });
 
     const handleFileInputChange = (files, index) => {
         const updatedFiles = [...recordFiles];
@@ -66,6 +112,10 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     useEffect(() => {
         console.log(recordFiles);
     }, [recordFiles]);
+
+    useEffect(() => {
+        console.log(instrumentID);
+    }, [instrumentID]);
 
     const handleRemoveFileInput = (index) => {
         // Remove the file input at the specified index
@@ -172,7 +222,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
             id="default-modal"
             tabindex="-1"
             aria-hidden="true"
-            className="fixed top-0 left-0 right-0 z-50 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+            className="z-50 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300"
         >
             <div className="relative w-full max-w-2xl max-h-full">
                 <div className="relative bg-white rounded-lg shadow">
@@ -209,36 +259,42 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                             {
                                 <div className="flex flex-col">
                                     <label
-                                        for="sdg"
+                                        htmlFor="instrument"
                                         className="text-sm font-semibold text-gray-600"
                                     >
-                                        SDG
+                                        Instrument
                                     </label>
                                     <select
-                                        id="sdg"
-                                        name="sdg"
+                                        id="instrument"
+                                        name="instrument"
                                         className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
                                         onChange={(e) =>
-                                            setSdgID(e.target.value)
+                                            setInstrumentID(e.target.value)
                                         }
                                     >
-                                        <option value="" disabled>
-                                            Select SDG
-                                        </option>
-                                        {sdg.map((sdg) => (
-                                            <option
-                                                value={sdg.sdg_id}
-                                                key={sdg.sdg_id}
-                                            >
-                                                SDG {sdg.sdg_no}: {sdg.sdg_name}
-                                            </option>
-                                        ))}
+                                        {instruments.map(
+                                            (instrument) =>
+                                                instrument.status ===
+                                                    "Active" && (
+                                                    <option
+                                                        value={
+                                                            instrument.instrument_id
+                                                        }
+                                                        key={
+                                                            instrument.instrument_id
+                                                        }
+                                                    >
+                                                        {instrument.name}
+                                                    </option>
+                                                )
+                                        )}
                                     </select>
                                 </div>
                             }
-                            {
-                                <div>
-                                    {records.map((record, index) => (
+                            {records &&
+                                records.length > 0 &&
+                                records.map((record) => {
+                                    return (
                                         <div
                                             key={record.record_id}
                                             className="mb-4"
@@ -272,38 +328,39 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                                                 required
                                             />
                                         </div>
-                                    ))}
-                                </div>
-                            }
-                            {recordFiles.map((file, index) => (
-                                <div
-                                    key={index}
-                                    className="flex items-center space-x-2"
-                                >
-                                    <input
-                                        type="file"
-                                        id={`file-${index}`}
-                                        name={`file-${index}`}
-                                        className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                                        accept=".pdf,.docx,.doc, .xlsx,.xls, .jpg, .jpeg, .png"
-                                        onChange={(e) =>
-                                            handleFileInputChange(
-                                                e.target.files,
-                                                index
-                                            )
-                                        }
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={() =>
-                                            handleRemoveFileInput(index)
-                                        }
-                                        className="text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-3 py-1.5"
+                                    );
+                                })}
+
+                            {instrumentID &&
+                                recordFiles.map((file, index) => (
+                                    <div
+                                        key={index}
+                                        className="flex items-center space-x-2"
                                     >
-                                        Remove
-                                    </button>
-                                </div>
-                            ))}
+                                        <input
+                                            type="file"
+                                            id={`file-${index}`}
+                                            name={`file-${index}`}
+                                            className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                                            accept=".pdf,.docx,.doc, .xlsx,.xls, .jpg, .jpeg, .png"
+                                            onChange={(e) =>
+                                                handleFileInputChange(
+                                                    e.target.files,
+                                                    index
+                                                )
+                                            }
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                handleRemoveFileInput(index)
+                                            }
+                                            className="text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-3 py-1.5"
+                                        >
+                                            Remove
+                                        </button>
+                                    </div>
+                                ))}
                             <button
                                 type="button"
                                 onClick={handleAddFileInput}
@@ -327,7 +384,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                                 className="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
                                 onClick={() => setShowModal(false)}
                             >
-                                Decline
+                                Cancel
                             </button>
                         </div>
                     </form>

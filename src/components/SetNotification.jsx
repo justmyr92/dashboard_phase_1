@@ -224,7 +224,7 @@ const SetNotification = ({
                                     setShowModal(false);
                                 }}
                             >
-                                Decline
+                                Cancel
                             </button>
                         </div>
                     </div>

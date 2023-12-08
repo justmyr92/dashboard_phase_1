@@ -5,7 +5,7 @@ const AddSDOfficer = ({ setReload, setModal }) => {
     const [campus, setCampus] = useState([]);
     const [showPassword, setShowPassword] = useState(false);
     const [sdo_officer, setSDOOfficer] = useState({
-        sdo_officer_id: "SD" + Math.random(10000, 99999),
+        sdo_officer_id: "SD" + Math.floor(Math.random() * 1000000),
         sdo_officer_name: "",
         sdo_officer_email: "",
         sdo_officer_phone: "",
@@ -17,6 +17,7 @@ const AddSDOfficer = ({ setReload, setModal }) => {
             const response = await fetch("http://localhost:5000/campus");
             const data = await response.json();
             setCampus(data);
+            console.log(data);
         };
         getCampus();
     }, []);
@@ -85,20 +86,36 @@ const AddSDOfficer = ({ setReload, setModal }) => {
                                 <select
                                     id="campus"
                                     name="campus"
-                                    autocomplete="campus"
-                                    class="block w-full px-3 py-2 mt-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    autoComplete="campus"
+                                    className="block w-full px-3 py-2 mt-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    defaultValue={FormData.campus_id}
+                                    onChange={(e) =>
+                                        setSDOOfficer({
+                                            ...sdo_officer,
+                                            campus_id: e.target.value,
+                                        })
+                                    }
                                 >
-                                    <option value="0" disabled selected>
+                                    <option value="0" disabled>
                                         Select Campus
                                     </option>
-                                    {campus.map((campus) => (
-                                        <option
-                                            value={campus.campus_id}
-                                            key={campus.campus_id}
-                                        >
-                                            {campus.campus_name}
-                                        </option>
-                                    ))}
+                                    {campus
+                                        .filter(
+                                            (campus) =>
+                                                campus.campus_id === "1" ||
+                                                campus.campus_id === "2" ||
+                                                campus.campus_id === "3" ||
+                                                campus.campus_id === "4" ||
+                                                campus.campus_id === "5"
+                                        )
+                                        .map((campus) => (
+                                            <option
+                                                value={campus.campus_id}
+                                                key={campus.campus_id}
+                                            >
+                                                {campus.campus_name}
+                                            </option>
+                                        ))}
                                 </select>
                             </div>
 
@@ -240,7 +257,7 @@ const AddSDOfficer = ({ setReload, setModal }) => {
                                 class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
                                 onClick={() => setModal(false)}
                             >
-                                Decline
+                                Cancel
                             </button>
                         </div>
                     </div>

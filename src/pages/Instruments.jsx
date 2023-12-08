@@ -161,11 +161,47 @@ const Instruments = () => {
         setRecord(editedRecords);
     };
 
+    const updateInstrumentStatus = async (instrument_id, status) => {
+        const instrument = {
+            instrument_id: instrument_id,
+            status: status === "Active" ? "Inactive" : "Active",
+        };
+        let setTitle = `Are you sure you want to set this instrument be ${status
+            .toString()
+            .toLowerCase()}`;
+        Swal.fire({
+            title: setTitle,
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3B82F6",
+            cancelButtonColor: "#EF4444",
+            confirmButtonText: "Yes, update it!",
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(
+                        "http://localhost:5000/updateInstrumentStatus",
+                        {
+                            method: "PATCH",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify(instrument),
+                        }
+                    );
+                    const data = await response.json();
+                } catch (error) {
+                    console.error(error);
+                }
+                window.location.href = "/csd/instruments";
+            }
+        });
+    };
+
     return (
         <section className="dashboard">
             <Sidebar />
             <div className="p-4 sm:ml-64">
-                <div className="p-4 border-2 border-gray-500 border-dashed rounded-lg">
+                <div className="p-4 border-2 border-gray-500 rounded-lg">
                     <div className="header flex justify-between items-center">
                         <h3 className="text-3xl font-bold text-gray-700 title">
                             Instruments
@@ -179,7 +215,7 @@ const Instruments = () => {
                             </Link>
                             <div className="search relative">
                                 <input
-                                    className="p-2 pl-8 border-2 border-gray-500 border-dashed rounded-lg"
+                                    className="p-2 pl-8 border-2 border-gray-500 rounded-lg"
                                     type="text"
                                     placeholder="Search"
                                     onChange={(e) => setSearch(e.target.value)}
@@ -203,7 +239,17 @@ const Instruments = () => {
                                     },
                                     {
                                         name: "Status",
-                                        selector: (row) => row.status,
+                                        cell: (row) => (
+                                            <div
+                                                className={`px-2 py-1.5 rounded text-white text-center w-[5rem] ${
+                                                    row.status === "Active"
+                                                        ? "bg-green-500"
+                                                        : "bg-red-500"
+                                                }`}
+                                            >
+                                                {row.status}
+                                            </div>
+                                        ),
                                         sortable: true,
                                     },
                                     {
@@ -231,12 +277,17 @@ const Instruments = () => {
                                                 >
                                                     View
                                                 </button>
-                                                <Link
+                                                <button
                                                     className="p-2 px-4 bg-red-500 text-white rounded-lg text-xs"
-                                                    to={`/csd/instruments-form/${row.instrument_id}`}
+                                                    onClick={() => {
+                                                        updateInstrumentStatus(
+                                                            row.instrument_id,
+                                                            row.status
+                                                        );
+                                                    }}
                                                 >
-                                                    Archive
-                                                </Link>
+                                                    Update Archive
+                                                </button>
                                             </div>
                                         ),
                                     },
@@ -316,31 +367,52 @@ const Instruments = () => {
                                                                         ". " +
                                                                         recordItem.record_name
                                                                     ) : (
-                                                                        <input
-                                                                            className="border-2 border-gray-500 border-dashed rounded-lg w-full"
-                                                                            type="text"
-                                                                            value={
-                                                                                editedRecords[
-                                                                                    index
-                                                                                ]
-                                                                                    .record_name
-                                                                            }
-                                                                            onChange={(
-                                                                                e
-                                                                            ) => {
-                                                                                const newEditedRecords =
-                                                                                    [
-                                                                                        ...editedRecords,
-                                                                                    ];
-                                                                                newEditedRecords[
-                                                                                    index
-                                                                                ].record_name =
-                                                                                    e.target.value;
-                                                                                setEditedRecords(
-                                                                                    newEditedRecords
-                                                                                );
-                                                                            }}
-                                                                        />
+                                                                        <div className="flex justify-between items-center gap-2">
+                                                                            <input
+                                                                                className="border px-2 py-3 border-gray-500 rounded-lg w-full"
+                                                                                type="text"
+                                                                                value={
+                                                                                    editedRecords[
+                                                                                        index
+                                                                                    ]
+                                                                                        .record_name
+                                                                                }
+                                                                                onChange={(
+                                                                                    e
+                                                                                ) => {
+                                                                                    const newEditedRecords =
+                                                                                        [
+                                                                                            ...editedRecords,
+                                                                                        ];
+                                                                                    newEditedRecords[
+                                                                                        index
+                                                                                    ].record_name =
+                                                                                        e.target.value;
+                                                                                    setEditedRecords(
+                                                                                        newEditedRecords
+                                                                                    );
+                                                                                }}
+                                                                            />
+                                                                            <td
+                                                                                className="px-4 py-2"
+                                                                                colSpan={
+                                                                                    1
+                                                                                }
+                                                                            >
+                                                                                <button
+                                                                                    className="p-2 px-4 bg-green-500 text-white rounded-lg text-xs"
+                                                                                    onClick={() => {
+                                                                                        Swal.fire(
+                                                                                            "Archived!",
+                                                                                            "Your record has been archived.",
+                                                                                            "success"
+                                                                                        );
+                                                                                    }}
+                                                                                >
+                                                                                    Archive
+                                                                                </button>
+                                                                            </td>
+                                                                        </div>
                                                                     )}
                                                                 </td>
                                                             </tr>

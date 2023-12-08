@@ -34,7 +34,18 @@ const Units = () => {
             const data = await response.json();
             setUnits(data);
         };
-        getUnits();
+
+        if (ROLE === "sdo") {
+            getUnits();
+        }
+        {
+            const getUnits = async () => {
+                const response = await fetch(`http://localhost:5000/unit`);
+                const data = await response.json();
+                setUnits(data);
+            };
+            getUnits();
+        }
         console.log(units);
     }, [reload]);
 
@@ -120,9 +131,10 @@ const Units = () => {
                         columns={columns}
                         data={unitsWithCustomId}
                         pagination
-                        striped
                         highlightOnHover
-                        responsive
+                        pointerOnHover
+                        striped
+                        fixedHeader
                         className="text-black"
                     />
                 </div>

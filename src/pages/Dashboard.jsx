@@ -24,7 +24,7 @@ const Dashboard = () => {
         <section className="dashboard">
             <Sidebar />
             <div className="p-4 sm:ml-64">
-                <div className="p-4 border-2 border-gray-500 border-dashed rounded-lg">
+                <div className="p-4 border-2 border-gray-500 rounded-lg">
                     <div className="header flex justify-between items-center">
                         <h3 className="text-3xl font-bold text-gray-700 title">
                             Dashboard

@@ -2,39 +2,44 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import DataTable from "react-data-table-component";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSquarePlus } from "@fortawesome/free-solid-svg-icons";
+import { faSquarePlus, faSearch } from "@fortawesome/free-solid-svg-icons";
 import AddSDOfficer from "../components/AddSDOfficer";
 
 const SDOfficer = () => {
     const [SDOfficers, setSDOfficers] = useState([]);
     const [modal, setModal] = useState(false);
     const [reload, setReload] = useState(false);
+    const [search, setSearch] = useState("");
     const columns = [
         {
             name: "#",
             selector: (row, index) => index + 1,
             sortable: true,
-            width: "50px",
+            width: "10%",
         },
         {
             name: "Name",
             selector: (row) => row.sdo_officer_name,
             sortable: true,
+            width: "25%",
         },
         {
             name: "Email",
             selector: (row) => row.sdo_officer_email,
             sortable: true,
+            width: "25%",
         },
         {
             name: "Phone",
             selector: (row) => row.sdo_officer_phone,
             sortable: true,
+            width: "20%",
         },
         {
             name: "Campus",
             selector: (row) => row.campus_name,
             sortable: true,
+            width: "20%",
         },
     ];
 
@@ -42,11 +47,34 @@ const SDOfficer = () => {
         const getSDOfficers = async () => {
             const response = await fetch("http://localhost:5000/sdo-officers");
             const data = await response.json();
-            setSDOfficers(data);
+
+            if (search.length > 0) {
+                //byall search
+                setSDOfficers(
+                    data.filter((officer) => {
+                        return (
+                            officer.sdo_officer_name
+                                .toLowerCase()
+                                .includes(search.toLowerCase()) ||
+                            officer.sdo_officer_email
+                                .toLowerCase()
+                                .includes(search.toLowerCase()) ||
+                            officer.sdo_officer_phone
+                                .toLowerCase()
+                                .includes(search.toLowerCase()) ||
+                            officer.campus_name
+                                .toLowerCase()
+                                .includes(search.toLowerCase())
+                        );
+                    })
+                );
+            } else {
+                setSDOfficers(data);
+            }
         };
         getSDOfficers();
         setReload(false);
-    }, [reload]);
+    }, [reload, search]);
 
     return (
         <section className="sd-officers">
@@ -57,16 +85,39 @@ const SDOfficer = () => {
                         <h3 className="text-3xl font-bold text-gray-700">
                             SD Officers
                         </h3>
-                        <button
-                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                            onClick={() => setModal(true)}
-                        >
-                            <FontAwesomeIcon icon={faSquarePlus} /> Add SD
-                            Officer
-                        </button>
+                        <div className="flex items-center gap-4">
+                            <input
+                                type="text"
+                                className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none pl-8" // Add left padding for the icon
+                                placeholder="Search"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                            />
+                            <span className="absolute left-3 top-2">
+                                <FontAwesomeIcon
+                                    icon={faSearch}
+                                    className="text-gray-400"
+                                />
+                            </span>
+                            <button
+                                className="px-4 py-2 bg-blue-600 text-white rounded-md"
+                                onClick={() => setModal(true)}
+                            >
+                                <FontAwesomeIcon icon={faSquarePlus} /> Add SD
+                                Officer
+                            </button>
+                        </div>
                     </div>
                     <hr className="my-5 border-gray-800 border-1" />
-                    <DataTable columns={columns} data={SDOfficers} pagination />
+                    <DataTable
+                        columns={columns}
+                        data={SDOfficers}
+                        pagination
+                        highlightOnHover
+                        pointerOnHover
+                        striped
+                        fixedHeader
+                    />
                 </div>
             </div>
             {modal && (

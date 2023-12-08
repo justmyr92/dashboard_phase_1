@@ -22,6 +22,8 @@ import SDG14 from "../assets/res/E-WEB-Goal-14.png";
 import SDG15 from "../assets/res/E-WEB-Goal-15.png";
 import SDG16 from "../assets/res/E-WEB-Goal-16.png";
 import SDG17 from "../assets/res/E-WEB-Goal-17.png";
+import RecordPieChart from "./RecordPieChart";
+import RecordBarChart from "./RecordBarchart";
 
 const ChartSDG = () => {
     const [sdg, setSdg] = useState("SDG1");
@@ -82,6 +84,11 @@ const ChartSDG = () => {
         },
     ]);
     const [reloadKey, setReloadKey] = useState(0);
+    const [sdOfficers, setSdOfficers] = useState([]);
+    const [instruments, setInstruments] = useState([]);
+    const [selectedOfficerIndex, setSelectedOfficerIndex] = useState(0); // Add this line
+
+    const [instrument, setInstrument] = useState(null);
 
     const handleSDGClick = (selectedSDG) => {
         setSdg(selectedSDG.id);
@@ -92,10 +99,15 @@ const ChartSDG = () => {
 
     const handleOfficerClick = (selectedOfficer) => {
         localStorage.setItem("sdo", selectedOfficer.sdo_officer_id);
+        console.log(selectedOfficer.sdo_officer_id);
         setReloadKey(reloadKey + 1);
     };
 
-    const [sdOfficers, setSdOfficers] = useState([]);
+    const handleInstrumentClick = (event) => {
+        const selectedInstrument = instruments[event.target.value];
+        setInstrument(selectedInstrument);
+        setReloadKey(reloadKey + 1);
+    };
 
     useEffect(() => {
         const getSdOfficers = async () => {
@@ -113,35 +125,74 @@ const ChartSDG = () => {
             }
         };
 
-        getSdOfficers();
-    }, []);
+        const getInstruments = async () => {
+            try {
+                const response = await fetch(
+                    `http://localhost:5000/getInstruments`
+                );
+                const jsonData = await response.json();
+                setInstruments(jsonData);
+                setInstrument(jsonData[0]);
+            } catch (err) {
+                console.error(err.message);
+            }
+        };
 
+        getSdOfficers();
+        getInstruments();
+    }, []);
+    function getCampusName(index) {
+        switch (index) {
+            case 0:
+                return "Pablo Borbon Campus";
+            case 1:
+                return "Alangilan Campus";
+            case 2:
+                return "Lipa Campus";
+            case 3:
+                return "Malvar Campus";
+            case 4:
+                return "ARASOF - Nasugbu Campus";
+            default:
+                return "";
+        }
+    }
     return (
         <>
             {role !== "sdo" && (
-                <div className="my-5">
-                    <h1 className="text-xl font-bold text-gray-700 title text-red-500">
-                        Sustainable Development Offices
-                    </h1>
-                </div>
+                <>
+                    <div className="text-sm font-medium text-center text-gray-500 border-b border-gray-200">
+                        <ul className="flex -mb-px">
+                            {sdOfficers.map((sdOfficer, index) => (
+                                <li
+                                    className="me-2"
+                                    key={sdOfficer.sdo_officer_id}
+                                >
+                                    <button
+                                        className={`inline-block p-4 border-b-2 border-transparent rounded-t-lg ${
+                                            selectedOfficerIndex === index
+                                                ? "text-blue-600 border-blue-600 active font-semibold"
+                                                : "text-gray-700 hover:text-gray-600 hover:border-gray-300"
+                                        }`}
+                                        onClick={() => {
+                                            handleOfficerClick(
+                                                sdOfficers[index]
+                                            );
+                                            setSelectedOfficerIndex(index); // Add this line
+                                        }}
+                                    >
+                                        SDO {index + 1} : {getCampusName(index)}
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </>
             )}
 
-            <div className="grid grid-cols-5 gap-4 my-5">
-                {role !== "sdo" &&
-                    sdOfficers.map((sdOfficer, index) => (
-                        <div
-                            className="card bg-white shadow-lg rounded-lg p-5 border border-gray-200 hover:border-blue-500"
-                            key={sdOfficer.sdo_officer_id}
-                            onClick={() => handleOfficerClick(sdOfficer)}
-                        >
-                            <div className="card-body">
-                                <h5 className="card-title text-base font-bold text-blue-500">
-                                    SDO {index + 1} :{" "}
-                                    {sdOfficer.sdo_officer_name}
-                                </h5>
-                            </div>
-                        </div>
-                    ))}
+            <div className="grid grid-cols-3 gap-4 my-5">
+                <RecordPieChart />
+                <RecordBarChart />
             </div>
 
             <div className="form-group">
@@ -158,34 +209,37 @@ const ChartSDG = () => {
                         />
                     ))}
                 </div>
-                <div className="my-5">
+                <div className="my-5 flex justify-between items-end">
                     <h1 className="text-xl font-bold text-gray-700 title text-red-500">
                         {sdgName}
                     </h1>
+                    <div className="filter-group flex flex-row items-center gap-2">
+                        <h1 className="text-base text-gray-700 mb-1">
+                            Filter by Instrument
+                        </h1>
+                        <select
+                            className="form-select bg-white rounded-lg p-2 border border-gray-200 hover:border-blue-500 focus:outline-none w-[20rem]"
+                            onChange={(event) => handleInstrumentClick(event)}
+                        >
+                            {instruments.map((instrument, index) => (
+                                <option
+                                    value={index}
+                                    key={instrument.instrument_id}
+                                >
+                                    {instrument.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
 
                 <hr className="my-5 border-gray-800 border-1" />
             </div>
             <div className="grid grid-cols-4 gap-4 mt-5">
-                {sdg && <Card sdg={sdg} key={reloadKey} />}
+                {sdg && localStorage.getItem("sdo") && instrument && (
+                    <Card sdg={sdg} instrument={instrument} key={reloadKey} />
+                )}
             </div>
-            {/* {sdg === "SDG6" && (
-                <div className="grid grid-cols-6 mt-5 gap-4">
-                    <WaterConsumption />
-                </div>
-            )} */}
-            {/* <div className="grid grid-cols-6 mt-5 gap-4">
-                <Electrical />
-            </div> */}
-            {/* <div className="grid grid-cols-6 mt-5 gap-4">
-                <Expenditure />
-            </div>
-            <div className="grid grid-cols-6 mt-5 gap-4">
-                <WasteManagement />
-            </div> */}
-            {/* <div className="grid grid-cols-6 mt-5 gap-4">
-                <Ppa />
-            </div> */}
         </>
     );
 };
