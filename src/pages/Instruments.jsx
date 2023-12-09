@@ -3,7 +3,7 @@ import Sidebar from "../components/Sidebar";
 import { Link } from "react-router-dom";
 import DataTable from "react-data-table-component";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faSearch, faTools } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
 
 const Instruments = () => {
@@ -201,9 +201,10 @@ const Instruments = () => {
         <section className="dashboard">
             <Sidebar />
             <div className="p-4 sm:ml-64">
-                <div className="p-4 border-2 border-gray-500 rounded-lg">
+                <div className="p-4">
                     <div className="header flex justify-between items-center">
                         <h3 className="text-3xl font-bold text-gray-700 title">
+                            <FontAwesomeIcon icon={faTools} className="mr-3" />
                             Instruments
                         </h3>
                         <div className="flex gap-2 items-center justify-end">
@@ -213,7 +214,11 @@ const Instruments = () => {
                             >
                                 Add Instrument
                             </Link>
-                            <div className="search relative">
+                            <div
+                                className={`search relative ${
+                                    page === 2 && "hidden"
+                                }`}
+                            >
                                 <input
                                     className="p-2 pl-8 border-2 border-gray-500 rounded-lg"
                                     type="text"
@@ -227,7 +232,7 @@ const Instruments = () => {
                             </div>
                         </div>
                     </div>
-                    <hr className="my-5 border-gray-800 border-1" />
+                    <hr className="my-5 border-gray-300 border-1" />
                     {page === 1 && (
                         <div className="instruments">
                             <DataTable
@@ -296,6 +301,9 @@ const Instruments = () => {
                                 pagination
                                 highlightOnHover
                                 pointerOnHover
+                                striped
+                                fixedHeader
+                                className="border border-gray-200 rounded-md"
                             />
                         </div>
                     )}
@@ -422,7 +430,7 @@ const Instruments = () => {
                                         ))}
                                 </tbody>
                             </table>
-                            <hr className="my-5 border-gray-800 border-1" />
+                            <hr className="my-5 border-gray-300 border-1" />
                             <div className="flex justify-end gap-2">
                                 <button
                                     type="button"

@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
 import Card from "./Card";
-import WaterConsumption from "./WaterConsumption";
-import Electrical from "./Electrical";
-import Expenditure from "./Expenditure";
-import WasteManagement from "./WasteManagement";
-import Ppa from "./Ppa";
 import SDG1 from "../assets/res/E-WEB-Goal-01.png";
 import SDG2 from "../assets/res/E-WEB-Goal-02.png";
 import SDG3 from "../assets/res/E-WEB-Goal-03.png";
@@ -239,7 +234,7 @@ const ChartSDG = () => {
                     </div>
                 </div>
 
-                <hr className="my-5 border-gray-800 border-1" />
+                <hr className="my-5 border-gray-300 border-1" />
             </div>
             <div className="grid grid-cols-4 gap-4 mt-5">
                 {sdg && localStorage.getItem("sdo") && instrument && (

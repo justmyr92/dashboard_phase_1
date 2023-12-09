@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBook } from "@fortawesome/free-solid-svg-icons";
 const AnnualReports = () => {
     const [ID, setID] = useState(localStorage.getItem("ID"));
     const [ROLE, setROLE] = useState(localStorage.getItem("ROLE"));
@@ -100,13 +102,17 @@ const AnnualReports = () => {
         <section className="annual-reports">
             <Sidebar />
             <div className="p-4 sm:ml-64">
-                <div className="p-4 border-2 border-gray-500 border-dashed rounded-lg min-h-[calc(100vh-2rem)]">
+                <div className="p-4">
                     <div className="header flex justify-between items-center">
                         <h3 className="text-3xl font-bold text-gray-700 title">
+                            <FontAwesomeIcon icon={faBook} className="mr-3" />
                             Annual Reports
                         </h3>
                         {ROLE === "sdo" ? (
-                            <button onClick={() => setShowModal(true)}>
+                            <button
+                                onClick={() => setShowModal(true)}
+                                className="bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 cursor-pointer"
+                            >
                                 Upload Reports
                             </button>
                         ) : null}
@@ -152,9 +158,6 @@ const AnnualReports = () => {
                                             </button>
                                         </div>
                                         <div className="p-4 md:p-5 space-y-4">
-                                            <h1 className="text-2xl font-bold mb-4">
-                                                Annual Report Form
-                                            </h1>
                                             <form className="space-y-4">
                                                 <div className="flex flex-col">
                                                     <label
@@ -184,15 +187,24 @@ const AnnualReports = () => {
                                                     >
                                                         File:
                                                     </label>
-                                                    <input
-                                                        type="file"
-                                                        onChange={
-                                                            handleFileChange
-                                                        }
-                                                        className="focus:outline-none"
-                                                    />
+                                                    <div className="relative">
+                                                        <input
+                                                            type="file"
+                                                            onChange={
+                                                                handleFileChange
+                                                            }
+                                                            className="hidden"
+                                                            id="fileInput"
+                                                        />
+                                                        <label
+                                                            htmlFor="fileInput"
+                                                            className="cursor-pointer bg-blue-500 text-white font-bold py-2 px-4 rounded-md inline-block"
+                                                        >
+                                                            Choose File
+                                                        </label>
+                                                    </div>
                                                 </div>
-
+                                                <hr />
                                                 <button
                                                     type="button"
                                                     onClick={saveAnnualReport}
@@ -207,7 +219,7 @@ const AnnualReports = () => {
                             </div>
                         ) : null}
                     </div>
-                    <hr className="my-5 border-gray-800 border-1" />
+                    <hr className="my-5 border-gray-300 border-1" />
 
                     <div id="accordion-collapse" data-accordion="collapse">
                         {annualReports.map((annualReport, index) => (

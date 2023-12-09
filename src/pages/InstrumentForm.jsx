@@ -154,7 +154,7 @@ const InstrumentForm = () => {
         <section className="dashboard">
             <Sidebar />
             <div className="p-4 sm:ml-64">
-                <div className="p-4 border-2 border-gray-500 border-dashed rounded-lg border h-full overflow-y-auto">
+                <div className="p-4">
                     <div className="header flex justify-between items-center">
                         <h3 className="text-3xl font-bold text-gray-700 title">
                             Instrument Form
@@ -166,7 +166,7 @@ const InstrumentForm = () => {
                             Back
                         </Link>
                     </div>
-                    <hr className="my-5 border-gray-800 border-1" />
+                    <hr className="my-5 border-gray-300 border-1" />
 
                     <form
                         className="flex flex-col gap-4"
@@ -252,7 +252,7 @@ const InstrumentForm = () => {
                                         })}
                                     </p>
                                 </div>
-                                <hr className="my-5 border-gray-800 border-1" />
+                                <hr className="my-5 border-gray-300 border-1" />
 
                                 {/* Dynamic Record Inputs */}
                                 {record.map(
@@ -307,7 +307,7 @@ const InstrumentForm = () => {
                                     Add Record
                                 </button>
 
-                                <hr className="my-5 border-gray-800 border-1" />
+                                <hr className="my-5 border-gray-300 border-1" />
                                 <div className="flex justify-end">
                                     <button
                                         type="button"
@@ -398,7 +398,7 @@ const InstrumentForm = () => {
                                             ))}
                                     </tbody>
                                 </table>
-                                <hr className="my-5 border-gray-800 border-1" />
+                                <hr className="my-5 border-gray-300 border-1" />
                                 <div className="flex justify-end gap-2">
                                     <button
                                         type="button"

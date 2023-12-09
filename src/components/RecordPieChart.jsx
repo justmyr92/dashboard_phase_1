@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
     Chart as ChartJS,
     ArcElement,
@@ -21,32 +21,45 @@ ChartJS.register(
     Title
 );
 
-//date "Need revision", "Approved", "For Approval"
-const data = {
-    labels: ["Need revision", "Approved", "For Approval"],
-    datasets: [
-        {
-            label: "Dataset 1",
-            data: [300, 50, 100],
-            backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
-        },
-    ],
-};
-
-const options = {
-    responsive: true,
-    plugins: {
-        legend: {
-            position: "top",
-        },
-        title: {
-            display: true,
-            text: "Chart.js Bar Chart",
-        },
-    },
-};
-
 const RecordPieChart = () => {
+    const [status, setStatus] = useState([]);
+
+    useEffect(() => {
+        const fetchStatus = async () => {
+            try {
+                const response = await fetch(`http://localhost:5000/status`);
+                const data = await response.json();
+                setStatus(data);
+            } catch (error) {
+                console.error("Error fetching status:", error);
+            }
+        };
+        fetchStatus();
+    }, []);
+
+    const data = {
+        labels: status && status.map((status) => status.record_status),
+        datasets: [
+            {
+                label: "# of Records by Status",
+                data: status && status.map((status) => status.count),
+                backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
+            },
+        ],
+    };
+
+    const options = {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: "top",
+            },
+            title: {
+                display: true,
+                text: "Total Records by Status",
+            },
+        },
+    };
     return (
         <div className="card bg-white rounded-lg p-5 border border-red-500 hover:border-blue-500">
             <Pie data={data} options={options} />

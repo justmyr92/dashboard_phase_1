@@ -305,7 +305,7 @@ const Records = () => {
                                     />
                                 )}
                             </div>
-                            <hr className="my-5 border-gray-800 border-1" />
+                            <hr className="my-5 border-gray-300 border-1" />
                             <div className="border border-gray-200 rounded-lg max-w-[100vw] overflow-x-auto">
                                 <DataTable
                                     columns={columns}

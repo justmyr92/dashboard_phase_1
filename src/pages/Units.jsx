@@ -103,7 +103,7 @@ const Units = () => {
         <section className="dashboard">
             <Sidebar />
             <div className="p-4 sm:ml-64">
-                <div className="p-4 border-2 border-gray-200 border-dashed rounded-lg">
+                <div className="p-4">
                     <div className="header flex justify-between items-center mb-5">
                         <h3 className="text-3xl title text-gray-700">
                             <FontAwesomeIcon icon={faBuildingUser} /> Units
@@ -135,7 +135,7 @@ const Units = () => {
                         pointerOnHover
                         striped
                         fixedHeader
-                        className="text-black"
+                        className="border border-gray-200 rounded-md"
                     />
                 </div>
             </div>

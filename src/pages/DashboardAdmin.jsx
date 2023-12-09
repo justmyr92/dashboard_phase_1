@@ -13,19 +13,19 @@ const DashboardAdmin = () => {
     }, [ID]);
 
     return (
-        <section className="dashboard">
+        <section className="dashboard bg-white h-screen">
             <Sidebar />
-            <div className="p-4 sm:ml-64 bg-gray-200">
-                <div className="p-4 rounded-lg bg-white border border-gray-200">
+            <div className="p-4 sm:ml-64">
+                <div className="p-4">
                     <div className="header flex justify-between items-center">
                         <h3 className="text-3xl font-bold text-gray-700 title">
                             Dashboard
                         </h3>
                         {ROLE === "unit" && <Notifications />}
                     </div>
-                    <hr className="my-5 border-gray-800 border-1" />
+                    <hr className="my-5 border-gray-300 border-1" />
                     <ChartSDG />{" "}
-                    <hr className="my-5 border-gray-800 border-1" />
+                    <hr className="my-5 border-gray-300 border-1" />
                 </div>
             </div>
         </section>

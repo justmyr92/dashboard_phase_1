@@ -74,17 +74,6 @@ const Sidebar = () => {
                     text: "Annual Reports",
                     icon: faBook,
                 },
-
-                // {
-                //     url: "/csd/accreditation",
-                //     text: "Accreditations",
-                //     icon: faCheck,
-                // },
-                // {
-                //     url: "/csd/population",
-                //     text: "Populations",
-                //     icon: faChartBar,
-                // },
             ]);
         } else if (role === "unit") {
             setLinks([
@@ -108,22 +97,23 @@ const Sidebar = () => {
             className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
             aria-label="Sidebar"
         >
-            <div className="h-full px-3 py-4 overflow-y-auto bg-gray-900">
+            <div className="h-full px-3 py-4 overflow-y-auto bg-[#E6243B] shadow-xl">
                 <img src={logo} alt="logo" className="w-32 h-32 mx-auto mb-5" />
-                <div className="flex items-center justify-center mb-5">
-                    <h6 className="text-base font-bold text-start text-white">
+                <div className="flex items-center justify-start mb-5 border-y border-white p-2">
+                    <h6 className="text-base font-semibold text-start text-white">
+                        <FontAwesomeIcon icon={faUser} className="mr-2" />
                         {name}
                     </h6>
                 </div>
-                <ul className="space-y-2 font-medium">
+                <ul className="space-y-2">
                     {links.map((link, index) => (
                         <li key={index}>
                             <a
                                 href={link.url}
-                                className={`flex items-center p-2 rounded-lg text-gray-100 ${
+                                className={`flex items-center p-2 rounded-lg text-base transition-colors duration-200 ${
                                     location.pathname === link.url
-                                        ? "bg-red-500 text-white"
-                                        : "hover:bg-gray-800 hover:text-white "
+                                        ? "bg-white text-gray-800"
+                                        : "text-white hover:bg-white hover:text-gray-800"
                                 }`}
                             >
                                 <FontAwesomeIcon
@@ -137,7 +127,7 @@ const Sidebar = () => {
                     {/* Add logout item here */}
                     <li>
                         <button
-                            className={`flex items-center p-2 rounded-lg text-gray-100 hover:bg-gray-800 hover:text-white`}
+                            className={`flex items-center p-2 rounded-lg text-gray-100 hover:bg-white hover:text-gray-800 w-full text-base transition-colors duration-200`}
                             onClick={() => {
                                 localStorage.clear();
                                 window.location.href = "/";

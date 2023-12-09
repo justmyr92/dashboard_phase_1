@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import DataTable from "react-data-table-component";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSquarePlus, faSearch } from "@fortawesome/free-solid-svg-icons";
+import {
+    faSquarePlus,
+    faSearch,
+    faUsers,
+} from "@fortawesome/free-solid-svg-icons";
 import AddSDOfficer from "../components/AddSDOfficer";
 
 const SDOfficer = () => {
@@ -77,28 +81,31 @@ const SDOfficer = () => {
     }, [reload, search]);
 
     return (
-        <section className="sd-officers">
+        <section className="sd-officers bg-white h-screen">
             <Sidebar />
             <div className="p-4 sm:ml-64">
-                <div className="p-4 border-2 border-gray-200 border-dashed rounded-lg">
+                <div className="p-4">
                     <div className="header flex justify-between items-center mb-5">
                         <h3 className="text-3xl font-bold text-gray-700">
+                            <FontAwesomeIcon icon={faUsers} className="mr-3" />
                             SD Officers
                         </h3>
                         <div className="flex items-center gap-4">
-                            <input
-                                type="text"
-                                className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none pl-8" // Add left padding for the icon
-                                placeholder="Search"
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                            />
-                            <span className="absolute left-3 top-2">
-                                <FontAwesomeIcon
-                                    icon={faSearch}
-                                    className="text-gray-400"
+                            <div className="relative">
+                                <input
+                                    type="text"
+                                    className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none pl-8" // Add left padding for the icon
+                                    placeholder="Search"
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
                                 />
-                            </span>
+                                <span className="absolute left-3 top-2">
+                                    <FontAwesomeIcon
+                                        icon={faSearch}
+                                        className="text-gray-400"
+                                    />
+                                </span>
+                            </div>
                             <button
                                 className="px-4 py-2 bg-blue-600 text-white rounded-md"
                                 onClick={() => setModal(true)}
@@ -108,7 +115,7 @@ const SDOfficer = () => {
                             </button>
                         </div>
                     </div>
-                    <hr className="my-5 border-gray-800 border-1" />
+                    <hr className="my-5 border-gray-300 border-1" />
                     <DataTable
                         columns={columns}
                         data={SDOfficers}
@@ -117,6 +124,7 @@ const SDOfficer = () => {
                         pointerOnHover
                         striped
                         fixedHeader
+                        className="border border-gray-200 rounded-md"
                     />
                 </div>
             </div>
