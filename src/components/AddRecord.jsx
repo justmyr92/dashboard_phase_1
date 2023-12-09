@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-
+import { storage } from "../firebase";
+import { uploadBytes, ref } from "firebase/storage";
 const AddRecord = ({ showModal, setShowModal, setReload }) => {
     const [ID, setID] = useState(localStorage.getItem("ID"));
     const [sdg, setSdg] = useState([]);
@@ -8,12 +9,9 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     const [sdgID, setSdgID] = useState("");
     const [instruments, setInstruments] = useState([]);
     const [instrumentID, setInstrumentID] = useState("");
-
     const [recordID, setRecordID] = useState("");
     const [recordFiles, setRecordFiles] = useState([]);
-
     const [recordValues, setRecordValues] = useState({});
-
     const [reloadKey, setReloadKey] = useState(0);
 
     const handleInputChange = (record_id, value) => {
@@ -71,9 +69,6 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                 `http://localhost:5000/record/${sdgID}/${instrumentID}`
             );
 
-            // const response = await fetch(
-            //     `http://localhost:5000/records/${sdgID}`
-            // );
             const data = await response.json();
             if (response.ok) {
                 console.log("Records Data:", data);
@@ -184,16 +179,38 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                     }
 
                     recordFiles.map(async (file) => {
-                        const fileData = new FormData();
-                        fileData.append("file", file);
-                        fileData.append("record_data_id", recordDataID);
-                        console.log(file);
+                        // Create a JSON object with file information
+                        const filePayload = {
+                            file: `${sdgID}: ${file.name}`,
+                            record_data_id: recordDataID,
+                            file_extension: file.name
+                                .split(".")
+                                .pop()
+                                .toLowerCase(),
+                        };
+
+                        // Print file payload in JSON format
+                        console.log(
+                            "File Payload:",
+                            JSON.stringify(filePayload)
+                        );
+
                         try {
+                            const storageRef = ref(
+                                storage,
+                                `evidence/${filePayload.file}`
+                            );
+                            const fileRef = await uploadBytes(storageRef, file);
+                            console.log("File Uploaded");
+
                             const fileResponse = await fetch(
                                 "http://localhost:5000/file",
                                 {
                                     method: "POST",
-                                    body: fileData,
+                                    headers: {
+                                        "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify(filePayload),
                                 }
                             );
 
@@ -203,8 +220,8 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                                 );
                             }
 
-                            const fileData1 = await fileResponse.json();
-                            console.log(fileData1);
+                            const fileData = await fileResponse.json();
+                            console.log(fileData);
                         } catch (error) {
                             console.error("Error uploading file:", error);
                         }

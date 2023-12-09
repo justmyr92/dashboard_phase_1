@@ -14,7 +14,7 @@ const Dashboard = () => {
         } else {
             if (ROLE === "unit") {
                 window.location.href = "/csd/records";
-            } else {
+            } else if (ROLE === "csd") {
                 window.location.href = "/csd/sd/dashboard";
             }
         }
@@ -34,9 +34,6 @@ const Dashboard = () => {
                     <hr className="my-5 border-gray-800 border-1" />
                     <ChartSDG />{" "}
                     <hr className="my-5 border-gray-800 border-1" />
-                    {/* <div className="grid grid-cols-6 gap-4">
-                        <Population />
-                    </div> */}
                 </div>
             </div>
         </section>

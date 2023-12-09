@@ -109,6 +109,12 @@ const ChartSDG = () => {
         setReloadKey(reloadKey + 1);
     };
 
+    useState(() => {
+        if (role === "sdo") {
+            localStorage.setItem("sdo", localStorage.getItem("ID"));
+        }
+    }, []);
+
     useEffect(() => {
         const getSdOfficers = async () => {
             try {

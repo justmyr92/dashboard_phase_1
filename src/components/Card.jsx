@@ -12,6 +12,10 @@ const Card = ({ sdg, instrument }) => {
         localStorage.getItem("sdo") || localStorage.getItem("ID")
     );
 
+    const [isTableVisibleArray, setTableVisibilityArray] = useState(
+        new Array(records.length).fill(false)
+    );
+
     useEffect(() => {
         const fetchRecords = async () => {
             try {
@@ -20,13 +24,13 @@ const Card = ({ sdg, instrument }) => {
                 );
                 const data = await response.json();
                 setRecords(data);
+                setTableVisibilityArray(new Array(data.length).fill(false));
             } catch (error) {
                 console.error("Error fetching records:", error);
             }
         };
-
         fetchRecords();
-    }, [sdg]);
+    }, [sdg, instrument.instrument_id]); // Include instrument_id in dependencies
 
     useEffect(() => {
         const fetchUnit = async () => {
@@ -36,7 +40,6 @@ const Card = ({ sdg, instrument }) => {
                 );
                 const data = await response.json();
                 setUnit(data);
-                console.log(data);
             } catch (error) {
                 console.error("Error fetching unit:", error);
             }
@@ -55,11 +58,9 @@ const Card = ({ sdg, instrument }) => {
                     return response.json();
                 });
                 const data = await Promise.all(dataPromises);
-                console.log(data, "data");
 
                 const filteredData = data.filter((d) => d.length > 0);
 
-                console.log(filteredData, "filteredData");
                 setRecordsData(filteredData);
             } catch (error) {
                 console.error("Error fetching records data:", error);
@@ -68,7 +69,7 @@ const Card = ({ sdg, instrument }) => {
         if (records.length > 0) {
             fetchRecordsData();
         }
-    }, [records]);
+    }, [records, ID]);
 
     useEffect(() => {
         const fetchRecordValues = async () => {
@@ -81,7 +82,6 @@ const Card = ({ sdg, instrument }) => {
                             `http://localhost:5000/record_value/${record.record_data_id}`
                         );
                         const data = await response.json();
-                        console.log(data);
                         if (data.length > 0) {
                             temp.push(data);
                             data.forEach((d, index) => {
@@ -107,11 +107,29 @@ const Card = ({ sdg, instrument }) => {
         }
     }, [recordsData]);
 
+    const [hoveredIndex, setHoveredIndex] = useState(null);
+
+    const handleHover = (index) => {
+        setTableVisibilityArray((prev) =>
+            prev.map((value, i) => (i === index ? true : value))
+        );
+        setHoveredIndex(index);
+    };
+
+    const handleLeave = (index) => {
+        setTableVisibilityArray((prev) =>
+            prev.map((value, i) => (i === index ? false : value))
+        );
+        setHoveredIndex(null);
+    };
+
     return (
         <>
             {records.map((value, index) => (
                 <div
-                    className="card bg-white shadow-lg rounded-lg p-5 border border-gray-200 hover:border-blue-500"
+                    className="card bg-white shadow-lg rounded-lg p-5 border border-gray-200 hover:border-blue-500 relative"
+                    onMouseOver={() => handleHover(index)}
+                    onMouseLeave={() => handleLeave(index)}
                     key={index}
                 >
                     <div className="card-body">
@@ -120,8 +138,61 @@ const Card = ({ sdg, instrument }) => {
                         </h5>
                         <hr className="my-1" />
                         <p className="card-text text-black text-base justify-between">
-                            {records[index].record_name}
+                            {value.record_name}
                         </p>
+
+                        {isTableVisibleArray[index] && recordValue[index] && (
+                            <div
+                                className={`absolute text-gray-900 p-4 rounded-md mt-2 w-[30rem] z-10 bg-white shadow-lg transition-all duration-300 
+    ${(index + 1) % 4 === 1 ? "left-0 -top-[100%] translate-y-[-50%]" : ""}
+    ${(index + 1) % 4 === 0 ? "right-0 -top-[100%] translate-y-[-50%]" : ""}
+    ${
+        (index + 1) % 4 !== 0 && (index + 1) % 4 !== 1
+            ? "left-[50%] -top-[100%] translate-x-[-50%] translate-y-[-50%]"
+            : ""
+    }
+  `}
+                            >
+                                <table className="w-full">
+                                    <thead>
+                                        <tr>
+                                            <th className="border font-semibold p-2 text-sm">
+                                                Record ID
+                                            </th>
+                                            <th className="border font-semibold p-2 text-sm">
+                                                Question
+                                            </th>
+                                            <th className="border font-semibold p-2 text-sm">
+                                                Value
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {recordValue.map(
+                                            (record, recordIndex) => (
+                                                <tr key={recordIndex}>
+                                                    <td className="border p-2 text-sm">
+                                                        {
+                                                            record[index]
+                                                                .record_data_id
+                                                        }
+                                                    </td>
+                                                    <td className="border p-2 text-sm">
+                                                        {
+                                                            record[index]
+                                                                .record_name
+                                                        }
+                                                    </td>
+                                                    <td className="border p-2 text-sm">
+                                                        {record[index].value}
+                                                    </td>
+                                                </tr>
+                                            )
+                                        )}
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
                     </div>
                 </div>
             ))}

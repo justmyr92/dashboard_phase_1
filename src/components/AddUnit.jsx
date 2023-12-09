@@ -100,7 +100,7 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
         e.preventDefault();
         const data = {
             //generate random unit id U + random 5 digit number
-            unit_id: "U" + Math.floor(Math.random() * 100000),
+            unit_id: Math.floor(Math.random() * 100000),
             unit_name: unitName,
             unit_address: options.find(
                 (option) => option.campus_id === campus_id

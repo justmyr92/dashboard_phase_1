@@ -20,6 +20,7 @@ const Records = () => {
     const [file, setFile] = useState(null);
     const [ids, setIds] = useState([]);
     const [selectedRecords, setSelectedRecords] = useState([]);
+    const [unit, setUnit] = useState([]);
 
     const [search, setSearch] = useState("");
 
@@ -28,43 +29,97 @@ const Records = () => {
         if (!ID) {
             window.location.href = "/login";
         }
+        const getUnit = async () => {
+            // app.get("/unit", async (req, res) => {
+            //     try {
+            //         const allUnit = await pool.query("SELECT * FROM unit_table");
+            //         res.json(allUnit.rows);
+            //     } catch (err) {
+            //         console.error(err.message);
+            //     }
+            // });
+
+            const response = await fetch(`http://localhost:5000/unit`);
+            const data = await response.json();
+            setUnit(data);
+        };
+        getUnit();
     }, [ID]);
 
     useEffect(() => {
-        setRecords([]);
+        // setRecords([]);
+        // const getRecords = async () => {
+        //     if (ROLE === "sdo") {
+        //         const response = await fetch(
+        //             `http://localhost:5000/unit_id/${ID.toString()}`
+        //         );
+        //         const data = await response.json();
+        //         console.log(data);
+        //         if (data.length > 0) {
+        //             for (const unit of data) {
+        //                 const response2 = await fetch(
+        //                     `http://localhost:5000/record/all/${unit.unit_id}`
+        //                 );
+        //                 const data2 = await response2.json();
+        //                 if (data2.length > 0) {
+        //                     setRecords((prev) => {
+        //                         const filteredData = data2.filter(
+        //                             (record) =>
+        //                                 !prev.some(
+        //                                     (prevRecord) =>
+        //                                         prevRecord.record_data_id ===
+        //                                         record.record_data_id
+        //                                 )
+        //                         );
+        //                         return [...prev, ...filteredData];
+        //                     });
+        //                 }
+        //             }
+        //         }
+        //     } else if (ROLE === "unit") {
+        //         const response = await fetch(
+        //             `http://localhost:5000/record/all/${ID.toString()}`
+        //         );
+        //         const data = await response.json();
+        //         console.log(data);
+        //         setRecords(data);
+        //         // } else {
+        //         //     const response = await fetch(
+        //         //         `http://localhost:5000/record/all/${ID}`
+        //         //     );
+        //         //     const data = await response.json();
+        //         //     console.log(data);
+        //     }
+        // };
         const getRecords = async () => {
+            // app.get("/record", async (req, res) => {
+            //     try {
+            //         const allRecord = await pool.query("SELECT * FROM record_table");
+            //         res.json(allRecord.rows);
+            //     } catch (err) {
+            //         console.error(err.message);
+            //     }
+            // });
+
+            const response = await fetch(
+                `http://localhost:5000/record_data/unit`
+            );
+            const data = await response.json();
+            console.log(data);
+
             if (ROLE === "sdo") {
-                const response = await fetch(
-                    `http://localhost:5000/unit_id/${ID}`
+                // Assuming data has a property sdo_office_id
+                const filteredData = data.filter(
+                    (record) => record.sdo_officer_id === ID
                 );
-                const data = await response.json();
-                console.log(data);
-                if (data.length > 0) {
-                    for (const unit of data) {
-                        const response2 = await fetch(
-                            `http://localhost:5000/record/all/${unit.unit_id}`
-                        );
-                        const data2 = await response2.json();
-                        if (data2.length > 0) {
-                            setRecords((prev) => {
-                                const filteredData = data2.filter(
-                                    (record) =>
-                                        !prev.some(
-                                            (prevRecord) =>
-                                                prevRecord.record_data_id ===
-                                                record.record_data_id
-                                        )
-                                );
-                                return [...prev, ...filteredData];
-                            });
-                        }
-                    }
-                }
+                setRecords(filteredData);
+            } else if (ROLE === "unit") {
+                // Assuming data has a property unit_id
+                const filteredData = data.filter(
+                    (record) => record.unit_id === ID
+                );
+                setRecords(filteredData);
             } else {
-                const response = await fetch(
-                    `http://localhost:5000/record/all/${ID}`
-                );
-                const data = await response.json();
                 setRecords(data);
             }
         };
@@ -79,15 +134,22 @@ const Records = () => {
             name: "Record ID",
             selector: (row) => row.record_data_id,
             sortable: true,
+            width: "10%",
+        },
+        {
+            name: "Unit Name",
+            selector: (row) => row.unit_name, // Adjust this based on your data structure
+            sortable: true,
+            omit: ROLE === "unit", // Omit the column if the role is "unit"
+        },
+        {
+            name: "SDG Indicator",
+            sortable: true,
+            selector: (row) => row.sdg_name,
         },
         {
             name: "Date Uploaded",
-            selector: (row) =>
-                new Date(row.record_date).toLocaleDateString("en-GB", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                }),
+            selector: (row) => row.record_date.toString().split("T")[0],
             sortable: true,
             sortFunction: (a, b) => {
                 return new Date(a.record_date) - new Date(b.record_date);
@@ -160,28 +222,6 @@ const Records = () => {
             sortable: true,
         },
     ];
-
-    const filteredRecords = records.filter((record) => {
-        const searchString = search.toLowerCase();
-        const recordIdMatch =
-            record.record_data_id &&
-            record.record_data_id.toLowerCase().includes(searchString);
-        const recordDateMatch =
-            record.record_date &&
-            new Date(record.record_date)
-                .toLocaleDateString("en-GB", {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                })
-                .toLowerCase()
-                .includes(searchString);
-        const statusMatch =
-            record.record_status &&
-            record.record_status.toLowerCase().includes(searchString);
-
-        return recordIdMatch || recordDateMatch || statusMatch;
-    });
 
     return (
         <section className="dashboard">
@@ -266,16 +306,18 @@ const Records = () => {
                                 )}
                             </div>
                             <hr className="my-5 border-gray-800 border-1" />
-
-                            <DataTable
-                                columns={columns}
-                                data={filteredRecords}
-                                pagination
-                                striped
-                                highlightOnHover
-                                responsive
-                                defaultSortFieldId={2}
-                            />
+                            <div className="border border-gray-200 rounded-lg max-w-[100vw] overflow-x-auto">
+                                <DataTable
+                                    columns={columns}
+                                    data={records}
+                                    pagination
+                                    striped
+                                    highlightOnHover
+                                    responsive
+                                    defaultSortFieldId={2}
+                                    className="w-[100%] overflow-x-auto"
+                                />
+                            </div>
                         </>
                     )}
                 </div>

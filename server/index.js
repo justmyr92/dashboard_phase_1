@@ -180,6 +180,19 @@ app.get("/unit", async (req, res) => {
     }
 });
 
+//SELECT record_data_table.*, unit_table.* FROM record_data_table INNER JOIN unit_table ON record_data_table.unit_id = unit_table.unit_id
+app.get("/record_data/unit", async (req, res) => {
+    try {
+        const recordData = await pool.query(
+            // and inner jin sgd table
+            "SELECT record_data_table.*, unit_table.*, sdg_table.* FROM record_data_table INNER JOIN unit_table ON record_data_table.unit_id = unit_table.unit_id INNER JOIN sdg_table ON unit_table.sdg_id = sdg_table.sdg_id"
+        );
+        res.json(recordData.rows);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
 //get sdg by unit_id
 app.get("/sdg/unit/:id", async (req, res) => {
     try {
@@ -214,6 +227,7 @@ app.get("/unit/sdo/:id", async (req, res) => {
         const { id } = req.params;
         const allUnit = await pool.query(
             "SELECT * FROM unit_table WHERE sdo_officer_id = $1",
+
             [id]
         );
         res.json(allUnit.rows);
@@ -360,6 +374,16 @@ app.get("/record/unit/:id", async (req, res) => {
     }
 });
 
+//get all record_data
+app.get("/record_data", async (req, res) => {
+    try {
+        const recordData = await pool.query("SELECT * from record_data_table");
+        res.json(recordData.rows);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
 //get all unit id by sdo_officer_id
 app.get("/unit_id/:id", async (req, res) => {
     try {
@@ -476,34 +500,18 @@ app.post("/record_data", upload.single("record_file"), async (req, res) => {
     }
 });
 
-// file_id        | integer                |           | not null | nextval('file_table_file_id_seq'::regclass)
-//  file_name      | character varying(255) |           |          |
-//  file_extension | character varying(10)  |           |          |
-//  record_data_id | character varying(25)
-
-app.post("/file", upload.single("file"), async (req, res) => {
+// app.post("/file", upload.single("file"), async (req, res) => {
+app.post("/file", async (req, res) => {
     try {
-        //     Column     |          Type          | Collation | Nullable |                   Default
-        //     ----------------+------------------------+-----------+----------+---------------------------------------------
-        //      file_id        | integer                |           | not null | nextval('file_table_file_id_seq'::regclass)
-        //      file_name      | character varying(255) |           |          |
-        //      file_extension | character varying(10)  |           |          |
-        //      record_data_id | character varying(25)  |           |
-
-        const fils = req.file.filename;
-
-        const { record_data_id } = req.body;
+        const { file, record_data_id, file_extension } = req.body;
 
         const id = Math.floor(Math.random() * 100000);
 
-        console.log(fils);
-
-        const file_name = fils.split(".")[0];
-        const file_extension = fils.split(".")[1];
+        console.log(req.body);
 
         const newFile = await pool.query(
             "INSERT INTO file_table (file_id, file_name, file_extension, record_data_id) VALUES($1, $2, $3, $4) RETURNING *",
-            [id, file_name, file_extension, record_data_id]
+            [id, file, file_extension, record_data_id]
         );
 
         res.json(newFile.rows[0]);
@@ -650,14 +658,13 @@ app.get("/record/all/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const recordData = await pool.query(
-            //left join
-            //"SELECT record_table.*, record_data_table.* FROM record_table LEFT JOIN record_data_table ON record_table.record_id = record_data_table.record_id WHERE record_data_table.unit_id = $1",
-            "SELECT * from record_data_table WHERE unit_id = $1",
+            "SELECT * FROM record_data_table WHERE unit_id = $1",
             [id]
         );
         res.json(recordData.rows);
     } catch (err) {
         console.error(err.message);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
 
@@ -973,6 +980,18 @@ app.patch("/updateInstrumentStatus", async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+//get all status of records and count them
+app.get("/status", async (req, res) => {
+    try {
+        const status = await pool.query(
+            "SELECT record_status, COUNT(record_status) FROM record_data_table GROUP BY record_status"
+        );
+        res.json(status.rows);
+    } catch (err) {
+        console.error(err.message);
     }
 });
 

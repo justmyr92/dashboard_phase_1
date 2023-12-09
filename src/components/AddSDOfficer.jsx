@@ -17,6 +17,10 @@ const AddSDOfficer = ({ setReload, setModal }) => {
             const response = await fetch("http://localhost:5000/campus");
             const data = await response.json();
             setCampus(data);
+            setSDOOfficers({
+                ...sdo_officer,
+                campus_id: data[0].campus_id,
+            });
             console.log(data);
         };
         getCampus();
@@ -24,6 +28,7 @@ const AddSDOfficer = ({ setReload, setModal }) => {
 
     const submitData = async (e) => {
         e.preventDefault();
+        console.log(sdo_officer);
         const response = await fetch("http://localhost:5000/sdo_officer", {
             method: "POST",
             headers: {
@@ -152,7 +157,7 @@ const AddSDOfficer = ({ setReload, setModal }) => {
                                 </label>
                                 <div class="mt-1">
                                     <input
-                                        type="text"
+                                        type="email"
                                         name="email"
                                         id="email"
                                         autocomplete="email"
