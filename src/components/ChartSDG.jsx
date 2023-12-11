@@ -82,6 +82,13 @@ const ChartSDG = () => {
     const [sdOfficers, setSdOfficers] = useState([]);
     const [instruments, setInstruments] = useState([]);
     const [selectedOfficerIndex, setSelectedOfficerIndex] = useState(0); // Add this line
+    const [reload, setReload] = useState(false); // Add this line
+
+    useState(() => {
+        if (role === "sdo") {
+            localStorage.setItem("sdo", localStorage.getItem("ID"));
+        }
+    }, []);
 
     const [instrument, setInstrument] = useState(null);
 
@@ -90,25 +97,23 @@ const ChartSDG = () => {
         setSdgName(selectedSDG.name);
         // Increment the reload key to trigger a re-render of the Card component
         setReloadKey(reloadKey + 1);
+        setReload(!reload);
     };
 
     const handleOfficerClick = (selectedOfficer) => {
         localStorage.setItem("sdo", selectedOfficer.sdo_officer_id);
         console.log(selectedOfficer.sdo_officer_id);
         setReloadKey(reloadKey + 1);
+        setReload(!reload);
     };
 
     const handleInstrumentClick = (event) => {
         const selectedInstrument = instruments[event.target.value];
+        console.log(selectedInstrument);
         setInstrument(selectedInstrument);
         setReloadKey(reloadKey + 1);
+        setReload(!reload);
     };
-
-    useState(() => {
-        if (role === "sdo") {
-            localStorage.setItem("sdo", localStorage.getItem("ID"));
-        }
-    }, []);
 
     useEffect(() => {
         const getSdOfficers = async () => {
@@ -117,7 +122,10 @@ const ChartSDG = () => {
                     `http://localhost:5000/sdo_officer`
                 );
                 const jsonData = await response.json();
-                setSdOfficers(jsonData);
+                setSdOfficers(
+                    jsonData.sort((a, b) => a.campus_id - b.campus_id)
+                );
+                console.log(jsonData.sort((a, b) => a.campus_id - b.campus_id));
                 if (role !== "sdo") {
                     localStorage.setItem("sdo", jsonData[0].sdo_officer_id);
                 }
@@ -142,6 +150,7 @@ const ChartSDG = () => {
         getSdOfficers();
         getInstruments();
     }, []);
+
     function getCampusName(index) {
         switch (index) {
             case 0:
@@ -170,9 +179,9 @@ const ChartSDG = () => {
                                     key={sdOfficer.sdo_officer_id}
                                 >
                                     <button
-                                        className={`inline-block p-4 border-b-2 border-transparent rounded-t-lg ${
+                                        className={`inline-block p-4 rounded-t-lg transition duration-500 ease-in-out ${
                                             selectedOfficerIndex === index
-                                                ? "text-blue-600 border-blue-600 active font-semibold"
+                                                ? "text-blue-600 border-b-2 border-blue-600 active font-semibold"
                                                 : "text-gray-700 hover:text-gray-600 hover:border-gray-300"
                                         }`}
                                         onClick={() => {

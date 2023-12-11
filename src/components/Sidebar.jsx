@@ -111,7 +111,9 @@ const Sidebar = () => {
                             <a
                                 href={link.url}
                                 className={`flex items-center p-2 rounded-lg text-base transition-colors duration-200 ${
-                                    location.pathname === link.url
+                                    location.pathname === link.url ||
+                                    (location.pathname.includes("instrument") &&
+                                        link.url.includes("instrument"))
                                         ? "bg-white text-gray-800"
                                         : "text-white hover:bg-white hover:text-gray-800"
                                 }`}

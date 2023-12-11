@@ -7,17 +7,6 @@ import { faSearch, faTools } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
 
 const Instruments = () => {
-    // app.get("/getInstruments", async (req, res) => {
-    //     try {
-    //         const instruments = await pool.query(
-    //             "SELECT * FROM instrument_table order by date_posted desc"
-    //         );
-    //         res.json(instruments.rows);
-    //     } catch (err) {
-    //         console.error(err.message);
-    //     }
-    // });
-
     const [instruments, setInstruments] = useState([]);
     const [search, setSearch] = useState("");
     const [sdgIndicators, setSdgIndicators] = useState([]);
@@ -370,19 +359,35 @@ const Instruments = () => {
                                                                     colSpan={2}
                                                                 >
                                                                     {!isEdit ? (
-                                                                        index +
-                                                                        1 +
-                                                                        ". " +
-                                                                        recordItem.record_name
+                                                                        <div className="flex justify-between items-center gap-2">
+                                                                            <p className="text-gray-700">
+                                                                                {index +
+                                                                                    1 +
+                                                                                    ". " +
+                                                                                    recordItem.record_name}
+                                                                            </p>
+                                                                            <p>
+                                                                                {recordItem.record_status ===
+                                                                                    "inactive" && (
+                                                                                    <span className="px-2 py-1.5 rounded text-white text-center w-[5rem] bg-green-500">
+                                                                                        Archived
+                                                                                    </span>
+                                                                                )}
+                                                                            </p>
+                                                                        </div>
                                                                     ) : (
                                                                         <div className="flex justify-between items-center gap-2">
                                                                             <input
                                                                                 className="border px-2 py-3 border-gray-500 rounded-lg w-full"
                                                                                 type="text"
                                                                                 value={
-                                                                                    editedRecords[
-                                                                                        index
-                                                                                    ]
+                                                                                    editedRecords.find(
+                                                                                        (
+                                                                                            record
+                                                                                        ) =>
+                                                                                            record.record_id ===
+                                                                                            recordItem.record_id
+                                                                                    )
                                                                                         .record_name
                                                                                 }
                                                                                 onChange={(
@@ -392,9 +397,13 @@ const Instruments = () => {
                                                                                         [
                                                                                             ...editedRecords,
                                                                                         ];
-                                                                                    newEditedRecords[
-                                                                                        index
-                                                                                    ].record_name =
+                                                                                    newEditedRecords.find(
+                                                                                        (
+                                                                                            record
+                                                                                        ) =>
+                                                                                            record.record_id ===
+                                                                                            recordItem.record_id
+                                                                                    ).record_name =
                                                                                         e.target.value;
                                                                                     setEditedRecords(
                                                                                         newEditedRecords
@@ -410,14 +419,50 @@ const Instruments = () => {
                                                                                 <button
                                                                                     className="p-2 px-4 bg-green-500 text-white rounded-lg text-xs"
                                                                                     onClick={() => {
-                                                                                        Swal.fire(
-                                                                                            "Archived!",
-                                                                                            "Your record has been archived.",
-                                                                                            "success"
+                                                                                        const newEditedRecords =
+                                                                                            [
+                                                                                                ...editedRecords,
+                                                                                            ];
+                                                                                        const updatedRecords =
+                                                                                            newEditedRecords.map(
+                                                                                                (
+                                                                                                    record
+                                                                                                ) =>
+                                                                                                    record.record_id ===
+                                                                                                    recordItem.record_id
+                                                                                                        ? {
+                                                                                                              ...record,
+                                                                                                              record_status:
+                                                                                                                  record.record_status ===
+                                                                                                                  "active"
+                                                                                                                      ? "inactive"
+                                                                                                                      : "active",
+                                                                                                          }
+                                                                                                        : record
+                                                                                            );
+
+                                                                                        setEditedRecords(
+                                                                                            updatedRecords
                                                                                         );
                                                                                     }}
                                                                                 >
-                                                                                    Archive
+                                                                                    {editedRecords.find(
+                                                                                        (
+                                                                                            record
+                                                                                        ) =>
+                                                                                            record.record_id ===
+                                                                                            recordItem.record_id
+                                                                                    )
+                                                                                        .record_status ===
+                                                                                    "active" ? (
+                                                                                        <span>
+                                                                                            Archive
+                                                                                        </span>
+                                                                                    ) : (
+                                                                                        <span>
+                                                                                            Unarchive
+                                                                                        </span>
+                                                                                    )}
                                                                                 </button>
                                                                             </td>
                                                                         </div>

@@ -8,9 +8,12 @@ const Card = ({ sdg, instrument }) => {
 
     const [unit, setUnit] = useState([]);
 
-    const [ID, setID] = useState(
-        localStorage.getItem("sdo") || localStorage.getItem("ID")
-    );
+    const [ID, setID] = useState(localStorage.getItem("sdo"));
+
+    useEffect(() => {
+        setID(localStorage.getItem("sdo"));
+        console.log(ID);
+    }, []);
 
     const [isTableVisibleArray, setTableVisibilityArray] = useState(
         new Array(records.length).fill(false)
@@ -25,6 +28,7 @@ const Card = ({ sdg, instrument }) => {
                 const data = await response.json();
                 setRecords(data);
                 setTableVisibilityArray(new Array(data.length).fill(false));
+                console.log(data);
             } catch (error) {
                 console.error("Error fetching records:", error);
             }
@@ -40,6 +44,7 @@ const Card = ({ sdg, instrument }) => {
                 );
                 const data = await response.json();
                 setUnit(data);
+                console.log(data);
             } catch (error) {
                 console.error("Error fetching unit:", error);
             }

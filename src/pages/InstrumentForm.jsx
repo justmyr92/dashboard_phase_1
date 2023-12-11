@@ -260,10 +260,10 @@ const InstrumentForm = () => {
                                         recordItem.sdg_id === sdgIndicator && (
                                             <div
                                                 key={index}
-                                                className="flex gap-4 items-center border-2 border-gray-500 border-dashed rounded-lg border p-4"
+                                                className="flex gap-4 border-1 rounded-lg border p-4 shadow-md items-end"
                                             >
                                                 {/* Add an input for Record Name */}
-                                                <div className="control-group flex flex-col gap-2 items-start w-full justify-between">
+                                                <div className="control-group flex flex-col gap-2 items-start w-full justify-end">
                                                     <label className="block text-gray-700 text-sm font-semibold">
                                                         Instrument Question
                                                     </label>
@@ -287,7 +287,7 @@ const InstrumentForm = () => {
                                                 {/* Delete Button */}
                                                 <button
                                                     type="button"
-                                                    className="p-2 px-4 bg-red-500 text-white rounded-lg"
+                                                    className="px-5 py-2 bg-red-500 text-white rounded-lg"
                                                     onClick={() =>
                                                         deleteRecord(index)
                                                     }
@@ -301,7 +301,7 @@ const InstrumentForm = () => {
                                 {/* Add Button */}
                                 <button
                                     type="button"
-                                    className="p-2 px-4 bg-green-500 text-white rounded-lg"
+                                    className="p-2 px-4 bg-green-500 text-white rounded-lg w-fit"
                                     onClick={addRecordInput}
                                 >
                                     Add Record
