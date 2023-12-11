@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBook } from "@fortawesome/free-solid-svg-icons";
+import { storage } from "../firebase";
+import { uploadBytes, ref } from "firebase/storage";
+
 const AnnualReports = () => {
     const [ID, setID] = useState(localStorage.getItem("ID"));
     const [ROLE, setROLE] = useState(localStorage.getItem("ROLE"));

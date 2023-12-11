@@ -93,6 +93,20 @@ app.get("/campus", async (req, res) => {
     }
 });
 
+//get all campus
+app.get("/campus/:sdo_id", async (req, res) => {
+    try {
+        const { sdo_id } = req.params;
+        const allCampus = await pool.query(
+            "SELECT * FROM campus_table where sdo_office_id = $1",
+            [sdo_id]
+        );
+        res.json(allCampus.rows);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
 //add a new csd_officer
 app.post("/csd_officer", async (req, res) => {
     try {
