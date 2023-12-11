@@ -14,7 +14,7 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
                 record_data_id
             );
             const response = await fetch(
-                `http://localhost:5000/record_value/${record_data_id}`
+                `https://csddashboard.online/api/record_value/${record_data_id}`
             );
             const data = await response.json();
             setRecordValues(data);
@@ -38,7 +38,7 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
 
         recordValues.forEach(async (record) => {
             const response = await fetch(
-                `http://localhost:5000/update_record_values/${record.record_value_id}`,
+                `https://csddashboard.online/api/update_record_values/${record.record_value_id}`,
                 {
                     method: "PATCH",
                     headers: {
@@ -53,7 +53,7 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
                 console.log("Record values updated successfully!");
 
                 const response = await fetch(
-                    `http://localhost:5000/record_data/${record_data_id}`,
+                    `https://csddashboard.online/api/record_data/${record_data_id}`,
                     {
                         method: "PATCH",
                         headers: {

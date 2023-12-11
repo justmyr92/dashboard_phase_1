@@ -23,7 +23,7 @@ const AddPopulation = ({ setShowModal, showModal, setReload }) => {
         e.preventDefault();
         try {
             const idResponse = await fetch(
-                `http://localhost:5000/campus/${ID}`
+                `https://csddashboard.online/api/campus/${ID}`
             ); // Updated here
             const { campus_id } = await idResponse.json();
 
@@ -56,7 +56,7 @@ const AddPopulation = ({ setShowModal, showModal, setReload }) => {
             };
 
             const response = await fetch(
-                "http://localhost:5000/add_enrollment",
+                "https://csddashboard.online/api/add_enrollment",
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -65,7 +65,7 @@ const AddPopulation = ({ setShowModal, showModal, setReload }) => {
             );
 
             const response2 = await fetch(
-                "http://localhost:5000/add_enrollment",
+                "https://csddashboard.online/api/add_enrollment",
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },

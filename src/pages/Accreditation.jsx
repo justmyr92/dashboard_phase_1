@@ -18,11 +18,13 @@ const Accreditation = () => {
 
     useEffect(() => {
         const getCampusID = async () => {
-            const response = await fetch(`http://localhost:5000/campus/${ID}`);
+            const response = await fetch(
+                `https://csddashboard.online/api/campus/${ID}`
+            );
             const data = await response.json();
             setCampusID(data.campus_id);
             const response2 = await fetch(
-                `http://localhost:5000/accreditation/${data.campus_id}`
+                `https://csddashboard.online/api/accreditation/${data.campus_id}`
             );
             const data2 = await response2.json();
             setAccreditation(data2);

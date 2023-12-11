@@ -27,7 +27,9 @@ const RecordPieChart = () => {
     useEffect(() => {
         const fetchStatus = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/status`);
+                const response = await fetch(
+                    `https://csddashboard.online/api/status`
+                );
                 const data = await response.json();
                 setStatus(data);
             } catch (error) {

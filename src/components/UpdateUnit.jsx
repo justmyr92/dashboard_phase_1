@@ -22,7 +22,7 @@ const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
         };
         try {
             const response = await fetch(
-                `http://localhost:5000/unit/update/${unitData.unit_id}`,
+                `https://csddashboard.online/api/unit/update/${unitData.unit_id}`,
                 {
                     method: "PATCH",
                     body: JSON.stringify(data),
