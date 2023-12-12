@@ -144,7 +144,7 @@ const SetNotification = ({
             id="default-modal"
             tabindex="-1"
             aria-hidden="true"
-            class="fixed top-0 left-0 right-0 z-50 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+            class="z-50 p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full fixed inset-0 flex items-center justify-center w-full bg-black bg-opacity-50 transition-opacity duration-300"
         >
             <form onSubmit={handleSubmit}>
                 <div class="relative w-full max-w-2xl max-h-full">
@@ -182,7 +182,7 @@ const SetNotification = ({
                         </div>
                         <div class="p-6 space-y-6">
                             <select
-                                class="block w-full p-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-300 focus:ring-offset-2"
+                                class="block w-[25rem] p-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-300 focus:ring-offset-2"
                                 onChange={(e) => {
                                     setSelected({
                                         ...selected,
@@ -201,7 +201,7 @@ const SetNotification = ({
                             </select>
 
                             <textarea
-                                class="block w-full p-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-300 focus:ring-offset-2"
+                                class="block w-[25rem] p-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-300 focus:ring-offset-2"
                                 placeholder="Message"
                                 onChange={(e) => {
                                     setnMessage(e.target.value);
