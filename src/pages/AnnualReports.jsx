@@ -3,13 +3,12 @@ import Sidebar from "../components/Sidebar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBook } from "@fortawesome/free-solid-svg-icons";
 import { storage } from "../firebase";
-import { uploadBytes, ref } from "firebase/storage";
+import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
 
 const AnnualReports = () => {
     const [ID, setID] = useState(localStorage.getItem("ID"));
     const [ROLE, setROLE] = useState(localStorage.getItem("ROLE"));
     const [activeAccordion, setActiveAccordion] = useState(null);
-
     const [reload, setReload] = useState(false);
     const handleAccordionClick = (index) => {
         setActiveAccordion(activeAccordion === index ? null : index);
@@ -18,7 +17,7 @@ const AnnualReports = () => {
 
     const [showModal, setShowModal] = useState(false);
     const [annualReport, setAnnualReport] = useState({
-        annual_report_id: Math.random(), // You might want to use a more robust method to generate IDs
+        annual_report_id: Math.floor(Math.random() * 1000000),
         annual_report_year: new Date().getFullYear(),
         annual_report_file: null,
         sdo_officer_id: ID,
@@ -31,11 +30,30 @@ const AnnualReports = () => {
                     `https://csddashboard.online/api/annual_report/`
                 );
                 const jsonData = await response.json();
-                setAnnualReports(jsonData);
+                //fetch all image/pdf files from firebase storage
+                const promises = jsonData.map(async (annualReport) => {
+                    const storageRef = ref(
+                        storage,
+                        `reports/${annualReport.annual_report_file}`
+                    );
+
+                    const url = await getDownloadURL(storageRef);
+
+                    console.log(url);
+                    return {
+                        ...annualReport,
+                        annual_report_file: url,
+                    };
+                });
+
+                const results = await Promise.all(promises);
+                console.log(results);
+                setAnnualReports(results);
             } catch (err) {
                 console.error(err.message);
             }
         };
+
         getAnnualReports();
     }, [reload]);
 
@@ -51,55 +69,77 @@ const AnnualReports = () => {
         });
     };
 
+    const [errorFile, setErrorFile] = useState("");
+
     useEffect(() => {});
 
     const saveAnnualReport = async () => {
         try {
-            const formData = new FormData();
-            formData.append("annual_report_id", annualReport.annual_report_id);
-            formData.append(
-                "annual_report_file",
-                annualReport.annual_report_file
-            );
-            formData.append(
-                "annual_report_year",
-                annualReport.annual_report_year
-            );
-            formData.append("sdo_officer_id", annualReport.sdo_officer_id);
+            // Get extension from the file
+            const fileExtension =
+                annualReport.annual_report_file.name.split(".")[1];
+            const newFileName = `Annual Report ${annualReport.annual_report_year}.${fileExtension}`;
+            const getYear = annualReport.annual_report_year.split("-")[0];
+
+            //get file size in MB
+            const fileSize = annualReport.annual_report_file.size / 1024 / 1024;
+
+            if (fileExtension === "pdf") {
+                if (fileSize > 10) {
+                    setErrorFile("PDF file size must not exceed 10MB");
+                    return;
+                }
+            } else if (
+                fileExtension === "jpg" ||
+                fileExtension === "jpeg" ||
+                fileExtension === "png"
+            ) {
+                if (fileSize > 5) {
+                    setErrorFile("Image file size must not exceed 5MB");
+                    return;
+                }
+            } else {
+                setErrorFile("File must be in pdf, jpg, jpeg or png format");
+                return;
+            }
+
+            const requestBody = {
+                annual_report_id: annualReport.annual_report_id,
+                annual_report_file: newFileName,
+                annual_report_year: getYear,
+                sdo_officer_id: annualReport.sdo_officer_id,
+            };
+
+            // Log the JSON object
+            console.log(JSON.stringify(requestBody));
 
             const response = await fetch(
                 "https://csddashboard.online/api/annual_report",
                 {
                     method: "POST",
-                    body: formData,
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(requestBody),
                 }
             );
 
-            // Handle the response as needed
+            console.log(response);
+
+            if (response.status === 200) {
+                const storageRef = ref(storage, `reports/${newFileName}`);
+                await uploadBytes(storageRef, annualReport.annual_report_file);
+            }
+
             console.log(response.data);
         } catch (error) {
             console.error(error.message);
         }
         setReload(true);
-        setShowModal(false);
+        if (errorFile === "") {
+            setShowModal(false);
+        }
     };
-
-    // app.post(
-    //     "/annual_report",
-    //     upload.single("annual_report_file"),
-    //     async (req, res) => {
-    //         try {
-    //             const { annual_report_year, sdo_officer_id } = req.body;
-    //             const newAnnualReport = await pool.query(
-    //                 "INSERT INTO annual_reports (annual_report_year, annual_report_file, sdo_officer_id) VALUES($1, $2, $3) RETURNING *",
-    //                 [annual_report_year, req.file.filename, sdo_officer_id]
-    //             );
-    //             res.json(newAnnualReport.rows[0]);
-    //         } catch (err) {
-    //             console.error(err.message);
-    //         }
-    //     }
-    // );
 
     return (
         <section className="annual-reports">
@@ -170,12 +210,11 @@ const AnnualReports = () => {
                                                         Year:
                                                     </label>
                                                     <input
-                                                        type="text"
+                                                        type="date"
                                                         name="annual_report_year"
                                                         value={
                                                             annualReport.annual_report_year
                                                         }
-                                                        disabled
                                                         onChange={
                                                             handleInputChange
                                                         }
@@ -188,7 +227,8 @@ const AnnualReports = () => {
                                                         className="text-sm font-semibold mb-1"
                                                         htmlFor="annual_report_file"
                                                     >
-                                                        File:
+                                                        File (pdf, jpg, jpeg or
+                                                        png format):
                                                     </label>
                                                     <div className="relative">
                                                         <input
@@ -196,15 +236,12 @@ const AnnualReports = () => {
                                                             onChange={
                                                                 handleFileChange
                                                             }
-                                                            className="hidden"
+                                                            className="border rounded-md p-2 focus:outline-none focus:border-blue-500 w-full"
                                                             id="fileInput"
                                                         />
-                                                        <label
-                                                            htmlFor="fileInput"
-                                                            className="cursor-pointer bg-blue-500 text-white font-bold py-2 px-4 rounded-md inline-block"
-                                                        >
-                                                            Choose File
-                                                        </label>
+                                                        <p className="text-sm text-red-500">
+                                                            {errorFile}
+                                                        </p>
                                                     </div>
                                                 </div>
                                                 <hr />
@@ -278,10 +315,14 @@ const AnnualReports = () => {
                                     <div className="p-5 border border-b-0 border-gray-200">
                                         {/* Embed pdf */}
                                         <iframe
-                                            src={`../src/assets/records/${annualReport.annual_report_file}`}
+                                            src={`${annualReport.annual_report_file}`}
                                             width="100%"
                                             height="600px"
                                             title={`Annual Report ${annualReport.annual_report_year}`}
+                                            style={{
+                                                width: "100%",
+                                                border: "none",
+                                            }}
                                         ></iframe>
                                     </div>
                                 </div>

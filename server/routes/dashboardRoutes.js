@@ -5,17 +5,16 @@ const bcrypt = require("bcrypt");
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, "../src/assets/records"); // Define the destination folder
+        cb(null, "../src/assets/records");
     },
     filename: (req, file, cb) => {
         const ext = file.originalname.split(".").pop();
-        cb(null, Date.now() + "-" + file.fieldname + "." + ext); // Define the file name
+        cb(null, Date.now() + "-" + file.fieldname + "." + ext);
     },
 });
 
 const upload = multer({ storage: storage });
 
-//add a new sdo_officer
 router.post("/sdo_officer", async (req, res) => {
     try {
         const {
@@ -45,7 +44,6 @@ router.post("/sdo_officer", async (req, res) => {
     }
 });
 
-//get all sdo_officer
 router.get("/sdo_officer", async (req, res) => {
     try {
         const allSdoOfficer = await pool.query(
@@ -57,7 +55,6 @@ router.get("/sdo_officer", async (req, res) => {
     }
 });
 
-//add a new campus
 router.post("/campus", async (req, res) => {
     try {
         const {
@@ -77,7 +74,6 @@ router.post("/campus", async (req, res) => {
     }
 });
 
-//get all campus
 router.get("/campus", async (req, res) => {
     try {
         const allCampus = await pool.query("SELECT * FROM campus_table");
@@ -87,12 +83,11 @@ router.get("/campus", async (req, res) => {
     }
 });
 
-//get all campus
 router.get("/campus/:sdo_id", async (req, res) => {
     try {
         const { sdo_id } = req.params;
         const allCampus = await pool.query(
-            "SELECT * FROM campus_table where sdo_office_id = $1",
+            "SELECT * FROM campus_table where sdo_officer_id = $1",
             [sdo_id]
         );
         res.json(allCampus.rows);
@@ -101,7 +96,6 @@ router.get("/campus/:sdo_id", async (req, res) => {
     }
 });
 
-//add a new csd_officer
 router.post("/csd_officer", async (req, res) => {
     try {
         const {
@@ -129,7 +123,6 @@ router.post("/csd_officer", async (req, res) => {
     }
 });
 
-//get all csd_officer
 router.get("/csd_officer", async (req, res) => {
     try {
         const allCsdOfficer = await pool.query(
@@ -141,7 +134,6 @@ router.get("/csd_officer", async (req, res) => {
     }
 });
 
-//add unit officer
 router.post("/unit", async (req, res) => {
     try {
         const {
@@ -178,7 +170,6 @@ router.post("/unit", async (req, res) => {
     }
 });
 
-//get all unit
 router.get("/unit", async (req, res) => {
     try {
         const allUnit = await pool.query("SELECT * FROM unit_table");
@@ -188,11 +179,9 @@ router.get("/unit", async (req, res) => {
     }
 });
 
-//SELECT record_data_table.*, unit_table.* FROM record_data_table INNER JOIN unit_table ON record_data_table.unit_id = unit_table.unit_id
 router.get("/record_data/unit", async (req, res) => {
     try {
         const recordData = await pool.query(
-            // and inner jin sgd table
             "SELECT record_data_table.*, unit_table.*, sdg_table.* FROM record_data_table INNER JOIN unit_table ON record_data_table.unit_id = unit_table.unit_id INNER JOIN sdg_table ON unit_table.sdg_id = sdg_table.sdg_id"
         );
         res.json(recordData.rows);
@@ -201,7 +190,6 @@ router.get("/record_data/unit", async (req, res) => {
     }
 });
 
-//get sdg by unit_id
 router.get("/sdg/unit/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -215,7 +203,6 @@ router.get("/sdg/unit/:id", async (req, res) => {
     }
 });
 
-//get all unit by unit_id
 router.get("/unit/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -229,7 +216,6 @@ router.get("/unit/:id", async (req, res) => {
     }
 });
 
-//get all unit by sdo_officer_id
 router.get("/unit/sdo/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -244,13 +230,12 @@ router.get("/unit/sdo/:id", async (req, res) => {
     }
 });
 
-//add record
 router.post("/record", async (req, res) => {
     try {
-        const { record_id, record_name, sdg_id } = req.body;
+        const { record_id, record_name, sdg_id, record_status } = req.body;
         const newRecord = await pool.query(
-            "INSERT INTO record_table (record_id, record_name, sdg_id) VALUES($1, $2, $3) RETURNING *",
-            [record_id, record_name, sdg_id]
+            "INSERT INTO record_table (record_id, record_name, sdg_id) VALUES($1, $2, $3, $4) RETURNING *",
+            [record_id, record_name, sdg_id, record_status]
         );
         res.json(newRecord.rows[0]);
     } catch (err) {
@@ -258,7 +243,6 @@ router.post("/record", async (req, res) => {
     }
 });
 
-//get all record
 router.get("/record", async (req, res) => {
     try {
         const allRecord = await pool.query("SELECT * FROM record_table");
@@ -268,7 +252,6 @@ router.get("/record", async (req, res) => {
     }
 });
 
-//login via 3 tables (sdo_officer, csd_officer, unit)
 router.post("/login", async (req, res) => {
     try {
         const { username, password } = req.body;
@@ -322,7 +305,6 @@ router.post("/login", async (req, res) => {
     }
 });
 
-//get all sdg
 router.get("/sdg", async (req, res) => {
     try {
         const allSdg = await pool.query("SELECT * FROM sdg_table");
@@ -331,16 +313,6 @@ router.get("/sdg", async (req, res) => {
         console.error(err.message);
     }
 });
-
-// useEffect(() => {
-//     const fetchData = async () => {
-//         const response = await fetch(
-//             `https://csddashboard.online/api/records/${sdgID}`
-//         );
-//         const data = await response.json();
-//         setRecords(data);
-//     };
-// }, [sdgID]);
 
 router.get("/records/:id", async (req, res) => {
     try {
@@ -355,7 +327,6 @@ router.get("/records/:id", async (req, res) => {
     }
 });
 
-//get record by sdg id and instrument id
 router.get("/record/:id/:instrument_id", async (req, res) => {
     try {
         const { id, instrument_id } = req.params;
@@ -369,7 +340,6 @@ router.get("/record/:id/:instrument_id", async (req, res) => {
     }
 });
 
-//get all record_data
 router.get("/record/unit/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -382,7 +352,6 @@ router.get("/record/unit/:id", async (req, res) => {
     }
 });
 
-//get all record_data
 router.get("/record_data", async (req, res) => {
     try {
         const recordData = await pool.query("SELECT * from record_data_table");
@@ -392,7 +361,6 @@ router.get("/record_data", async (req, res) => {
     }
 });
 
-//get all unit id by sdo_officer_id
 router.get("/unit_id/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -407,7 +375,6 @@ router.get("/unit_id/:id", async (req, res) => {
     }
 });
 
-//get all record_data by unit_id
 router.get("/record_data/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -421,7 +388,6 @@ router.get("/record_data/:id", async (req, res) => {
     }
 });
 
-//get all record_data by record_id taht is "Approved"
 router.get("/record_data/approved/:id/:unit_id", async (req, res) => {
     try {
         const { id, unit_id } = req.params;
@@ -438,12 +404,6 @@ router.get("/record_data/approved/:id/:unit_id", async (req, res) => {
 });
 
 router.post("/notification", async (req, res) => {
-    // CREATE TABLE notification_table (
-    //     unit_id character varying(25) REFERENCES unit_table(unit_id),
-    //     notification_date date NOT NULL,
-    //     message text NOT NULL
-    // );
-
     try {
         const { unit_id, notification_date, message } = req.body;
         const newNotification = await pool.query(
@@ -456,7 +416,6 @@ router.post("/notification", async (req, res) => {
     }
 });
 
-//get all notification by unit_id
 router.get("/notification/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -472,7 +431,6 @@ router.get("/notification/:id", async (req, res) => {
 
 router.patch("/record_data/:id", async (req, res) => {
     try {
-        //only the status will be updated
         const { id } = req.params;
         const { record_status } = req.body;
         const updateRecordData = await pool.query(
@@ -485,7 +443,6 @@ router.patch("/record_data/:id", async (req, res) => {
     }
 });
 
-//add record_data
 router.post("/record_data", upload.single("record_file"), async (req, res) => {
     try {
         const {
@@ -508,7 +465,6 @@ router.post("/record_data", upload.single("record_file"), async (req, res) => {
     }
 });
 
-// router.post("/file", upload.single("file"), async (req, res) => {
 router.post("/file", async (req, res) => {
     try {
         const { file, record_data_id, file_extension } = req.body;
@@ -530,7 +486,6 @@ router.post("/file", async (req, res) => {
 
 router.post("/record_value", async (req, res) => {
     try {
-        //record_value_id | record_data_id | value
         const record_value_id = "RV" + Math.floor(Math.random() * 100000);
         const { record_data_id, record_data_value, record_id } = req.body;
         console.log(req.body);
@@ -544,7 +499,6 @@ router.post("/record_value", async (req, res) => {
     }
 });
 
-//get all record_value  by record_data_id
 router.get("/record_value/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -559,7 +513,6 @@ router.get("/record_value/:id", async (req, res) => {
     }
 });
 
-//update record_value by record_data_id
 router.patch("/update_record_values/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -575,7 +528,6 @@ router.patch("/update_record_values/:id", async (req, res) => {
     }
 });
 
-//get record_name by record_id
 router.get("/record_name/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -588,8 +540,6 @@ router.get("/record_name/:id", async (req, res) => {
         console.error(err.message);
     }
 });
-
-//get all record_value inner join record_data by record_data_id
 
 router.get("/record_value/record_data/:id", async (req, res) => {
     try {
@@ -604,7 +554,6 @@ router.get("/record_value/record_data/:id", async (req, res) => {
     }
 });
 
-//get campus by sdo_officer_id
 router.get("/campus/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -618,21 +567,6 @@ router.get("/campus/:id", async (req, res) => {
     }
 });
 
-//get all accreditation
-router.get("/accreditation/:id", async (req, res) => {
-    try {
-        const { id } = req.params;
-        const allAccreditation = await pool.query(
-            "SELECT * FROM accreditation_table WHERE campus_id = $1",
-            [id]
-        );
-        res.json(allAccreditation.rows);
-    } catch (err) {
-        console.error(err.message);
-    }
-});
-
-//:5000/record/sdg/${sdg}/${instrument.instrument_id
 router.get("/record/sdg/:id/:instrument_id", async (req, res) => {
     try {
         const { id, instrument_id } = req.params;
@@ -647,7 +581,7 @@ router.get("/record/sdg/:id/:instrument_id", async (req, res) => {
         console.error(err.message);
     }
 });
-//get all record_data
+
 router.get("/record/unit/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -676,39 +610,6 @@ router.get("/record/all/:id", async (req, res) => {
     }
 });
 
-//add accreditation
-router.post("/accreditation", async (req, res) => {
-    try {
-        const {
-            accreditation_id,
-            accreditation_program,
-            accreditation_program_type,
-            accreditation_level,
-            accreditation_year,
-            campus_id,
-        } = req.body;
-        const newAccreditation = await pool.query(
-            "INSERT INTO accreditation_table (accreditation_id, accreditation_program, accreditation_program_type, accreditation_level, accreditation_year, campus_id) VALUES($1, $2, $3, $4, $5, $6) RETURNING *",
-            [
-                accreditation_id,
-                accreditation_program,
-                accreditation_program_type,
-                accreditation_level,
-                accreditation_year,
-                campus_id,
-            ]
-        );
-        res.json(newAccreditation.rows[0]);
-    } catch (err) {
-        console.error(err.message);
-    }
-});
-
-//SELECT *
-// FROM sdo_officer_table
-// INNER JOIN campus_table ON sdo_officer_table.campus_id = campus_table.campus_id;
-
-//get all sdo_officer inner join campus
 router.get("/sdo-officers", async (req, res) => {
     try {
         const allSdoOfficer = await pool.query(
@@ -720,7 +621,6 @@ router.get("/sdo-officers", async (req, res) => {
     }
 });
 
-//get specific sdo_officer
 router.get("/sdo-officers/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -763,35 +663,6 @@ router.patch("/unit/update/:id", async (req, res) => {
     }
 });
 
-// Routes
-router.get("/water_consumption", async (req, res) => {
-    try {
-        const { rows } = await pool.query("SELECT * FROM water_consumption");
-        res.json(rows);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Internal Server Error");
-    }
-});
-
-router.post("/water_consumption", async (req, res) => {
-    const { month, deepWell, mains, drinkingWater } = req.body;
-    try {
-        const query = `
-        INSERT INTO water_consumption (month, deep_well, mains, drinking_water)
-        VALUES ($1, $2, $3, $4)
-        RETURNING *
-      `;
-        const values = [month, deepWell, mains, drinkingWater];
-        const { rows } = await pool.query(query, values);
-        res.json(rows[0]);
-    } catch (error) {
-        console.error(error);
-        res.status(500).send("Internal Server Error");
-    }
-});
-
-//get the campus_id of the sdo_officer by sdo_officer_id
 router.get("/campus_id/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -807,7 +678,6 @@ router.get("/campus_id/:id", async (req, res) => {
 
 router.post("/add_enrollment", async (req, res) => {
     try {
-        // Destructure the data from the request body
         const {
             enrolled_id,
             enrolled_school_year,
@@ -817,7 +687,6 @@ router.post("/add_enrollment", async (req, res) => {
             campus_id,
         } = req.body;
 
-        // Use the data to insert a new enrollment into the database
         const newEnrollment = await pool.query(
             "INSERT INTO enrollment_table (enrollment_id, enrollment_school_year, enrollment_year_level, enrollment_gender, enrollment_number, campus_id) " +
                 "VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
@@ -831,8 +700,7 @@ router.post("/add_enrollment", async (req, res) => {
             ]
         );
 
-        // Send the newly inserted enrollment data back as the response
-        res.json(newEnrollment.rows[0]); // Assuming you expect a single enrollment back
+        res.json(newEnrollment.rows[0]);
     } catch (err) {
         console.error(err.message);
         res.status(500).send("Server Error");
@@ -863,22 +731,28 @@ router.get("/file/:id", async (req, res) => {
     }
 });
 
-router.post(
-    "/annual_report",
-    upload.single("annual_report_file"),
-    async (req, res) => {
-        try {
-            const { annual_report_year, sdo_officer_id } = req.body;
-            const newAnnualReport = await pool.query(
-                "INSERT INTO annual_reports (annual_report_year, annual_report_file, sdo_officer_id) VALUES($1, $2, $3) RETURNING *",
-                [annual_report_year, req.file.filename, sdo_officer_id]
-            );
-            res.json(newAnnualReport.rows[0]);
-        } catch (err) {
-            console.error(err.message);
-        }
+router.post("/annual_report", async (req, res) => {
+    try {
+        const {
+            annual_report_id,
+            annual_report_year,
+            sdo_officer_id,
+            annual_report_file,
+        } = req.body;
+        const newAnnualReport = await pool.query(
+            "INSERT INTO annual_reports (annual_report_id, annual_report_year, annual_report_file, sdo_officer_id) VALUES($1, $2, $3, $4) RETURNING *",
+            [
+                annual_report_id,
+                annual_report_year,
+                annual_report_file,
+                sdo_officer_id,
+            ]
+        );
+        res.json(newAnnualReport.rows[0]);
+    } catch (err) {
+        console.error(err.message);
     }
-);
+});
 
 router.get("/annual_report/", async (req, res) => {
     try {
@@ -900,7 +774,7 @@ router.get("/getReport", async (req, res) => {
 
 router.post("/instruments", async (req, res) => {
     const { name, status, date_posted } = req.body;
-    //from 1000000 to 9999999 id, no string
+
     const id = Math.floor(Math.random() * 1000000 + 9999999);
 
     try {
@@ -908,6 +782,7 @@ router.post("/instruments", async (req, res) => {
             "INSERT INTO instrument_table(instrument_id, name, status, date_posted) VALUES($1, $2, $3, $4) RETURNING *",
             [id, name, status, date_posted]
         );
+        console.log(instrument);
         res.status(200).json(instrument.rows[0]);
     } catch (error) {
         console.error(error);
@@ -917,14 +792,13 @@ router.post("/instruments", async (req, res) => {
 
 router.post("/addRecord", async (req, res) => {
     const { record_id, record_name, sdg_id, instrument_id } = req.body;
-
+    const record_status = "active";
     try {
-        // Insert the new record into the 'reportData' table
         const result = await pool.query(
-            "INSERT INTO record_table (record_id, record_name, sdg_id , instrument_id) VALUES ($1, $2, $3, $4) RETURNING *",
-            [record_id, record_name, sdg_id, instrument_id]
+            "INSERT INTO record_table (record_id, record_name, sdg_id , instrument_id, record_status) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+            [record_id, record_name, sdg_id, instrument_id, record_status]
         );
-        // Send the newly inserted record back as the response
+
         res.json(result.rows[0]);
     } catch (error) {
         console.error(error);
@@ -962,12 +836,12 @@ router.patch("/updateRecords", async (req, res) => {
         const { record_id, record_name, sdg_id, instrument_id, record_status } =
             req.body;
         console.log(req.body);
-        // Update the records in the database
+
         const result = await pool.query(
             "UPDATE record_table SET record_name = $1 , record_status = $2 WHERE record_id = $3",
             [record_name, record_status, record_id]
         );
-        // Send the updated records back as the response
+
         res.json(result.rows[0]);
     } catch (error) {
         console.error(error);
@@ -979,12 +853,12 @@ router.patch("/updateInstrumentStatus", async (req, res) => {
     try {
         const { instrument_id, status } = req.body;
         console.log(req.body);
-        // Update the records in the database
+
         const result = await pool.query(
             "UPDATE instrument_table SET status = $1 WHERE instrument_id = $2",
             [status, instrument_id]
         );
-        // Send the updated records back as the response
+
         res.json(result.rows[0]);
     } catch (error) {
         console.error(error);
@@ -992,7 +866,6 @@ router.patch("/updateInstrumentStatus", async (req, res) => {
     }
 });
 
-//get all status of records and count them
 router.get("/status", async (req, res) => {
     try {
         const status = await pool.query(
@@ -1004,7 +877,6 @@ router.get("/status", async (req, res) => {
     }
 });
 
-//loop via all sdg and get the count of record_data by sdg_id
 router.get("/sdg/count", async (req, res) => {
     try {
         const sdg = await pool.query(
@@ -1014,6 +886,72 @@ router.get("/sdg/count", async (req, res) => {
         res.json(sdg.rows);
     } catch (err) {
         console.error(err.message);
+    }
+});
+
+//delete all record value table
+router.delete("/deleteRecordValue", async (req, res) => {
+    try {
+        const result = await pool.query("DELETE FROM record_value_table");
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+//delete all record data table
+router.delete("/deleteRecordData", async (req, res) => {
+    try {
+        const result = await pool.query("DELETE FROM record_data_table");
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+//delete all record table
+router.delete("/deleteRecord", async (req, res) => {
+    try {
+        const result = await pool.query("DELETE FROM record_table");
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+//delete all file table
+router.delete("/deleteFile", async (req, res) => {
+    try {
+        const result = await pool.query("DELETE FROM file_table");
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+//delete all record instrument table
+router.delete("/deleteInstrument", async (req, res) => {
+    try {
+        const result = await pool.query("DELETE FROM instrument_table");
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+//delete notification table
+router.delete("/deleteNotification", async (req, res) => {
+    try {
+        const result = await pool.query("DELETE FROM notification_table");
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
     }
 });
 

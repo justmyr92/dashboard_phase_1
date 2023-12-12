@@ -6,7 +6,12 @@ import DataTable from "react-data-table-component";
 import ViewRecords from "../components/ViewRecords";
 import SetNotification from "../components/SetNotification";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFile, faSearch } from "@fortawesome/free-solid-svg-icons";
+import {
+    faCircleCheck,
+    faFile,
+    faList,
+    faSearch,
+} from "@fortawesome/free-solid-svg-icons";
 import Notifications from "../components/Notifications";
 const Records = () => {
     const [ID, setID] = useState(localStorage.getItem("ID"));
@@ -30,15 +35,6 @@ const Records = () => {
             window.location.href = "/login";
         }
         const getUnit = async () => {
-            // app.get("/unit", async (req, res) => {
-            //     try {
-            //         const allUnit = await pool.query("SELECT * FROM unit_table");
-            //         res.json(allUnit.rows);
-            //     } catch (err) {
-            //         console.error(err.message);
-            //     }
-            // });
-
             const response = await fetch(
                 `https://csddashboard.online/api/unit`
             );
@@ -49,60 +45,7 @@ const Records = () => {
     }, [ID]);
 
     useEffect(() => {
-        // setRecords([]);
-        // const getRecords = async () => {
-        //     if (ROLE === "sdo") {
-        //         const response = await fetch(
-        //             `https://csddashboard.online/api/unit_id/${ID.toString()}`
-        //         );
-        //         const data = await response.json();
-        //         console.log(data);
-        //         if (data.length > 0) {
-        //             for (const unit of data) {
-        //                 const response2 = await fetch(
-        //                     `https://csddashboard.online/api/record/all/${unit.unit_id}`
-        //                 );
-        //                 const data2 = await response2.json();
-        //                 if (data2.length > 0) {
-        //                     setRecords((prev) => {
-        //                         const filteredData = data2.filter(
-        //                             (record) =>
-        //                                 !prev.some(
-        //                                     (prevRecord) =>
-        //                                         prevRecord.record_data_id ===
-        //                                         record.record_data_id
-        //                                 )
-        //                         );
-        //                         return [...prev, ...filteredData];
-        //                     });
-        //                 }
-        //             }
-        //         }
-        //     } else if (ROLE === "unit") {
-        //         const response = await fetch(
-        //             `https://csddashboard.online/api/record/all/${ID.toString()}`
-        //         );
-        //         const data = await response.json();
-        //         console.log(data);
-        //         setRecords(data);
-        //         // } else {
-        //         //     const response = await fetch(
-        //         //         `https://csddashboard.online/api/record/all/${ID}`
-        //         //     );
-        //         //     const data = await response.json();
-        //         //     console.log(data);
-        //     }
-        // };
         const getRecords = async () => {
-            // app.get("/record", async (req, res) => {
-            //     try {
-            //         const allRecord = await pool.query("SELECT * FROM record_table");
-            //         res.json(allRecord.rows);
-            //     } catch (err) {
-            //         console.error(err.message);
-            //     }
-            // });
-
             const response = await fetch(
                 `https://csddashboard.online/api/record_data/unit`
             );
@@ -140,9 +83,9 @@ const Records = () => {
         },
         {
             name: "Unit Name",
-            selector: (row) => row.unit_name, // Adjust this based on your data structure
+            selector: (row) => row.unit_name,
             sortable: true,
-            omit: ROLE === "unit", // Omit the column if the role is "unit"
+            omit: ROLE === "unit",
         },
         {
             name: "SDG Indicator",
@@ -172,29 +115,29 @@ const Records = () => {
                                 setShowViewFile(true);
                                 setFile(row.record_data_id);
                             }}
-                            className="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-[10px] px-5 py-2.5 text-center"
+                            className="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-[10px] px-3 py-2.5 text-center"
                             type="button"
                         >
-                            File
+                            <FontAwesomeIcon icon={faFile} />
                         </button>
                         <button
                             onClick={() => {
                                 setRecord_data_id(row.record_data_id);
                                 setViewRecordModal(true);
                             }}
-                            className="block text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-[10px] px-5 py-2.5 text-center"
+                            className="block text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-[10px] px-3 py-2.5 text-center"
                             type="button"
                         >
-                            Record
+                            <FontAwesomeIcon icon={faList} />
                         </button>
                         <button
                             onClick={() => {
                                 setSelectedRecords(row);
                                 setShowUpdateStatus(true);
                             }}
-                            className="block text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg px-5 py-2.5 text-center text-[10px]"
+                            className="block text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg px-3 py-2.5 text-center text-[10px]"
                         >
-                            Status
+                            <FontAwesomeIcon icon={faCircleCheck} />
                         </button>
                     </div>
                 ) : (
@@ -204,20 +147,20 @@ const Records = () => {
                                 setShowViewFile(true);
                                 setFile(row.record_data_id);
                             }}
-                            className="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-[10px] px-5 py-2.5 text-center"
+                            className="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-[10px] px-3 py-2.5 text-center"
                             type="button"
                         >
-                            File
+                            <FontAwesomeIcon icon={faFile} />
                         </button>
                         <buttons
                             onClick={() => {
                                 setRecord_data_id(row.record_data_id);
                                 setViewRecordModal(true);
                             }}
-                            className="block text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-[10px] px-5 py-2.5 text-center"
+                            className="block text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-[10px] px-3 py-2.5 text-center"
                             type="button"
                         >
-                            Record
+                            <FontAwesomeIcon icon={faList} />
                         </buttons>
                     </div>
                 ),
@@ -252,7 +195,7 @@ const Records = () => {
                                 </h3>
                                 <button
                                     onClick={() => setShowViewFile(false)}
-                                    className="block text-white bg-blue-700 hover:bg-blue-800 outline-none font-medium rounded-lg text-[10px] px-5 py-2.5 text-center"
+                                    className="block text-white bg-blue-700 hover:bg-blue-800 outline-none font-medium rounded-lg text-[10px] px-3 py-2.5 text-center"
                                     type="button"
                                 >
                                     Back
@@ -269,7 +212,6 @@ const Records = () => {
                                 </h3>
 
                                 <div className="control-container flex items-center space-x-2">
-                                    {/* search */}
                                     <div className="relative">
                                         <input
                                             type="text"
