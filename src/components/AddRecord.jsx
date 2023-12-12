@@ -351,12 +351,34 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                                         key={index}
                                         className="flex items-center space-x-2"
                                     >
+                                        <label
+                                            htmlFor={`file-${index}`}
+                                            className="text-sm font-semibold text-gray-600"
+                                        >
+                                            File{" "}
+                                            {
+                                                "(PDF should be less than 10MB and image should be less than 5MB)"
+                                            }
+                                        </label>
                                         <input
                                             type="file"
                                             id={`file-${index}`}
                                             name={`file-${index}`}
-                                            className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                                            accept=".pdf,.docx,.doc, .xlsx,.xls, .jpg, .jpeg, .png"
+                                            className={`block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${
+                                                file &&
+                                                file.type ===
+                                                    "application/pdf" &&
+                                                file.size > 10000000
+                                                    ? "border-red-500"
+                                                    : ""
+                                            } ${
+                                                file &&
+                                                file.type.match(/image-*/i) &&
+                                                file.size > 5000000
+                                                    ? "border-red-500"
+                                                    : ""
+                                            }`}
+                                            accept=".pdf, .jpg, .jpeg, .png"
                                             onChange={(e) =>
                                                 handleFileInputChange(
                                                     e.target.files,
