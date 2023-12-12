@@ -8,6 +8,6 @@ app.use(express.json());
 
 app.use("/api", dashboardRoutes);
 
-app.listen(7724, () => {
-    console.log("server has started on port 7061");
+app.listen(5000, () => {
+    console.log("server has started on port 5000");
 });
