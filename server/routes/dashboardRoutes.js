@@ -3,18 +3,6 @@ const pool = require("../db/sdg.dashboard");
 const multer = require("multer");
 const bcrypt = require("bcrypt");
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, "../src/assets/records");
-    },
-    filename: (req, file, cb) => {
-        const ext = file.originalname.split(".").pop();
-        cb(null, Date.now() + "-" + file.fieldname + "." + ext);
-    },
-});
-
-const upload = multer({ storage: storage });
-
 router.post("/sdo_officer", async (req, res) => {
     try {
         const {
@@ -437,28 +425,6 @@ router.patch("/record_data/:id", async (req, res) => {
             [record_status, id]
         );
         res.json("Record Data was updated");
-    } catch (err) {
-        console.error(err.message);
-    }
-});
-
-router.post("/record_data", upload.single("record_file"), async (req, res) => {
-    try {
-        const {
-            record_data_id,
-            record_date,
-            record_status,
-            record_id,
-            unit_id,
-        } = req.body;
-        console.log(req.body);
-
-        const newRecordData = await pool.query(
-            "INSERT INTO record_data_table (record_data_id, record_date, record_status, record_id, unit_id) VALUES($1, $2, $3, $4, $5) RETURNING *",
-            [record_data_id, record_date, record_status, record_id, unit_id]
-        );
-
-        res.json(newRecordData.rows[0]);
     } catch (err) {
         console.error(err.message);
     }
