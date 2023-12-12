@@ -26,7 +26,9 @@ const RecordBarChart = () => {
     useEffect(() => {
         const fetchSdgs = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/sdg/count`);
+                const response = await fetch(
+                    `https://csddashboard.online/api/sdg/count`
+                );
                 const data = await response.json();
                 setSdgs(data);
             } catch (error) {

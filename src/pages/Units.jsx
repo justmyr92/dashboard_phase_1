@@ -29,7 +29,7 @@ const Units = () => {
     useEffect(() => {
         const getUnits = async () => {
             const response = await fetch(
-                `http://localhost:5000/unit/sdo/${ID}`
+                `https://csddashboard.online/api/unit/sdo/${ID}`
             );
             const data = await response.json();
             setUnits(data);
@@ -40,7 +40,9 @@ const Units = () => {
         }
         {
             const getUnits = async () => {
-                const response = await fetch(`http://localhost:5000/unit`);
+                const response = await fetch(
+                    `https://csddashboard.online/api/unit`
+                );
                 const data = await response.json();
                 setUnits(data);
             };

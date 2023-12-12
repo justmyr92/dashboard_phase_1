@@ -39,7 +39,9 @@ const Records = () => {
             //     }
             // });
 
-            const response = await fetch(`http://localhost:5000/unit`);
+            const response = await fetch(
+                `https://csddashboard.online/api/unit`
+            );
             const data = await response.json();
             setUnit(data);
         };
@@ -51,14 +53,14 @@ const Records = () => {
         // const getRecords = async () => {
         //     if (ROLE === "sdo") {
         //         const response = await fetch(
-        //             `http://localhost:5000/unit_id/${ID.toString()}`
+        //             `https://csddashboard.online/api/unit_id/${ID.toString()}`
         //         );
         //         const data = await response.json();
         //         console.log(data);
         //         if (data.length > 0) {
         //             for (const unit of data) {
         //                 const response2 = await fetch(
-        //                     `http://localhost:5000/record/all/${unit.unit_id}`
+        //                     `https://csddashboard.online/api/record/all/${unit.unit_id}`
         //                 );
         //                 const data2 = await response2.json();
         //                 if (data2.length > 0) {
@@ -78,14 +80,14 @@ const Records = () => {
         //         }
         //     } else if (ROLE === "unit") {
         //         const response = await fetch(
-        //             `http://localhost:5000/record/all/${ID.toString()}`
+        //             `https://csddashboard.online/api/record/all/${ID.toString()}`
         //         );
         //         const data = await response.json();
         //         console.log(data);
         //         setRecords(data);
         //         // } else {
         //         //     const response = await fetch(
-        //         //         `http://localhost:5000/record/all/${ID}`
+        //         //         `https://csddashboard.online/api/record/all/${ID}`
         //         //     );
         //         //     const data = await response.json();
         //         //     console.log(data);
@@ -102,7 +104,7 @@ const Records = () => {
             // });
 
             const response = await fetch(
-                `http://localhost:5000/record_data/unit`
+                `https://csddashboard.online/api/record_data/unit`
             );
             const data = await response.json();
             console.log(data);

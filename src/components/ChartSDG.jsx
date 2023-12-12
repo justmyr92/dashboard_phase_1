@@ -119,7 +119,7 @@ const ChartSDG = () => {
         const getSdOfficers = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:5000/sdo_officer`
+                    `https://csddashboard.online/api/sdo_officer`
                 );
                 const jsonData = await response.json();
                 setSdOfficers(
@@ -137,7 +137,7 @@ const ChartSDG = () => {
         const getInstruments = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:5000/getInstruments`
+                    `https://csddashboard.online/api/getInstruments`
                 );
                 const jsonData = await response.json();
                 setInstruments(jsonData);

@@ -42,7 +42,7 @@ const AddAccreditation = ({
             //for each accreditation, add to database
             newAccreditation.forEach(async (accreditation) => {
                 const response = await fetch(
-                    "http://localhost:5000/accreditation",
+                    "https://csddashboard.online/api/accreditation",
                     {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },

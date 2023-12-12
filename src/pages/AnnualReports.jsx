@@ -28,7 +28,7 @@ const AnnualReports = () => {
         const getAnnualReports = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:5000/annual_report/`
+                    `https://csddashboard.online/api/annual_report/`
                 );
                 const jsonData = await response.json();
                 setAnnualReports(jsonData);
@@ -68,7 +68,7 @@ const AnnualReports = () => {
             formData.append("sdo_officer_id", annualReport.sdo_officer_id);
 
             const response = await fetch(
-                "http://localhost:5000/annual_report",
+                "https://csddashboard.online/api/annual_report",
                 {
                     method: "POST",
                     body: formData,
