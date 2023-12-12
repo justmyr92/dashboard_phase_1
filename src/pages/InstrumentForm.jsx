@@ -24,7 +24,7 @@ const InstrumentForm = () => {
             {
                 record_id: "",
                 record_name: "",
-                sdg_id: sdgIndicator, // Assign the selected SDG to the new record
+                sdg_id: sdgIndicator,
             },
         ]);
     };
@@ -96,14 +96,12 @@ const InstrumentForm = () => {
                     const data = await response.json();
                     console.log(data);
                     if (response.ok) {
-                        // app.post("/addRecord", async (req, res) => {
                         if (instrumentName !== "") {
                             record.map(async (recordItem) => {
                                 if (recordItem.record_name === "") {
                                     return;
                                 }
                                 const newRecord = {
-                                    //id is auto generated from ID100000 to ID 999999
                                     record_id:
                                         "ID" +
                                         Math.floor(Math.random() * 999999),
@@ -343,7 +341,6 @@ const InstrumentForm = () => {
                                             groupRecordsBySdgId(record)
                                         )
                                             .sort((a, b) => {
-                                                // Assuming sdg_no is a number, adjust accordingly if it's a string
                                                 return (
                                                     parseInt(a) - parseInt(b)
                                                 );

@@ -81,8 +81,8 @@ const ChartSDG = () => {
     const [reloadKey, setReloadKey] = useState(0);
     const [sdOfficers, setSdOfficers] = useState([]);
     const [instruments, setInstruments] = useState([]);
-    const [selectedOfficerIndex, setSelectedOfficerIndex] = useState(0); // Add this line
-    const [reload, setReload] = useState(false); // Add this line
+    const [selectedOfficerIndex, setSelectedOfficerIndex] = useState(0);
+    const [reload, setReload] = useState(false);
 
     useState(() => {
         if (role === "sdo") {
@@ -95,7 +95,7 @@ const ChartSDG = () => {
     const handleSDGClick = (selectedSDG) => {
         setSdg(selectedSDG.id);
         setSdgName(selectedSDG.name);
-        // Increment the reload key to trigger a re-render of the Card component
+
         setReloadKey(reloadKey + 1);
         setReload(!reload);
     };
@@ -188,7 +188,7 @@ const ChartSDG = () => {
                                             handleOfficerClick(
                                                 sdOfficers[index]
                                             );
-                                            setSelectedOfficerIndex(index); // Add this line
+                                            setSelectedOfficerIndex(index);
                                         }}
                                     >
                                         SDO {index + 1} : {getCampusName(index)}

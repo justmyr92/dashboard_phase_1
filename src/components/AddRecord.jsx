@@ -49,7 +49,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
             if (response.ok) {
                 console.log("Instruments Data:", data);
                 setInstruments(data);
-                //lopp through instruments and get the first instruent that is active
+
                 const instrument = data.find(
                     (instrument) => instrument.status === "Active"
                 );
@@ -113,7 +113,6 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     }, [instrumentID]);
 
     const handleRemoveFileInput = (index) => {
-        // Remove the file input at the specified index
         setRecordFiles((prevFiles) => [
             ...prevFiles.slice(0, index),
             ...prevFiles.slice(index + 1),
@@ -179,7 +178,6 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                     }
 
                     recordFiles.map(async (file) => {
-                        // Create a JSON object with file information
                         const filePayload = {
                             file: `${sdgID}: ${file.name}`,
                             record_data_id: recordDataID,
@@ -189,7 +187,6 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                                 .toLowerCase(),
                         };
 
-                        // Print file payload in JSON format
                         console.log(
                             "File Payload:",
                             JSON.stringify(filePayload)

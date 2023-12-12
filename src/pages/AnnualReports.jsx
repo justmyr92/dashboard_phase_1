@@ -30,7 +30,6 @@ const AnnualReports = () => {
                     `https://csddashboard.online/api/annual_report/`
                 );
                 const jsonData = await response.json();
-                //fetch all image/pdf files from firebase storage
                 const promises = jsonData.map(async (annualReport) => {
                     const storageRef = ref(
                         storage,
@@ -75,13 +74,11 @@ const AnnualReports = () => {
 
     const saveAnnualReport = async () => {
         try {
-            // Get extension from the file
             const fileExtension =
                 annualReport.annual_report_file.name.split(".")[1];
             const newFileName = `Annual Report ${annualReport.annual_report_year}.${fileExtension}`;
             const getYear = annualReport.annual_report_year.split("-")[0];
 
-            //get file size in MB
             const fileSize = annualReport.annual_report_file.size / 1024 / 1024;
 
             if (fileExtension === "pdf") {
@@ -110,7 +107,6 @@ const AnnualReports = () => {
                 sdo_officer_id: annualReport.sdo_officer_id,
             };
 
-            // Log the JSON object
             console.log(JSON.stringify(requestBody));
 
             const response = await fetch(

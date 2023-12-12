@@ -55,7 +55,6 @@ const SDOfficer = () => {
             const data = await response.json();
 
             if (search.length > 0) {
-                //byall search
                 setSDOfficers(
                     data.filter((officer) => {
                         return (
@@ -96,7 +95,7 @@ const SDOfficer = () => {
                             <div className="relative">
                                 <input
                                     type="text"
-                                    className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none pl-8" // Add left padding for the icon
+                                    className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none pl-8"
                                     placeholder="Search"
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}

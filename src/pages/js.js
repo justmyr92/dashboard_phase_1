@@ -1150,5 +1150,4 @@ async function addRecord(record) {
     }
 }
 
-// Map and run the function for each record
 records.map(addRecord);

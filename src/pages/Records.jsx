@@ -53,13 +53,11 @@ const Records = () => {
             console.log(data);
 
             if (ROLE === "sdo") {
-                // Assuming data has a property sdo_office_id
                 const filteredData = data.filter(
                     (record) => record.sdo_officer_id === ID
                 );
                 setRecords(filteredData);
             } else if (ROLE === "unit") {
-                // Assuming data has a property unit_id
                 const filteredData = data.filter(
                     (record) => record.unit_id === ID
                 );

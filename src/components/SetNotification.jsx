@@ -59,7 +59,6 @@ const SetNotification = ({
         const form = document.createElement("form");
         form.style.display = "none";
 
-        // Append values from state or other sources
         form.innerHTML = `
         <input type="hidden" name="from_name" value="SDO Officer" />
         <input type="hidden" name="to_name" value="${unit.unit_name}" />
@@ -70,7 +69,6 @@ const SetNotification = ({
 
         document.body.appendChild(form);
 
-        // Submit the form
         emailjs
             .sendForm(
                 "service_hix8y8a",
@@ -87,7 +85,6 @@ const SetNotification = ({
                 }
             );
 
-        // Clean up: remove the form from the DOM
         document.body.removeChild(form);
 
         const data = {

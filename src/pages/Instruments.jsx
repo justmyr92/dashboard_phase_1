@@ -60,7 +60,6 @@ const Instruments = () => {
         setInstrument(instrument);
         setPage(2);
 
-        // Fetch records and initialize editedRecords with the current state
         const getRecords = async () => {
             try {
                 const response = await fetch(
@@ -69,7 +68,6 @@ const Instruments = () => {
                 const jsonData = await response.json();
                 setRecord(jsonData);
 
-                // Initialize editedRecords with the current state
                 setEditedRecords(jsonData.map((record) => ({ ...record })));
             } catch (err) {
                 console.error(err.message);
@@ -124,9 +122,6 @@ const Instruments = () => {
                                 body: JSON.stringify(record),
                             }
                         );
-
-                        // Handle the response accordingly
-                        // For example, you can check if the response is successful
                         if (response.ok) {
                             console.log("Records updated successfully.");
                         } else {
@@ -145,7 +140,6 @@ const Instruments = () => {
             }
         });
 
-        // Reset isEdit and fetch updated records
         setIsEdit(false);
         setRecord(editedRecords);
     };
@@ -319,7 +313,6 @@ const Instruments = () => {
                                     </tr>
                                     {Object.keys(groupRecordsBySdgId(record))
                                         .sort((a, b) => {
-                                            // Assuming sdg_no is a number, adjust accordingly if it's a string
                                             return parseInt(a) - parseInt(b);
                                         })
                                         .map((sdg_id) => (

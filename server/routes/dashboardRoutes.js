@@ -393,7 +393,6 @@ router.get("/record_data/approved/:id/:unit_id", async (req, res) => {
         const { id, unit_id } = req.params;
         console.log(id, unit_id);
         const recordData = await pool.query(
-            //inner join unit_table where s
             "SELECT record_data_table.*, unit_table.* FROM record_data_table INNER JOIN unit_table ON record_data_table.unit_id = unit_table.unit_id WHERE record_data_table.record_id = $1 AND record_data_table.record_status = 'Approved' AND unit_table.sdo_officer_id = $2",
             [id, unit_id]
         );
@@ -889,7 +888,6 @@ router.get("/sdg/count", async (req, res) => {
     }
 });
 
-//delete all record value table
 router.delete("/deleteRecordValue", async (req, res) => {
     try {
         const result = await pool.query("DELETE FROM record_value_table");
@@ -900,7 +898,6 @@ router.delete("/deleteRecordValue", async (req, res) => {
     }
 });
 
-//delete all record data table
 router.delete("/deleteRecordData", async (req, res) => {
     try {
         const result = await pool.query("DELETE FROM record_data_table");
@@ -911,7 +908,6 @@ router.delete("/deleteRecordData", async (req, res) => {
     }
 });
 
-//delete all record table
 router.delete("/deleteRecord", async (req, res) => {
     try {
         const result = await pool.query("DELETE FROM record_table");
@@ -922,7 +918,6 @@ router.delete("/deleteRecord", async (req, res) => {
     }
 });
 
-//delete all file table
 router.delete("/deleteFile", async (req, res) => {
     try {
         const result = await pool.query("DELETE FROM file_table");
@@ -933,7 +928,6 @@ router.delete("/deleteFile", async (req, res) => {
     }
 });
 
-//delete all record instrument table
 router.delete("/deleteInstrument", async (req, res) => {
     try {
         const result = await pool.query("DELETE FROM instrument_table");
@@ -944,7 +938,6 @@ router.delete("/deleteInstrument", async (req, res) => {
     }
 });
 
-//delete notification table
 router.delete("/deleteNotification", async (req, res) => {
     try {
         const result = await pool.query("DELETE FROM notification_table");

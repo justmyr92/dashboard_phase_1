@@ -34,8 +34,6 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
     };
 
     const handleSave = async () => {
-        // Update record values
-
         recordValues.forEach(async (record) => {
             const response = await fetch(
                 `https://csddashboard.online/api/update_record_values/${record.record_value_id}`,
@@ -49,7 +47,6 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
             );
 
             if (response.ok) {
-                // Data successfully updated
                 console.log("Record values updated successfully!");
 
                 const response = await fetch(
@@ -66,7 +63,6 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
                 const data = await response.json();
 
                 if (response.ok) {
-                    // Data successfully updated
                     Swal.fire({
                         icon: "success",
                         title: "Success!",
@@ -77,7 +73,6 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
 
                 setShowModal(false);
             } else {
-                // Handle error
                 console.error("Failed to update record values");
             }
         });

@@ -34,7 +34,7 @@ const Card = ({ sdg, instrument }) => {
             }
         };
         fetchRecords();
-    }, [sdg, instrument.instrument_id]); // Include instrument_id in dependencies
+    }, [sdg, instrument.instrument_id]);
 
     useEffect(() => {
         const fetchUnit = async () => {
