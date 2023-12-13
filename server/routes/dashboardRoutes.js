@@ -914,118 +914,6 @@ router.delete("/deleteNotification", async (req, res) => {
     }
 });
 
-// const handleSubmit = async (e) => {
-//     e.preventDefault();
-//     const record_data_id = "RD" + Math.floor(Math.random() * 100000);
-//     const formData = new FormData();
-//     formData.append("record_data_id", record_data_id);
-//     formData.append("record_date", new Date().toISOString().slice(0, 10));
-//     formData.append("record_status", "For Approval");
-//     formData.append("record_id", recordID);
-//     formData.append("unit_id", ID);
-
-//     Swal.fire({
-//         title: "Are you sure?",
-//         text: "You won't be able to revert this!",
-//         icon: "warning",
-//         showCancelButton: true,
-//         confirmButtonText: "Yes, submit it!",
-//         cancelButtonText: "No, cancel!",
-//         reverseButtons: true,
-//     }).then(async (result) => {
-//         if (result.isConfirmed) {
-//             const response = await fetch(
-//                 "https://csddashboard.online/api/record_data",
-//                 {
-//                     method: "POST",
-//                     body: formData,
-//                 }
-//             );
-
-//             const data = await response.json();
-//             if (data.record_data_id) {
-//                 const recordDataID = data.record_data_id;
-//                 console.log(recordDataID);
-
-//                 for (const key in recordValues) {
-//                     const value = recordValues[key];
-//                     const values = {
-//                         record_data_id: recordDataID,
-//                         record_data_value: value,
-//                         record_id: key,
-//                     };
-
-//                     console.log(values);
-
-//                     const response = await fetch(
-//                         "https://csddashboard.online/api/record_value",
-//                         {
-//                             method: "POST",
-//                             headers: {
-//                                 "Content-Type": "application/json",
-//                             },
-//                             body: JSON.stringify(values),
-//                         }
-//                     );
-
-//                     const responseData = await response.json();
-//                     console.log(responseData);
-//                 }
-
-//                 recordFiles.map(async (file) => {
-//                     const filePayload = {
-//                         file: `${sdgID}: ${file.name}`,
-//                         record_data_id: recordDataID,
-//                         file_extension: file.name
-//                             .split(".")
-//                             .pop()
-//                             .toLowerCase(),
-//                     };
-
-//                     console.log(
-//                         "File Payload:",
-//                         JSON.stringify(filePayload)
-//                     );
-
-//                     try {
-//                         const storageRef = ref(
-//                             storage,
-//                             `evidence/${filePayload.file}`
-//                         );
-//                         const fileRef = await uploadBytes(storageRef, file);
-//                         console.log("File Uploaded");
-
-//                         const fileResponse = await fetch(
-//                             "https://csddashboard.online/api/file",
-//                             {
-//                                 method: "POST",
-//                                 headers: {
-//                                     "Content-Type": "application/json",
-//                                 },
-//                                 body: JSON.stringify(filePayload),
-//                             }
-//                         );
-
-//                         if (!fileResponse.ok) {
-//                             throw new Error(
-//                                 `HTTP error! Status: ${fileResponse.status}`
-//                             );
-//                         }
-
-//                         const fileData = await fileResponse.json();
-//                         console.log(fileData);
-//                     } catch (error) {
-//                         console.error("Error uploading file:", error);
-//                     }
-//                 });
-//             }
-//         }
-//     });
-
-//     setReload(true);
-//     setShowModal(false);
-// };
-
 router.post("/record_data", async (req, res) => {
     try {
         const {
@@ -1035,10 +923,13 @@ router.post("/record_data", async (req, res) => {
             record_id,
             unit_id,
         } = req.body;
+        console.log(req.body);
+
         const newRecordData = await pool.query(
             "INSERT INTO record_data_table (record_data_id, record_date, record_status, record_id, unit_id) VALUES($1, $2, $3, $4, $5) RETURNING *",
             [record_data_id, record_date, record_status, record_id, unit_id]
         );
+
         res.json(newRecordData.rows[0]);
     } catch (err) {
         console.error(err.message);
