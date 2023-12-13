@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import ChartSDG from "../components/ChartSDG";
 import Notifications from "../components/Notifications";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faDashboard } from "@fortawesome/free-solid-svg-icons";
 
 const Dashboard = () => {
     const [ID, setID] = useState(localStorage.getItem("ID"));
@@ -26,6 +28,10 @@ const Dashboard = () => {
                 <div className="p-4">
                     <div className="header flex justify-between items-center">
                         <h3 className="text-3xl font-bold text-gray-700 title">
+                            <FontAwesomeIcon
+                                icon={faDashboard}
+                                className="mr-2"
+                            />
                             Dashboard
                         </h3>
                         {ROLE === "unit" && <Notifications />}

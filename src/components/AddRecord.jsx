@@ -12,7 +12,6 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     const [recordID, setRecordID] = useState("");
     const [recordFiles, setRecordFiles] = useState([]);
     const [recordValues, setRecordValues] = useState({});
-    const [reloadKey, setReloadKey] = useState(0);
 
     const handleInputChange = (record_id, value) => {
         setRecordValues((prevValues) => ({
@@ -32,6 +31,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
             if (response.ok) {
                 console.log("SDG Data:", data);
                 setSdg(data);
+                console.log(data.sdg_id);
                 setSdgID(data.sdg_id);
             }
         };
@@ -77,10 +77,10 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
             }
         };
 
-        if (instrumentID !== "") {
+        if (instrumentID !== "" && sdgID !== "") {
             fetchData();
         }
-    }, [instrumentID]);
+    }, [instrumentID, sdgID]);
 
     console.log("Render", {
         sdgID,
@@ -129,6 +129,14 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
         formData.append("record_id", recordID);
         formData.append("unit_id", ID);
 
+        const formJSON = {
+            record_data_id: record_data_id,
+            record_date: new Date().toISOString().slice(0, 10),
+            record_status: "For Approval",
+            record_id: recordID,
+            unit_id: ID,
+        };
+
         Swal.fire({
             title: "Are you sure?",
             text: "You won't be able to revert this!",
@@ -143,9 +151,13 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                     "https://csddashboard.online/api/record_data",
                     {
                         method: "POST",
-                        body: formData,
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(formJSON),
                     }
                 );
+                console.log(response);
 
                 const data = await response.json();
                 if (data.record_data_id) {

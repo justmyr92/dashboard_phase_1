@@ -45,6 +45,7 @@ const Records = () => {
     }, [ID]);
 
     useEffect(() => {
+        console.log(reload);
         const getRecords = async () => {
             const response = await fetch(
                 `https://csddashboard.online/api/record_data/unit`
@@ -65,12 +66,44 @@ const Records = () => {
             } else {
                 setRecords(data);
             }
+
+            setReload(false);
         };
 
         getRecords();
         console.log(records);
-        setReload(false);
     }, [reload, ID, ROLE]);
+
+    const [searchedRecords, setSearchedRecords] = useState([]);
+
+    useEffect(() => {
+        setSearchedRecords(
+            records.filter(
+                (record) =>
+                    //all fields to be searched
+                    record.record_data_id
+                        .toString()
+                        .toLowerCase()
+                        .includes(search.toLowerCase()) ||
+                    record.unit_name
+                        .toString()
+                        .toLowerCase()
+                        .includes(search.toLowerCase()) ||
+                    record.sdg_name
+                        .toString()
+                        .toLowerCase()
+                        .includes(search.toLowerCase()) ||
+                    record.record_date
+                        .toString()
+                        .toLowerCase()
+                        .includes(search.toLowerCase()) ||
+                    record.record_status
+                        .toString()
+                        .toLowerCase()
+                        .includes(search.toLowerCase())
+            )
+        );
+    }, [search, records]);
 
     const columns = [
         {
@@ -251,7 +284,7 @@ const Records = () => {
                             <div className="border border-gray-200 rounded-lg max-w-[100vw] overflow-x-auto">
                                 <DataTable
                                     columns={columns}
-                                    data={records}
+                                    data={searchedRecords}
                                     pagination
                                     striped
                                     highlightOnHover

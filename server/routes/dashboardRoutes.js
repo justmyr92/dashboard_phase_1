@@ -641,48 +641,6 @@ router.get("/campus_id/:id", async (req, res) => {
     }
 });
 
-router.post("/add_enrollment", async (req, res) => {
-    try {
-        const {
-            enrolled_id,
-            enrolled_school_year,
-            enrolled_year_level,
-            enrolled_gender,
-            enrollment_number,
-            campus_id,
-        } = req.body;
-
-        const newEnrollment = await pool.query(
-            "INSERT INTO enrollment_table (enrollment_id, enrollment_school_year, enrollment_year_level, enrollment_gender, enrollment_number, campus_id) " +
-                "VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
-            [
-                enrolled_id,
-                enrolled_school_year,
-                enrolled_year_level,
-                enrolled_gender,
-                enrollment_number,
-                campus_id,
-            ]
-        );
-
-        res.json(newEnrollment.rows[0]);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send("Server Error");
-    }
-});
-
-router.get("/enrollment", async (req, res) => {
-    try {
-        const allEnrollment = await pool.query(
-            "SELECT * FROM enrollment_table"
-        );
-        res.json(allEnrollment.rows);
-    } catch (err) {
-        console.error(err.message);
-    }
-});
-
 router.get("/file/:id", async (req, res) => {
     try {
         const { id } = req.params;
