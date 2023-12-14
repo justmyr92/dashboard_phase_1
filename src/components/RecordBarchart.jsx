@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import io from "socket.io-client";
 
-const socket = io("http://csddashboard.online/");
+const socket = io("https://csddashboard.online/");
 
 const RecordBarChart = () => {
     const [sdgs, setSdgs] = useState([]);
@@ -31,7 +31,7 @@ const RecordBarChart = () => {
         const fetchSdgs = async () => {
             try {
                 const response = await fetch(
-                    `http://csddashboard.online//api/sdg/count`
+                    `https://csddashboard.online//api/sdg/count`
                 );
                 const data = await response.json();
                 setSdgs(data);

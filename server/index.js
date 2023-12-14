@@ -10,7 +10,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
     cors: {
-        origin: "http://csddashboard.online/",
+        origin: "https://csddashboard.online/",
         methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     },
 });

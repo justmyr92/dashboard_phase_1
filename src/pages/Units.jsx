@@ -12,7 +12,7 @@ import {
 import { faEdit } from "@fortawesome/free-regular-svg-icons";
 import io from "socket.io-client";
 
-const socket = io("http://csddashboard.online/");
+const socket = io("https://csddashboard.online/");
 const Units = () => {
     const [ID, setID] = useState(localStorage.getItem("ID"));
     const [ROLE, setROLE] = useState(localStorage.getItem("ROLE"));
@@ -32,7 +32,7 @@ const Units = () => {
     useEffect(() => {
         const getUnits = async () => {
             const response = await fetch(
-                `http://csddashboard.online//api/unit/sdo/${ID}`
+                `https://csddashboard.online//api/unit/sdo/${ID}`
             );
             const data = await response.json();
             setUnits(data);
@@ -43,7 +43,9 @@ const Units = () => {
         }
         {
             const getUnits = async () => {
-                const response = await fetch(`http://csddashboard.online//api/unit`);
+                const response = await fetch(
+                    `https://csddashboard.online//api/unit`
+                );
                 const data = await response.json();
                 setUnits(data);
             };

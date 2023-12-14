@@ -12,7 +12,7 @@ import {
 import { Pie } from "react-chartjs-2";
 import io from "socket.io-client";
 
-const socket = io("http://csddashboard.online/");
+const socket = io("https://csddashboard.online/");
 
 ChartJS.register(
     ArcElement,
@@ -32,7 +32,7 @@ const RecordPieChart = () => {
         const fetchStatus = async () => {
             try {
                 const response = await fetch(
-                    `http://csddashboard.online//api/status`
+                    `https://csddashboard.online//api/status`
                 );
                 const data = await response.json();
                 setStatus(data);

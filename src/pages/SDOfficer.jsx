@@ -50,7 +50,7 @@ const SDOfficer = () => {
     useEffect(() => {
         const getSDOfficers = async () => {
             const response = await fetch(
-                "http://csddashboard.online//api/sdo-officers"
+                "https://csddashboard.online//api/sdo-officers"
             );
             const data = await response.json();
 

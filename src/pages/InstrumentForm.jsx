@@ -58,7 +58,9 @@ const InstrumentForm = () => {
 
     useEffect(() => {
         const fetchSdgIndicators = async () => {
-            const response = await fetch("http://csddashboard.online//api/sdg");
+            const response = await fetch(
+                "https://csddashboard.online//api/sdg"
+            );
             const data = await response.json();
             setSdgIndicators(data);
         };
@@ -86,7 +88,7 @@ const InstrumentForm = () => {
 
                 try {
                     const response = await fetch(
-                        "http://csddashboard.online//api/instruments",
+                        "https://csddashboard.online//api/instruments",
                         {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
@@ -111,7 +113,7 @@ const InstrumentForm = () => {
                                 };
                                 try {
                                     const response = await fetch(
-                                        "http://csddashboard.online//api/addRecord",
+                                        "https://csddashboard.online//api/addRecord",
                                         {
                                             method: "POST",
                                             headers: {

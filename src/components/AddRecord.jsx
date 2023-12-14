@@ -4,7 +4,7 @@ import { storage } from "../firebase";
 import { uploadBytes, ref } from "firebase/storage";
 import io from "socket.io-client";
 
-const socket = io("http://csddashboard.online/");
+const socket = io("https://csddashboard.online/");
 
 const AddRecord = ({ showModal, setShowModal, setReload }) => {
     const [ID, setID] = useState(localStorage.getItem("ID"));
@@ -29,7 +29,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
         console.log("Fetching SDG");
         const fetchData = async () => {
             const response = await fetch(
-                `http://csddashboard.online//api/sdg/unit/${ID}`
+                `https://csddashboard.online//api/sdg/unit/${ID}`
             );
             const data = await response.json();
             if (response.ok) {
@@ -47,7 +47,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
         console.log("Fetching Instruments");
         const fetchInstruments = async () => {
             const response = await fetch(
-                "http://csddashboard.online//api/getInstruments"
+                "https://csddashboard.online//api/getInstruments"
             );
             const data = await response.json();
             if (response.ok) {
@@ -70,7 +70,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
         console.log("Fetching Records");
         const fetchData = async () => {
             const response = await fetch(
-                `http://csddashboard.online//api/record/${sdgID}/${instrumentID}`
+                `https://csddashboard.online//api/record/${sdgID}/${instrumentID}`
             );
 
             const data = await response.json();
@@ -152,7 +152,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 const response = await fetch(
-                    "http://csddashboard.online//api/record_data",
+                    "https://csddashboard.online//api/record_data",
                     {
                         method: "POST",
                         headers: {
@@ -181,7 +181,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                         console.log(values);
 
                         const response = await fetch(
-                            "http://csddashboard.online//api/record_value",
+                            "https://csddashboard.online//api/record_value",
                             {
                                 method: "POST",
                                 headers: {
@@ -221,7 +221,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                             console.log("File Uploaded");
 
                             const fileResponse = await fetch(
-                                "http://csddashboard.online//api/file",
+                                "https://csddashboard.online//api/file",
                                 {
                                     method: "POST",
                                     headers: {
