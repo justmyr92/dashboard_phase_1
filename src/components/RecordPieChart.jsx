@@ -12,7 +12,7 @@ import {
 import { Pie } from "react-chartjs-2";
 import io from "socket.io-client";
 
-const socket = io("https://csddashboard.online");
+const socket = io("https://csddashboard.online:5000", { secure: true });
 
 ChartJS.register(
     ArcElement,

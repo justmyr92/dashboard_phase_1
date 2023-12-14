@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import io from "socket.io-client";
 
-const socket = io("https://csddashboard.online");
+const socket = io("https://csddashboard.online:5000", { secure: true });
 
 const RecordBarChart = () => {
     const [sdgs, setSdgs] = useState([]);

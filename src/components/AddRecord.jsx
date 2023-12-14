@@ -4,7 +4,7 @@ import { storage } from "../firebase";
 import { uploadBytes, ref } from "firebase/storage";
 import io from "socket.io-client";
 
-const socket = io("https://csddashboard.online");
+const socket = io("https://csddashboard.online:5000", { secure: true });
 
 const AddRecord = ({ showModal, setShowModal, setReload }) => {
     const [ID, setID] = useState(localStorage.getItem("ID"));
