@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 import io from "socket.io-client";
 
-const socket = io("https://csddashboard.online/");
+const socket = io("https://csddashboard.online");
 
 const AddUnit = ({ showModal, setShowModal, setReload }) => {
     const [unitName, setUnitName] = useState("");
