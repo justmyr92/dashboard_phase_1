@@ -468,7 +468,8 @@ router.get("/record_value/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const recordValue = await pool.query(
-            "SELECT record_value_table.*, record_table.*, sdg_table.* FROM record_value_table INNER JOIN record_table ON record_value_table.record_id = record_table.record_id INNER JOIN sdg_table ON record_table.sdg_id = sdg_table.sdg_id WHERE record_value_table.record_data_id = $1",
+            // "SELECT record_value_table.*, record_table.*, sdg_table.* FROM record_value_table INNER JOIN record_table ON record_value_table.record_id = record_table.record_id INNER JOIN sdg_table ON record_table.sdg_id = sdg_table.sdg_id WHERE record_value_table.record_data_id = $1",
+            "SELECT record_value_table.*, record_table.*, sdg_table.* , unit_table.* FROM record_value_table INNER JOIN record_table ON record_value_table.record_id = record_table.record_id INNER JOIN sdg_table ON record_table.sdg_id = sdg_table.sdg_id INNER JOIN record_data_table ON record_value_table.record_data_id = record_data_table.record_data_id INNER JOIN unit_table ON record_data_table.unit_id = unit_table.unit_id WHERE record_value_table.record_data_id = $1",
             [id]
         );
         res.json(recordValue.rows);
@@ -531,6 +532,8 @@ router.get("/campus/:id", async (req, res) => {
         console.error(err.message);
     }
 });
+
+//get all units name via
 
 router.get("/record/sdg/:id/:instrument_id", async (req, res) => {
     try {

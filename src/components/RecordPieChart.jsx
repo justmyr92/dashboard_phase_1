@@ -50,6 +50,7 @@ const RecordPieChart = () => {
 
     useEffect(() => {
         socket.on("fetchRecords", (submitStatus) => {
+            console.log(submitStatus);
             setReload(true);
         });
     }, [socket]);

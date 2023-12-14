@@ -195,7 +195,7 @@ const Card = ({ sdg, instrument }) => {
                                                     <td className="border p-2 text-sm">
                                                         {
                                                             record[index]
-                                                                .record_name
+                                                                .unit_name
                                                         }
                                                     </td>
                                                     <td className="border p-2 text-sm">
