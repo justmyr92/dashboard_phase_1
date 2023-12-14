@@ -22,7 +22,7 @@ const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
         };
         try {
             const response = await fetch(
-                `https://csddashboard.online//api/unit/update/${unitData.unit_id}`,
+                `https://csddashboard.online/api/unit/update/${unitData.unit_id}`,
                 {
                     method: "PATCH",
                     body: JSON.stringify(data),

@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from "react";
+import io from "socket.io-client";
+
+const socket = io("https://csddashboard.online/");
 
 const Card = ({ sdg, instrument }) => {
     const [records, setRecords] = useState([]);
     const [recordsData, setRecordsData] = useState([]);
     const [recordValue, setRecordValue] = useState([]);
     const [sum, setSum] = useState([]);
+    const [reload, setReload] = useState(false);
 
     const [unit, setUnit] = useState([]);
 
@@ -20,10 +24,16 @@ const Card = ({ sdg, instrument }) => {
     );
 
     useEffect(() => {
+        socket.on("fetchRecords", (submitStatus) => {
+            setReload(true);
+        });
+    }, [socket]);
+
+    useEffect(() => {
         const fetchRecords = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online//api/record/sdg/${sdg}/${instrument.instrument_id}`
+                    `https://csddashboard.online/api/record/sdg/${sdg}/${instrument.instrument_id}`
                 );
                 const data = await response.json();
                 setRecords(data);
@@ -34,13 +44,13 @@ const Card = ({ sdg, instrument }) => {
             }
         };
         fetchRecords();
-    }, [sdg, instrument.instrument_id]);
+    }, [sdg, instrument.instrument_id, reload]);
 
     useEffect(() => {
         const fetchUnit = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online//api/unit/sdo/${ID}`
+                    `https://csddashboard.online/api/unit/sdo/${ID}`
                 );
                 const data = await response.json();
                 setUnit(data);
@@ -58,7 +68,7 @@ const Card = ({ sdg, instrument }) => {
             try {
                 const dataPromises = records.map(async (record) => {
                     const response = await fetch(
-                        `https://csddashboard.online//api/record_data/approved/${record.record_id}/${ID}`
+                        `https://csddashboard.online/api/record_data/approved/${record.record_id}/${ID}`
                     );
                     return response.json();
                 });
@@ -84,7 +94,7 @@ const Card = ({ sdg, instrument }) => {
                 for (const recordData of recordsData) {
                     for (const record of recordData) {
                         const response = await fetch(
-                            `https://csddashboard.online//api/record_value/${record.record_data_id}`
+                            `https://csddashboard.online/api/record_value/${record.record_data_id}`
                         );
                         const data = await response.json();
                         if (data.length > 0) {

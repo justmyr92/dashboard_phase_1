@@ -22,7 +22,7 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
         const fetchSdg = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online//api/sdg`
+                    `https://csddashboard.online/api/sdg`
                 );
                 const data = await response.json();
                 setSdgs(data);
@@ -39,7 +39,7 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
         const fetchAllSdos = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online//api/sdo-officers`
+                    `https://csddashboard.online/api/sdo-officers`
                 );
                 const jsonData = await response.json();
                 setSdoOfficers(jsonData);
@@ -55,7 +55,7 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
         const getCampus = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online//api/campus`
+                    `https://csddashboard.online/api/campus`
                 );
                 const jsonData = await response.json();
 
@@ -136,7 +136,7 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
 
         try {
             const response = await fetch(
-                "https://csddashboard.online//api/unit",
+                "https://csddashboard.online/api/unit",
                 {
                     method: "POST",
                     body: JSON.stringify(data),
