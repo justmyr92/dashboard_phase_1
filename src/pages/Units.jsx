@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import AddUnit from "../components/AddUnit";
 import UpdateUnit from "../components/UpdateUnit";
+import Notifications from "../components/Notifications";
 import DataTable from "react-data-table-component";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -9,7 +10,9 @@ import {
     faSquarePlus,
 } from "@fortawesome/free-solid-svg-icons";
 import { faEdit } from "@fortawesome/free-regular-svg-icons";
+import io from "socket.io-client";
 
+const socket = io("http://csddashboard.online/");
 const Units = () => {
     const [ID, setID] = useState(localStorage.getItem("ID"));
     const [ROLE, setROLE] = useState(localStorage.getItem("ROLE"));
@@ -29,7 +32,7 @@ const Units = () => {
     useEffect(() => {
         const getUnits = async () => {
             const response = await fetch(
-                `https://csddashboard.online/api/unit/sdo/${ID}`
+                `http://csddashboard.online//api/unit/sdo/${ID}`
             );
             const data = await response.json();
             setUnits(data);
@@ -40,9 +43,7 @@ const Units = () => {
         }
         {
             const getUnits = async () => {
-                const response = await fetch(
-                    `https://csddashboard.online/api/unit`
-                );
+                const response = await fetch(`http://csddashboard.online//api/unit`);
                 const data = await response.json();
                 setUnits(data);
             };
@@ -50,6 +51,12 @@ const Units = () => {
         }
         console.log(units);
     }, [reload]);
+
+    useEffect(() => {
+        socket.on("fetchUnits", (submitStatus) => {
+            setReload(true);
+        });
+    }, [socket]);
 
     const columns = [
         {

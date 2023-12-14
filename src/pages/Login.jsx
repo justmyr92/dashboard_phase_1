@@ -28,7 +28,7 @@ const Login = () => {
         try {
             const body = { username, password };
             const response = await fetch(
-                "https://csddashboard.online/api/login",
+                "http://csddashboard.online//api/login",
                 {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },

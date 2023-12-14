@@ -1132,7 +1132,7 @@ const records = [
 async function addRecord(record) {
     try {
         const response = await fetch(
-            "https://csddashboard.online/api/addRecord",
+            "http://csddashboard.online//api/addRecord",
             {
                 method: "POST",
                 headers: {

@@ -10,6 +10,9 @@ import {
     Title,
 } from "chart.js";
 import { Pie } from "react-chartjs-2";
+import io from "socket.io-client";
+
+const socket = io("http://csddashboard.online/");
 
 ChartJS.register(
     ArcElement,
@@ -23,12 +26,13 @@ ChartJS.register(
 
 const RecordPieChart = () => {
     const [status, setStatus] = useState([]);
+    const [reload, setReload] = useState(false);
 
     useEffect(() => {
         const fetchStatus = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online/api/status`
+                    `http://csddashboard.online//api/status`
                 );
                 const data = await response.json();
                 setStatus(data);
@@ -36,8 +40,19 @@ const RecordPieChart = () => {
                 console.error("Error fetching status:", error);
             }
         };
-        fetchStatus();
-    }, []);
+
+        const fetchData = async () => {
+            await fetchStatus();
+            setReload(false);
+        };
+        fetchData();
+    }, [reload]);
+
+    useEffect(() => {
+        socket.on("fetchRecords", (submitStatus) => {
+            setReload(true);
+        });
+    }, [socket]);
 
     const data = {
         labels: status && status.map((status) => status.record_status),

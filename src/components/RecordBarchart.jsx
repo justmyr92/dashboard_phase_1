@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
+import io from "socket.io-client";
+
+const socket = io("http://csddashboard.online/");
 
 const RecordBarChart = () => {
     const [sdgs, setSdgs] = useState([]);
+    const [reload, setReload] = useState(false);
     const sdgColors = [
         "#FF6384",
         "#4BC0C0",
@@ -27,7 +31,7 @@ const RecordBarChart = () => {
         const fetchSdgs = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online/api/sdg/count`
+                    `http://csddashboard.online//api/sdg/count`
                 );
                 const data = await response.json();
                 setSdgs(data);
@@ -35,7 +39,17 @@ const RecordBarChart = () => {
                 console.error("Error fetching sdgs:", error);
             }
         };
-        fetchSdgs();
+        const fetchData = async () => {
+            await fetchSdgs();
+            setReload(false);
+        };
+        fetchData();
+    }, [reload]);
+
+    useEffect(() => {
+        socket.on("fetchRecords", (submitStatus) => {
+            setReload(true);
+        });
     }, []);
 
     const data = {

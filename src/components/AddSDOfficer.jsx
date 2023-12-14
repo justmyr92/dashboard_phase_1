@@ -15,7 +15,7 @@ const AddSDOfficer = ({ setReload, setModal }) => {
     useEffect(() => {
         const getCampus = async () => {
             const response = await fetch(
-                "https://csddashboard.online/api/campus"
+                "http://csddashboard.online//api/campus"
             );
             const data = await response.json();
             setCampus(data);
@@ -32,7 +32,7 @@ const AddSDOfficer = ({ setReload, setModal }) => {
         e.preventDefault();
         console.log(sdo_officer);
         const response = await fetch(
-            "https://csddashboard.online/api/sdo_officer",
+            "http://csddashboard.online//api/sdo_officer",
             {
                 method: "POST",
                 headers: {
