@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import io from "socket.io-client";
 
-const socket = io("https://csddashboard.online:5000", { secure: true });
+const socket = io("https://csddashboard.online", { secure: true });
 
 const Card = ({ sdg, instrument }) => {
     const [records, setRecords] = useState([]);

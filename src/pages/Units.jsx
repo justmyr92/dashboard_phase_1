@@ -12,7 +12,7 @@ import {
 import { faEdit } from "@fortawesome/free-regular-svg-icons";
 import io from "socket.io-client";
 
-const socket = io("https://csddashboard.online:5000", { secure: true });
+const socket = io("https://csddashboard.online", { secure: true });
 const Units = () => {
     const [ID, setID] = useState(localStorage.getItem("ID"));
     const [ROLE, setROLE] = useState(localStorage.getItem("ROLE"));
