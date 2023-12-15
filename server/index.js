@@ -8,12 +8,7 @@ const { Server } = require("socket.io");
 
 const server = http.createServer(app);
 
-const io = new Server(server, {
-    cors: {
-        origin: "https://csddashboard.online",
-        methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    },
-});
+const io = new Server(server);
 
 app.use(cors());
 
@@ -30,10 +25,6 @@ io.on("connection", (socket) => {
 
     socket.on("addUnit", (unitStatus) => {
         socket.broadcast.emit("fetchUnits", unitStatus);
-    });
-
-    socket.on("disconnect", () => {
-        console.log("User disconnected from socket : ", socket.id);
     });
 });
 

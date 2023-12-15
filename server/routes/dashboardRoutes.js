@@ -897,4 +897,15 @@ router.post("/record_data", async (req, res) => {
     }
 });
 
+//delete all units
+router.delete("/deleteUnit", async (req, res) => {
+    try {
+        const result = await pool.query("DELETE FROM unit_table");
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 module.exports = router;
