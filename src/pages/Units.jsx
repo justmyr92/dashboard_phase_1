@@ -31,27 +31,21 @@ const Units = () => {
 
     useEffect(() => {
         const getUnits = async () => {
-            const response = await fetch(
-                `https://csddashboard.online/api/unit/sdo/${ID}`
-            );
-            const data = await response.json();
-            setUnits(data);
-        };
-
-        if (ROLE === "sdo") {
-            getUnits();
-        }
-        {
-            const getUnits = async () => {
+            if (ROLE === "sdo") {
+                const response = await fetch(
+                    `https://csddashboard.online/api/unit/sdo/${ID}`
+                );
+                const data = await response.json();
+                setUnits(data);
+            } else {
                 const response = await fetch(
                     `https://csddashboard.online/api/unit`
                 );
                 const data = await response.json();
                 setUnits(data);
-            };
-            getUnits();
-        }
-        console.log(units);
+            }
+        };
+        getUnits();
     }, [reload]);
 
     useEffect(() => {

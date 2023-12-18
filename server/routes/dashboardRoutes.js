@@ -167,6 +167,19 @@ router.get("/unit", async (req, res) => {
     }
 });
 
+router.get("/unit/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const allUnit = await pool.query(
+            "SELECT * FROM unit_table WHERE sdo_officer_id = $1",
+            [id]
+        );
+        res.json(allUnit.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
 router.get("/record_data/unit", async (req, res) => {
     try {
         const recordData = await pool.query(

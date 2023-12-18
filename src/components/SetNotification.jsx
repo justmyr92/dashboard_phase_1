@@ -23,6 +23,7 @@ const SetNotification = ({
                 );
                 const jsonData = await response.json();
                 setUnit(jsonData);
+                console.log(jsonData);
             } catch (err) {
                 console.error(err.message);
             }
@@ -61,12 +62,14 @@ const SetNotification = ({
 
         form.innerHTML = `
         <input type="hidden" name="from_name" value="SDO Officer" />
-        <input type="hidden" name="to_name" value="${unit.unit_name}" />
+        <input type="hidden" name="to_name" value="${selected.unit_name}" />
         <input type="hidden" name="message" value="${message}" />
         <input type="hidden" name="reply_to" value=" " />
-        <input type="hidden" name="your_email" value="${unit.unit_email}" />
-    `;
+        <input type="hidden" name="your_email" value="${selected.unit_email}" />
 
+        
+    `;
+        console.log(selected.unit_email);
         document.body.appendChild(form);
 
         emailjs
