@@ -48,12 +48,6 @@ const Units = () => {
         getUnits();
     }, [reload]);
 
-    useEffect(() => {
-        socket.on("fetchUnits", (submitStatus) => {
-            setReload(true);
-        });
-    }, [socket]);
-
     const columns = [
         {
             name: "#",
