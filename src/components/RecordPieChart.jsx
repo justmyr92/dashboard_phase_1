@@ -10,9 +10,6 @@ import {
     Title,
 } from "chart.js";
 import { Pie } from "react-chartjs-2";
-import io from "socket.io-client";
-
-const socket = io("https://csddashboard.online", { secure: true });
 
 ChartJS.register(
     ArcElement,
@@ -47,13 +44,6 @@ const RecordPieChart = () => {
         };
         fetchData();
     }, [reload]);
-
-    useEffect(() => {
-        socket.on("fetchRecords", (submitStatus) => {
-            console.log(submitStatus, "submitStatus");
-            setReload(true);
-        });
-    }, [socket]);
 
     const data = {
         labels: status && status.map((status) => status.record_status),

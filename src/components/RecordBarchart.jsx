@@ -1,8 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
-import io from "socket.io-client";
-
-const socket = io("https://csddashboard.online", { secure: true });
 
 const RecordBarChart = () => {
     const [sdgs, setSdgs] = useState([]);
@@ -45,12 +42,6 @@ const RecordBarChart = () => {
         };
         fetchData();
     }, [reload]);
-
-    useEffect(() => {
-        socket.on("fetchRecords", (submitStatus) => {
-            setReload(true);
-        });
-    }, []);
 
     const data = {
         labels: sdgs.map((sdg) => sdg.sdg_id),

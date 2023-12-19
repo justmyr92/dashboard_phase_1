@@ -2,9 +2,6 @@ import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { storage } from "../firebase";
 import { uploadBytes, ref } from "firebase/storage";
-import io from "socket.io-client";
-
-const socket = io("https://csddashboard.online", { secure: true });
 
 const AddRecord = ({ showModal, setShowModal, setReload }) => {
     const [ID, setID] = useState(localStorage.getItem("ID"));
@@ -165,8 +162,6 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
 
                 const data = await response.json();
                 if (data.record_data_id) {
-                    socket.emit("submitRecord", { submitStatus: "success" });
-
                     const recordDataID = data.record_data_id;
                     console.log(recordDataID);
 
