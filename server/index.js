@@ -4,10 +4,6 @@ const cors = require("cors");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 require("dotenv").config();
 
-const server = http.createServer(app);
-
-const io = new Server(server);
-
 app.use(cors());
 
 app.use(express.json());
