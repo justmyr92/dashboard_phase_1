@@ -16,9 +16,7 @@ const Card = ({ sdg, instrument }) => {
         console.log(ID);
     }, []);
 
-    const [isTableVisibleArray, setTableVisibilityArray] = useState(
-        new Array(records.length).fill(false)
-    );
+    const [isTableVisibleArray, setTableVisibilityArray] = useState([]);
 
     useEffect(() => {
         const fetchRecords = async () => {
@@ -150,14 +148,14 @@ const Card = ({ sdg, instrument }) => {
                         {isTableVisibleArray[index] && recordValue[index] && (
                             <div
                                 className={`absolute text-gray-900 p-4 rounded-md mt-2 w-[30rem] z-10 bg-white shadow-lg transition-all duration-300 
-    ${(index + 1) % 4 === 1 ? "left-0 -top-[100%] translate-y-[-50%]" : ""}
-    ${(index + 1) % 4 === 0 ? "right-0 -top-[100%] translate-y-[-50%]" : ""}
-    ${
-        (index + 1) % 4 !== 0 && (index + 1) % 4 !== 1
-            ? "left-[50%] -top-[100%] translate-x-[-50%] translate-y-[-50%]"
-            : ""
-    }
-  `}
+        ${(index + 1) % 4 === 1 ? "left-0 -top-[100%] translate-y-[-50%]" : ""}
+        ${(index + 1) % 4 === 0 ? "right-0 -top-[100%] translate-y-[-50%]" : ""}
+        ${
+            (index + 1) % 4 !== 0 && (index + 1) % 4 !== 1
+                ? "left-[50%] -top-[100%] translate-x-[-50%] translate-y-[-50%]"
+                : ""
+        }
+    `}
                             >
                                 <table className="w-full">
                                     <thead>
@@ -167,6 +165,9 @@ const Card = ({ sdg, instrument }) => {
                                             </th>
                                             <th className="border font-semibold p-2 text-sm">
                                                 Question
+                                            </th>
+                                            <th className="border font-semibold p-2 text-sm">
+                                                Unit
                                             </th>
                                             <th className="border font-semibold p-2 text-sm">
                                                 Value
@@ -179,18 +180,27 @@ const Card = ({ sdg, instrument }) => {
                                                 <tr key={recordIndex}>
                                                     <td className="border p-2 text-sm">
                                                         {
-                                                            record[index]
+                                                            record[recordIndex]
                                                                 .record_data_id
                                                         }
                                                     </td>
                                                     <td className="border p-2 text-sm">
                                                         {
-                                                            record[index]
+                                                            record[recordIndex]
+                                                                .question
+                                                        }
+                                                    </td>
+                                                    <td className="border p-2 text-sm">
+                                                        {
+                                                            record[recordIndex]
                                                                 .unit_name
                                                         }
                                                     </td>
                                                     <td className="border p-2 text-sm">
-                                                        {record[index].value}
+                                                        {
+                                                            record[recordIndex]
+                                                                .value
+                                                        }
                                                     </td>
                                                 </tr>
                                             )

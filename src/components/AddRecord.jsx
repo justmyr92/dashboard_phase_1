@@ -382,13 +382,13 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                                                 file &&
                                                 file.type ===
                                                     "application/pdf" &&
-                                                file.size > 10000000
+                                                file.size > 15000000
                                                     ? "border-red-500"
                                                     : ""
                                             } ${
                                                 file &&
                                                 file.type.match(/image-*/i) &&
-                                                file.size > 5000000
+                                                file.size > 30000000
                                                     ? "border-red-500"
                                                     : ""
                                             }`}
