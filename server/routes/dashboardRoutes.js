@@ -921,4 +921,15 @@ router.delete("/deleteUnit", async (req, res) => {
     }
 });
 
+//delete all annual reports
+router.delete("/deleteAnnualReport", async (req, res) => {
+    try {
+        const result = await pool.query("DELETE FROM annual_reports");
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 module.exports = router;
