@@ -92,7 +92,7 @@ const AddSDOfficer = ({ setReload, setModal }) => {
                                     id="campus"
                                     name="campus"
                                     autoComplete="campus"
-                                    classNameName="block w-full px-3 py-2 mt-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    className="block w-full px-3 py-2 mt-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                     defaultValue={FormData.campus_id}
                                     onChange={(e) =>
                                         setSDOOfficer({
@@ -205,11 +205,11 @@ const AddSDOfficer = ({ setReload, setModal }) => {
                             <div>
                                 <label
                                     htmlFor="password"
-                                    classNameName="block text-sm font-medium text-gray-700"
+                                    className="block text-sm font-medium text-gray-700"
                                 >
                                     Password
                                 </label>
-                                <div classNameName="mt-1 relative">
+                                <div className="mt-1 relative">
                                     <input
                                         type={
                                             showPassword ? "text" : "password"
@@ -217,7 +217,7 @@ const AddSDOfficer = ({ setReload, setModal }) => {
                                         name="password"
                                         id="password"
                                         autoComplete="password"
-                                        classNameName="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                        className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                         placeholder="Enter Password"
                                         onChange={(e) =>
                                             setSDOOfficer({
@@ -228,10 +228,10 @@ const AddSDOfficer = ({ setReload, setModal }) => {
                                         }
                                         value={sdo_officer.sdo_officer_password}
                                     />
-                                    <div classNameName="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                    <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                                         <input
                                             type="checkbox"
-                                            classNameName="h-5 w-5 text-blue-500 focus:ring-blue-400 border-gray-300 rounded"
+                                            className="h-5 w-5 text-blue-500 focus:ring-blue-400 border-gray-300 rounded"
                                             id="showPasswordToggle"
                                             checked={showPassword}
                                             onChange={() =>
@@ -240,7 +240,7 @@ const AddSDOfficer = ({ setReload, setModal }) => {
                                         />
                                         <label
                                             htmlFor="showPasswordToggle"
-                                            classNameName="ml-2 text-sm text-gray-700"
+                                            className="ml-2 text-sm text-gray-700"
                                         >
                                             Show Password
                                         </label>

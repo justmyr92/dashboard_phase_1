@@ -3,6 +3,8 @@ import loginCover from "../assets/login-cover.png";
 import sdgLogo from "../assets/logo-1267x1283.png";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 const Login = () => {
     const navigate = useNavigate();
@@ -10,6 +12,7 @@ const Login = () => {
         username: "",
         password: "",
     });
+    const [showPassword, setShowPassword] = useState(false);
 
     const { username, password } = inputs;
 
@@ -103,16 +106,31 @@ const Login = () => {
                             <label className="form__label" htmlFor="password">
                                 Password
                             </label>
-                            <input
-                                className="form__input border-2 border-gray-500 p-3.5 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
-                                type="password"
-                                placeholder="Password"
-                                name="password"
-                                id="password"
-                                required
-                                autoComplete="off"
-                                onChange={(e) => onChange(e)}
-                            />
+                            <div className="relative">
+                                <input
+                                    className="form__input border-2 border-gray-500 p-3.5 rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent"
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Password"
+                                    name="password"
+                                    id="password"
+                                    required
+                                    autoComplete="off"
+                                    onChange={(e) => onChange(e)}
+                                />
+                                <button
+                                    className="absolute top-1/2 transform -translate-y-1/2 right-3 p-2 rounded-md"
+                                    onClick={() =>
+                                        setShowPassword(!showPassword)
+                                    }
+                                    type="button"
+                                >
+                                    {showPassword ? (
+                                        <FontAwesomeIcon icon={faEyeSlash} />
+                                    ) : (
+                                        <FontAwesomeIcon icon={faEye} />
+                                    )}
+                                </button>
+                            </div>
                         </div>
                         <div className="flex flex-row justify-between mb-5">
                             <div className="form__group mb-5 flex gap-1 items-center">
