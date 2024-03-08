@@ -932,4 +932,81 @@ router.delete("/deleteAnnualReport", async (req, res) => {
     }
 });
 
+//delete all sdo officers
+router.delete("/deleteSdoOfficer", async (req, res) => {
+    try {
+        const result = await pool.query("DELETE FROM sdo_officer_table");
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+//delete all units officers
+router.delete("/deleteCsdOfficer", async (req, res) => {
+    try {
+        const result = await pool.query("DELETE FROM csd_officer_table");
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+//delete all notifications
+router.delete("/deleteNotification", async (req, res) => {
+    try {
+        const result = await pool.query("DELETE FROM notification_table");
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+//delete all files
+router.delete("/deleteFile", async (req, res) => {
+    try {
+        const result = await pool.query("DELETE FROM file_table");
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+//delete all recordd data values
+router.delete("/deleteRecordValue", async (req, res) => {
+    try {
+        const result = await pool.query("DELETE FROM record_value_table");
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+//delete all record data
+router.delete("/deleteRecordData", async (req, res) => {
+    try {
+        const result = await pool.query("DELETE FROM record_data_table");
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+//delete all records
+router.delete("/deleteRecord", async (req, res) => {
+    try {
+        const result = await pool.query("DELETE FROM record_table");
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 module.exports = router;
