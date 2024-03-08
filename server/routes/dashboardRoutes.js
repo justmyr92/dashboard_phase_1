@@ -1009,4 +1009,19 @@ router.delete("/deleteRecord", async (req, res) => {
     }
 });
 
+//dletesdoOfficer by id
+router.delete("/deleteSdoOfficer/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await pool.query(
+            "DELETE FROM sdo_officer_table WHERE sdo_officer_id = $1",
+            [id]
+        );
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 module.exports = router;

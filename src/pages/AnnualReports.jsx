@@ -82,8 +82,8 @@ const AnnualReports = () => {
             const fileSize = annualReport.annual_report_file.size / 1024 / 1024;
 
             if (fileExtension === "pdf") {
-                if (fileSize > 25) {
-                    setErrorFile("PDF file size must not exceed 25MB");
+                if (fileSize > 50) {
+                    setErrorFile("PDF file size must not exceed 50MB");
                     return;
                 }
             } else if (
