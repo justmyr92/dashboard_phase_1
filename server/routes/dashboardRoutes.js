@@ -615,28 +615,39 @@ router.get("/sdo-officers/:id", async (req, res) => {
     }
 });
 
-router.patch("/unit/update/:id", async (req, res) => {
+router.patch("/sdo_officer/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const {
-            unit_name,
-            unit_address,
-            unit_phone,
-            unit_email,
-            sdo_officer_id,
+            sdo_officer_name,
+            sdo_officer_email,
+            sdo_officer_phone,
             campus_id,
         } = req.body;
-        const updateUnit = await pool.query(
-            "UPDATE unit_table SET unit_name = $1, unit_address = $2, unit_phone = $3, unit_email = $4, sdo_officer_id = $5, campus_id = $6 WHERE unit_id = $7 returning *",
+        const updateSdoOfficer = await pool.query(
+            "UPDATE sdo_officer_table SET sdo_officer_name = $1, sdo_officer_email = $2, sdo_officer_phone = $3, campus_id = $4 WHERE sdo_officer_id = $5 returning *",
             [
-                unit_name,
-                unit_address,
-                unit_phone,
-                unit_email,
-                sdo_officer_id,
+                sdo_officer_name,
+                sdo_officer_email,
+                sdo_officer_phone,
                 campus_id,
                 id,
             ]
+        );
+        res.json(updateSdoOfficer.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+router.patch("/unit/update/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { unit_name, unit_address, unit_phone, unit_email, campus_id } =
+            req.body;
+        const updateUnit = await pool.query(
+            "UPDATE unit_table SET unit_name = $1, unit_address = $2, unit_phone = $3, unit_email = $4, campus_id = $5 WHERE unit_id = $6 returning *",
+            [unit_name, unit_address, unit_phone, unit_email, campus_id, id]
         );
         res.json(updateUnit.rows[0]);
     } catch (err) {

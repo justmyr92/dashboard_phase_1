@@ -29,7 +29,7 @@ const RecordPieChart = () => {
         const fetchStatus = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online/api/status`
+                    `http://localhost:5000/api/status`
                 );
                 const data = await response.json();
                 setStatus(data);

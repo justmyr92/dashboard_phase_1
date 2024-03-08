@@ -8,12 +8,16 @@ import {
     faUsers,
 } from "@fortawesome/free-solid-svg-icons";
 import AddSDOfficer from "../components/AddSDOfficer";
+import UpdateSDOfficer from "../components/updateSDO";
 
 const SDOfficer = () => {
     const [SDOfficers, setSDOfficers] = useState([]);
     const [modal, setModal] = useState(false);
+    const [updateModal, setUpdateModal] = useState(false);
+
     const [reload, setReload] = useState(false);
     const [search, setSearch] = useState("");
+    const [selectedOfficer, setSelectedOfficer] = useState(null);
     const columns = [
         {
             name: "#",
@@ -31,13 +35,13 @@ const SDOfficer = () => {
             name: "Email",
             selector: (row) => row.sdo_officer_email,
             sortable: true,
-            width: "25%",
+            width: "20%",
         },
         {
             name: "Phone",
             selector: (row) => row.sdo_officer_phone,
             sortable: true,
-            width: "20%",
+            width: "15%",
         },
         {
             name: "Campus",
@@ -45,12 +49,28 @@ const SDOfficer = () => {
             sortable: true,
             width: "20%",
         },
+        {
+            name: "Actions",
+            cell: (row) => (
+                <span
+                    className="text-blue-600 bg-none"
+                    onClick={() => {
+                        setSelectedOfficer(row);
+                        setUpdateModal(true);
+                    }}
+                >
+                    Edit
+                </span>
+            ),
+            width: "10%",
+            ignoreRowClick: true,
+        },
     ];
 
     useEffect(() => {
         const getSDOfficers = async () => {
             const response = await fetch(
-                "https://csddashboard.online/api/sdo-officers"
+                "http://localhost:5000/api/sdo-officers"
             );
             const data = await response.json();
 
@@ -131,6 +151,13 @@ const SDOfficer = () => {
             </div>
             {modal && (
                 <AddSDOfficer setReload={setReload} setModal={setModal} />
+            )}
+            {updateModal && (
+                <UpdateSDOfficer
+                    officer={selectedOfficer}
+                    setReload={setReload}
+                    setModal={setUpdateModal}
+                />
             )}
         </section>
     );

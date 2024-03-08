@@ -8,21 +8,28 @@ const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
     const [unitPhone, setUnitPhone] = useState(unitData.unit_phone);
     const [unitEmail, setUnitEmail] = useState(unitData.unit_email);
     const [ID, setID] = useState(localStorage.getItem("ID"));
+    const localStorageId = localStorage.getItem("ID");
+    const [sdoOfficers, setSdoOfficers] = useState([]);
+    const [sdoOfficer, setSdoOfficer] = useState({});
+    const [sdoNo, setSdoNo] = useState(0);
+    const [options, setOptions] = useState([]);
+    const [campus_id, setCampus_id] = useState(unitData.campus_id);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         const data = {
             unit_id: unitData.unit_id,
             unit_name: unitName,
-            unit_address: unitAddress,
+            unit_address: options.find(
+                (option) => option.campus_id === campus_id
+            ).campus_name,
             unit_phone: unitPhone,
             unit_email: unitEmail,
-            sdo_officer_id: ID,
-            campus_id: 1,
+            campus_id: campus_id,
         };
         try {
             const response = await fetch(
-                `https://csddashboard.online//api/unit/update/${unitData.unit_id}`,
+                `http://localhost:5000/api/unit/update/${unitData.unit_id}`,
                 {
                     method: "PATCH",
                     body: JSON.stringify(data),
@@ -45,6 +52,120 @@ const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
             console.error(error);
         }
     };
+
+    useEffect(() => {
+        const fetchAllSdos = async () => {
+            try {
+                const response = await fetch(
+                    `http://localhost:5000/api/sdo-officers`
+                );
+                const jsonData = await response.json();
+                setSdoOfficers(jsonData);
+
+                if (localStorage.getItem("ROLE") === "sdo") {
+                    setSdoOfficer(
+                        jsonData.find(
+                            (sdo) => sdo.sdo_officer_id === localStorageId
+                        )
+                    );
+                    setSdoNo(
+                        jsonData.find(
+                            (sdo) => sdo.sdo_officer_id === localStorageId
+                        ).sd_no
+                    );
+                }
+            } catch (error) {
+                console.error("Error fetching sdo officer:", error);
+            }
+        };
+
+        fetchAllSdos();
+    }, [localStorageId]);
+
+    useEffect(() => {
+        const getCampus = async () => {
+            try {
+                const response = await fetch(
+                    `http://localhost:5000/api/campus`
+                );
+                const jsonData = await response.json();
+
+                // if (localStorage.getItem("ROLE") === "sdo") {
+                //     //map the campus_id of the sdo officer to the campus_id of the campus
+                //     const sd = sdoOfficers.find(
+                //         (sdo) => sdo.sdo_officer_id === localStorageId
+                //     );
+                //     {
+                //         if (sd.sd_no === 1) {
+                //             setSdoNo(1);
+                //             setOptions(
+                //                 jsonData.filter((campus) => {
+                //                     return (
+                //                         campus.campus_name ===
+                //                             "Pablo Borbon Main Campus" ||
+                //                         campus.campus_name ===
+                //                             "Lemery Campus" ||
+                //                         campus.campus_name ===
+                //                             "Rosario Campus" ||
+                //                         campus.campus_name === "San Juan Campus"
+                //                     );
+                //                 })
+                //             );
+                //         } else if (sd.sd_no === 2) {
+                //             setSdoNo(2);
+
+                //             setOptions(
+                //                 jsonData.filter((campus) => {
+                //                     //if campus id === sdo officer campus id
+                //                     return (
+                //                         campus.campus_name ===
+                //                             "Alangilan Campus" ||
+                //                         campus.campus_name ===
+                //                             "Mabini Campus" ||
+                //                         campus.campus_name === "Lobo Campus" ||
+                //                         campus.campus_name === "Balayan Campus"
+                //                     );
+                //                 })
+                //             );
+                //         } else if (sd.sd_no === 3) {
+                //             setSdoNo(3);
+                //             setOptions(
+                //                 jsonData.filter((campus) => {
+                //                     return campus.campus_name === "Lipa Campus";
+                //                 })
+                //             );
+                //         } else if (sd.sd_no === 4) {
+                //             setSdoNo(4);
+                //             setOptions(
+                //                 jsonData.filter((campus) => {
+                //                     return (
+                //                         campus.campus_name === "Malvar Campus"
+                //                     );
+                //                 })
+                //             );
+                //         } else if (sd.sd_no === 5) {
+                //             setSdoNo(5);
+                //             setOptions(
+                //                 jsonData.filter((campus) => {
+                //                     return (
+                //                         campus.campus_name ===
+                //                         "ARASOF - Nasugbu Campus"
+                //                     );
+                //                 })
+                //             );
+                //         }
+                //     }
+                //     console.log(options);
+                // } else {
+                setOptions(jsonData);
+                // }
+            } catch (error) {
+                console.error("Error fetching campus:", error);
+            }
+        };
+
+        getCampus();
+    }, [sdoNo]);
 
     return (
         <div
@@ -109,15 +230,46 @@ const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
                                 >
                                     Unit Address
                                 </label>
-                                <input
-                                    type="text"
-                                    id="unitAddress"
-                                    value={unitAddress}
-                                    onChange={(e) =>
-                                        setUnitAddress(e.target.value)
-                                    }
-                                    className="w-full p-2 border border-gray-300 rounded"
-                                />
+                                {options.length > 0 ? (
+                                    <select
+                                        id="unitAddress"
+                                        value={campus_id}
+                                        onChange={(e) =>
+                                            setCampus_id(e.target.value)
+                                        }
+                                        className="w-full p-2 border border-gray-300 rounded"
+                                    >
+                                        <option value="" disabled>
+                                            Select Unit Address
+                                        </option>
+                                        {sdoNo !== 0
+                                            ? options
+                                                  .filter(
+                                                      (option) =>
+                                                          option.sd_no === sdoNo
+                                                  )
+                                                  .map((option) => (
+                                                      <option
+                                                          key={option.campus_id}
+                                                          value={
+                                                              option.campus_id
+                                                          }
+                                                      >
+                                                          {option.campus_name}
+                                                      </option>
+                                                  ))
+                                            : options.map((option) => (
+                                                  <option
+                                                      key={option.campus_id}
+                                                      value={option.campus_id}
+                                                  >
+                                                      {option.campus_name}
+                                                  </option>
+                                              ))}
+                                    </select>
+                                ) : (
+                                    <p>No ID found in localStorage</p>
+                                )}
                             </div>
                             <div className="space-y-2">
                                 <label

@@ -35,9 +35,7 @@ const Records = () => {
             window.location.href = "/login";
         }
         const getUnit = async () => {
-            const response = await fetch(
-                `https://csddashboard.online/api/unit`
-            );
+            const response = await fetch(`http://localhost:5000/api/unit`);
             const data = await response.json();
             setUnit(data);
         };
@@ -48,7 +46,7 @@ const Records = () => {
         console.log(reload);
         const getRecords = async () => {
             const response = await fetch(
-                `https://csddashboard.online/api/record_data/unit`
+                `http://localhost:5000/api/record_data/unit`
             );
             const data = await response.json();
             console.log(data);

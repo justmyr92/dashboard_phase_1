@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import AddUnit from "../components/AddUnit";
 import UpdateUnit from "../components/UpdateUnit";
 import Notifications from "../components/Notifications";
 import DataTable from "react-data-table-component";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faSearch } from "@fortawesome/free-solid-svg-icons";
 import {
     faBuildingUser,
     faSquarePlus,
@@ -17,6 +18,7 @@ const Units = () => {
     const [showUpdateUnit, setShowUpdateUnit] = useState(false);
     const [unit, setUnit] = useState(null);
     const [reload, setReload] = useState(false);
+    const [search, setSearch] = useState("");
 
     useEffect(() => {
         if (!ID) {
@@ -27,23 +29,45 @@ const Units = () => {
     const [units, setUnits] = useState([]);
 
     useEffect(() => {
+        function searchUnit(data) {
+            if (search.length > 0) {
+                setUnits(
+                    data.filter((unit) => {
+                        return (
+                            unit.unit_name
+                                .toLowerCase()
+                                .includes(search.toLowerCase()) ||
+                            unit.unit_address
+                                .toLowerCase()
+                                .includes(search.toLowerCase()) ||
+                            unit.unit_phone
+                                .toLowerCase()
+                                .includes(search.toLowerCase()) ||
+                            unit.unit_email
+                                .toLowerCase()
+                                .includes(search.toLowerCase())
+                        );
+                    })
+                );
+            } else {
+                setUnits(data);
+            }
+        }
         const getUnits = async () => {
             if (ROLE === "sdo") {
                 const response = await fetch(
-                    `https://csddashboard.online/api/unit/sdo/${ID}`
+                    `http://localhost:5000/api/unit/sdo/${ID}`
                 );
                 const data = await response.json();
-                setUnits(data);
+                searchUnit(data);
             } else {
-                const response = await fetch(
-                    `https://csddashboard.online/api/unit`
-                );
+                const response = await fetch(`http://localhost:5000/api/unit`);
                 const data = await response.json();
-                setUnits(data);
+                searchUnit(data);
             }
         };
         getUnits();
-    }, [reload]);
+    }, [reload, search, ROLE, ID]);
 
     const columns = [
         {
@@ -104,23 +128,38 @@ const Units = () => {
                         <h3 className="text-3xl title text-gray-700">
                             <FontAwesomeIcon icon={faBuildingUser} /> Units
                         </h3>
-                        <button
-                            data-modal-target="default-modal"
-                            data-modal-toggle="default-modal"
-                            className="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                            type="button"
-                            onClick={() => setShowAddUnit(true)}
-                        >
-                            <FontAwesomeIcon icon={faSquarePlus} /> Add Unit
-                        </button>
-                        {showAddUnit && (
-                            <AddUnit
-                                showModal={showAddUnit}
-                                setShowModal={setShowAddUnit}
-                                setReload={setReload}
+                        <div className="flex gap-2">
+                            <input
+                                type="text"
+                                className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none pl-8"
+                                placeholder="Search"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
                             />
-                        )}
-                        {ROLE === "unit" && <Notifications />}
+                            <span className="absolute left-3 top-2">
+                                <FontAwesomeIcon
+                                    icon={faSearch}
+                                    className="text-gray-400"
+                                />
+                            </span>
+                            <button
+                                data-modal-target="default-modal"
+                                data-modal-toggle="default-modal"
+                                className="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                                type="button"
+                                onClick={() => setShowAddUnit(true)}
+                            >
+                                <FontAwesomeIcon icon={faSquarePlus} /> Add Unit
+                            </button>
+                            {showAddUnit && (
+                                <AddUnit
+                                    showModal={showAddUnit}
+                                    setShowModal={setShowAddUnit}
+                                    setReload={setReload}
+                                />
+                            )}
+                            {ROLE === "unit" && <Notifications />}
+                        </div>
                     </div>
                     <hr />
                     <DataTable

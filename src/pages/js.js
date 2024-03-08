@@ -1131,16 +1131,13 @@ const records = [
 ];
 async function addRecord(record) {
     try {
-        const response = await fetch(
-            "https://csddashboard.online/api/addRecord",
-            {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(record),
-            }
-        );
+        const response = await fetch("http://localhost:5000/api/addRecord", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(record),
+        });
 
         const data = await response.json();
         console.log(data);
