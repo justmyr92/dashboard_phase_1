@@ -28,7 +28,7 @@ const RecordBarChart = () => {
         const fetchSdgs = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:5000/api/sdg/count`
+                    `https://csddashboard.online/api/sdg/count`
                 );
                 const data = await response.json();
                 setSdgs(data);

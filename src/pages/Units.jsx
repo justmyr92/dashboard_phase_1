@@ -56,12 +56,14 @@ const Units = () => {
         const getUnits = async () => {
             if (ROLE === "sdo") {
                 const response = await fetch(
-                    `http://localhost:5000/api/unit/sdo/${ID}`
+                    `https://csddashboard.online/api/unit/sdo/${ID}`
                 );
                 const data = await response.json();
                 searchUnit(data);
             } else {
-                const response = await fetch(`http://localhost:5000/api/unit`);
+                const response = await fetch(
+                    `https://csddashboard.online/api/unit`
+                );
                 const data = await response.json();
                 searchUnit(data);
             }
