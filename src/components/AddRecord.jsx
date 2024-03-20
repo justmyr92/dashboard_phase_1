@@ -13,6 +13,8 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     const [recordID, setRecordID] = useState("");
     const [recordFiles, setRecordFiles] = useState([]);
     const [recordValues, setRecordValues] = useState({});
+    const [tags, setTags] = useState([]);
+    const [totalCount, setTotalCount] = useState(0);
 
     const handleInputChange = (record_id, value) => {
         setRecordValues((prevValues) => ({
@@ -25,15 +27,36 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     useEffect(() => {
         console.log("Fetching SDG");
         const fetchData = async () => {
-            const response = await fetch(
-                `https://csddashboard.online/api/sdg/unit/${ID}`
-            );
+            // const response = await fetch(
+            //     `http://localhost:5000/api/sdg/unit/${ID}`
+            // );
+            // const data = await response.json();
+            // if (response.ok) {
+            //     console.log("SDG Data:", data);
+            //     setSdg(data);
+            //     console.log(data.sdg_id);
+            //     setSdgID(data.sdg_id);
+            // }
+
+            // router.get("/tag/:id", async (req, res) => {
+            //     try {
+            //         const { id } = req.params;
+            //         const tag = await pool.query(
+            //             "SELECT record_id FROM tag_table WHERE unit_id = $1",
+            //             [id]
+            //         );
+            //         res.json(tag.rows);
+            //     } catch (err) {
+            //         console.error(err.message);
+            //     }
+            // });
+
+            const response = await fetch(`http://localhost:5000/api/tag/${ID}`);
             const data = await response.json();
+
             if (response.ok) {
-                console.log("SDG Data:", data);
-                setSdg(data);
-                console.log(data.sdg_id);
-                setSdgID(data.sdg_id);
+                console.log("Tag Data:", data);
+                setTags(data);
             }
         };
 
@@ -43,20 +66,13 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     useEffect(() => {
         console.log("Fetching Instruments");
         const fetchInstruments = async () => {
-            const response = await fetch(
-                "https://csddashboard.online/api/getInstruments"
-            );
+            const response = await fetch("http://localhost:5000/api/request");
             const data = await response.json();
             if (response.ok) {
                 console.log("Instruments Data:", data);
-                setInstruments(data);
+                // setInstruments(data);
 
-                const instrument = data.find(
-                    (instrument) => instrument.status === "Active"
-                );
-                if (instrument) {
-                    setInstrumentID(instrument.instrument_id);
-                }
+                setInstrumentID(data.instrument_id);
             }
         };
 
@@ -67,21 +83,27 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
         console.log("Fetching Records");
         const fetchData = async () => {
             const response = await fetch(
-                `https://csddashboard.online/api/record/${sdgID}/${instrumentID}`
+                `http://localhost:5000/api/record/${instrumentID}`
             );
 
             const data = await response.json();
             if (response.ok) {
                 console.log("Records Data:", data);
-                setRecords(data);
-                setRecordID(data[0].record_id);
+                //set records that only exist in the tag
+                const filteredRecords = data.filter((record) =>
+                    tags.some((tag) => tag.record_id === record.record_id)
+                );
+                setRecords(filteredRecords);
+                setTotalCount(filteredRecords.length);
+                console.log("Filtered Records:", filteredRecords);
+                setRecordID(filteredRecords[0].record_id);
             }
         };
 
-        if (instrumentID !== "" && sdgID !== "") {
+        if (instrumentID !== "") {
             fetchData();
         }
-    }, [instrumentID, sdgID]);
+    }, [instrumentID, tags]);
 
     console.log("Render", {
         sdgID,
@@ -149,7 +171,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 const response = await fetch(
-                    "https://csddashboard.online/api/record_data",
+                    "http://localhost:5000/api/record_data",
                     {
                         method: "POST",
                         headers: {
@@ -176,7 +198,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                         console.log(values);
 
                         const response = await fetch(
-                            "https://csddashboard.online/api/record_value",
+                            "http://localhost:5000/api/record_value",
                             {
                                 method: "POST",
                                 headers: {
@@ -194,7 +216,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
 
                     recordFiles.map(async (file) => {
                         const filePayload = {
-                            file: `${sdgID}: ${file.name}`,
+                            file: file.name,
                             record_data_id: recordDataID,
                             file_extension: file.name
                                 .split(".")
@@ -216,7 +238,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                             console.log("File Uploaded");
 
                             const fileResponse = await fetch(
-                                "https://csddashboard.online/api/file",
+                                "http://localhost:5000/api/file",
                                 {
                                     method: "POST",
                                     headers: {
@@ -248,7 +270,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     return (
         <div
             id="default-modal"
-            tabindex="-1"
+            tabIndex="-1"
             aria-hidden="true"
             className="z-50 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300"
         >
@@ -273,9 +295,9 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                             >
                                 <path
                                     stroke="currentColor"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
                                     d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                                 />
                             </svg>
@@ -351,7 +373,11 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                                                 value={
                                                     recordValues[
                                                         record.record_id
-                                                    ] || ""
+                                                    ] !== undefined
+                                                        ? recordValues[
+                                                              record.record_id
+                                                          ]
+                                                        : 0
                                                 }
                                                 required
                                             />
@@ -426,7 +452,17 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                                 type="submit"
                                 className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                             >
-                                Submit
+                                {/* Display count of non-NaN, undefined, and null values in recordValues over totalCount */}
+                                Submit (
+                                {
+                                    Object.keys(recordValues).filter(
+                                        (key) =>
+                                            recordValues[key] !== null &&
+                                            recordValues[key] !== undefined &&
+                                            !isNaN(recordValues[key])
+                                    ).length
+                                }
+                                /{totalCount})
                             </button>
                             <button
                                 data-modal-hide="default-modal"

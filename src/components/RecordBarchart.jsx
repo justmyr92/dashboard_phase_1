@@ -3,6 +3,7 @@ import { Bar } from "react-chartjs-2";
 
 const RecordBarChart = () => {
     const [sdgs, setSdgs] = useState([]);
+    const [selectedSdg, setSelectedSdg] = useState(null);
     const [reload, setReload] = useState(false);
     const sdgColors = [
         "#FF6384",
@@ -28,9 +29,16 @@ const RecordBarChart = () => {
         const fetchSdgs = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online/api/sdg/count`
+                    `http://localhost:5000/api/sdg/count`
                 );
                 const data = await response.json();
+                // Parse the SDG IDs as integers before sorting
+                data.forEach(
+                    (sdg) =>
+                        (sdg.sdg_id = parseInt(sdg.sdg_id.replace("SDG", "")))
+                );
+                // Sort the SDGs based on the SDG ID
+                data.sort((a, b) => a.sdg_id - b.sdg_id);
                 setSdgs(data);
             } catch (error) {
                 console.error("Error fetching sdgs:", error);
@@ -43,15 +51,20 @@ const RecordBarChart = () => {
         fetchData();
     }, [reload]);
 
+    const handleSdgSelect = (sdgId) => {
+        setSelectedSdg(sdgId);
+    };
+
     const data = {
-        labels: sdgs.map((sdg) => sdg.sdg_id),
+        labels: sdgs.map((sdg) => `SDG ${sdg.sdg_id}`),
         datasets: [
             {
-                label: "Total Records",
+                label: selectedSdg
+                    ? `Total Records by ${selectedSdg}`
+                    : "Total Records by SDG",
                 data: sdgs.map((sdg) => sdg.count),
                 backgroundColor: sdgColors,
                 borderColor: sdgColors,
-
                 borderWidth: 1,
             },
         ],
@@ -65,7 +78,7 @@ const RecordBarChart = () => {
             },
             title: {
                 display: true,
-                text: "Total Records by SDG Accummulated",
+                text: "Total Records by SDG Accumulated",
             },
         },
     };

@@ -19,7 +19,7 @@ const Instruments = () => {
         const getInstruments = async () => {
             try {
                 const response = await fetch(
-                    "https://csddashboard.online/api/getInstruments"
+                    "http://localhost:5000/api/getInstruments"
                 );
                 const jsonData = await response.json();
                 if (search !== "") {
@@ -63,7 +63,7 @@ const Instruments = () => {
         const getRecords = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online/api/getRecords/${instrument.instrument_id}`
+                    `http://localhost:5000/api/getRecords/${instrument.instrument_id}`
                 );
                 const jsonData = await response.json();
                 setRecord(jsonData);
@@ -89,7 +89,7 @@ const Instruments = () => {
 
     useEffect(() => {
         const fetchSdgIndicators = async () => {
-            const response = await fetch("https://csddashboard.online/api/sdg");
+            const response = await fetch("http://localhost:5000/api/sdg");
             const data = await response.json();
             setSdgIndicators(data);
         };
@@ -115,7 +115,7 @@ const Instruments = () => {
                     try {
                         console.log(record);
                         const response = await fetch(
-                            `https://csddashboard.online/api/updateRecords`,
+                            `http://localhost:5000/api/updateRecords`,
                             {
                                 method: "PATCH",
                                 headers: { "Content-Type": "application/json" },
@@ -164,7 +164,7 @@ const Instruments = () => {
             if (result.isConfirmed) {
                 try {
                     const response = await fetch(
-                        "https://csddashboard.online/api/updateInstrumentStatus",
+                        "http://localhost:5000/api/updateInstrumentStatus",
                         {
                             method: "PATCH",
                             headers: { "Content-Type": "application/json" },
@@ -228,15 +228,15 @@ const Instruments = () => {
                                     {
                                         name: "Status",
                                         cell: (row) => (
-                                            <div
-                                                className={`px-2 py-1.5 rounded text-white text-center w-[5rem] ${
+                                            <span
+                                                className={`px-2 py-1 text-white rounded-lg text-xs font-medium ${
                                                     row.status === "Active"
                                                         ? "bg-green-500"
                                                         : "bg-red-500"
                                                 }`}
                                             >
                                                 {row.status}
-                                            </div>
+                                            </span>
                                         ),
                                         sortable: true,
                                     },
@@ -258,7 +258,7 @@ const Instruments = () => {
                                         cell: (row) => (
                                             <div className="flex justify-between items-center gap-2">
                                                 <button
-                                                    className="p-2 px-4 bg-green-500 text-white rounded-lg text-xs"
+                                                    className="text-green-500 me-3"
                                                     onClick={() =>
                                                         viewRecord(row)
                                                     }
@@ -266,7 +266,7 @@ const Instruments = () => {
                                                     View
                                                 </button>
                                                 <button
-                                                    className="p-2 px-4 bg-red-500 text-white rounded-lg text-xs"
+                                                    className="text-red-500"
                                                     onClick={() => {
                                                         updateInstrumentStatus(
                                                             row.instrument_id,

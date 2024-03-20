@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
 
 const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
-    console.log(unitData);
     const [unitName, setUnitName] = useState(unitData.unit_name);
     const [unitAddress, setUnitAddress] = useState(unitData.unit_address);
     const [unitPhone, setUnitPhone] = useState(unitData.unit_phone);
     const [unitEmail, setUnitEmail] = useState(unitData.unit_email);
+    const [unitPassword, setUnitPassword] = useState(); // New password state
     const [ID, setID] = useState(localStorage.getItem("ID"));
     const localStorageId = localStorage.getItem("ID");
     const [sdoOfficers, setSdoOfficers] = useState([]);
@@ -14,6 +14,7 @@ const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
     const [sdoNo, setSdoNo] = useState(0);
     const [options, setOptions] = useState([]);
     const [campus_id, setCampus_id] = useState(unitData.campus_id);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -25,11 +26,12 @@ const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
             ).campus_name,
             unit_phone: unitPhone,
             unit_email: unitEmail,
+            unit_password: unitPassword, // Include password in the data object
             campus_id: campus_id,
         };
         try {
             const response = await fetch(
-                `https://csddashboard.online/api/unit/update/${unitData.unit_id}`,
+                `http://localhost:5000/api/unit/update/${unitData.unit_id}`,
                 {
                     method: "PATCH",
                     body: JSON.stringify(data),
@@ -57,7 +59,7 @@ const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
         const fetchAllSdos = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online/api/sdo-officers`
+                    `http://localhost:5000/api/sdo-officers`
                 );
                 const jsonData = await response.json();
                 setSdoOfficers(jsonData);
@@ -86,7 +88,7 @@ const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
         const getCampus = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online/api/campus`
+                    `http://localhost:5000/api/campus`
                 );
                 const jsonData = await response.json();
 
@@ -172,7 +174,7 @@ const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
             id="default-modal"
             tabIndex="-1"
             aria-hidden="true"
-            className="fixed top-0 left-0 right-0 z-50 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
+            className="overflow-y-auto overflow-x-hidden z-50 justify-center items-center w-full md:inset-0 max-h-full inset-0 flex fixed top-0 left-0 right-0 bottom-0"
         >
             <div className="relative w-full max-w-2xl max-h-full">
                 <div className="relative bg-white rounded-lg shadow">
@@ -230,46 +232,23 @@ const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
                                 >
                                     Unit Address
                                 </label>
-                                {options.length > 0 ? (
-                                    <select
-                                        id="unitAddress"
-                                        value={campus_id}
-                                        onChange={(e) =>
-                                            setCampus_id(e.target.value)
-                                        }
-                                        className="w-full p-2 border border-gray-300 rounded"
-                                    >
-                                        <option value="" disabled>
-                                            Select Unit Address
+                                <select
+                                    id="unitAddress"
+                                    value={campus_id}
+                                    onChange={(e) =>
+                                        setCampus_id(e.target.value)
+                                    }
+                                    className="w-full p-2 border border-gray-300 rounded"
+                                >
+                                    {options.map((option) => (
+                                        <option
+                                            key={option.campus_id}
+                                            value={option.campus_id}
+                                        >
+                                            {option.campus_name}
                                         </option>
-                                        {sdoNo !== 0
-                                            ? options
-                                                  .filter(
-                                                      (option) =>
-                                                          option.sd_no === sdoNo
-                                                  )
-                                                  .map((option) => (
-                                                      <option
-                                                          key={option.campus_id}
-                                                          value={
-                                                              option.campus_id
-                                                          }
-                                                      >
-                                                          {option.campus_name}
-                                                      </option>
-                                                  ))
-                                            : options.map((option) => (
-                                                  <option
-                                                      key={option.campus_id}
-                                                      value={option.campus_id}
-                                                  >
-                                                      {option.campus_name}
-                                                  </option>
-                                              ))}
-                                    </select>
-                                ) : (
-                                    <p>No ID found in localStorage</p>
-                                )}
+                                    ))}
+                                </select>
                             </div>
                             <div className="space-y-2">
                                 <label
@@ -304,6 +283,35 @@ const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
                                     }
                                     className="w-full p-2 border border-gray-300 rounded"
                                 />
+                            </div>
+                            <div className="relative">
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    id="unitPassword"
+                                    value={unitPassword}
+                                    onChange={(e) =>
+                                        setUnitPassword(e.target.value)
+                                    }
+                                    className="w-full p-2 border border-gray-300 rounded"
+                                    autoComplete="false"
+                                />
+                                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                    <input
+                                        type="checkbox"
+                                        className="h-5 w-5 text-blue-500 focus:ring-blue-400 border-gray-300 rounded"
+                                        id="showPasswordToggle"
+                                        checked={showPassword}
+                                        onChange={() =>
+                                            setShowPassword(!showPassword)
+                                        }
+                                    />
+                                    <label
+                                        htmlFor="showPasswordToggle"
+                                        className="ml-2 text-sm text-gray-700"
+                                    >
+                                        Show Password
+                                    </label>
+                                </div>
                             </div>
                         </div>
 

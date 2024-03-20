@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 import Sidebar from "../components/Sidebar";
 import AddUnit from "../components/AddUnit";
 import UpdateUnit from "../components/UpdateUnit";
@@ -11,6 +12,7 @@ import {
     faSquarePlus,
 } from "@fortawesome/free-solid-svg-icons";
 import { faEdit } from "@fortawesome/free-regular-svg-icons";
+
 const Units = () => {
     const [ID, setID] = useState(localStorage.getItem("ID"));
     const [ROLE, setROLE] = useState(localStorage.getItem("ROLE"));
@@ -56,16 +58,17 @@ const Units = () => {
         const getUnits = async () => {
             if (ROLE === "sdo") {
                 const response = await fetch(
-                    `https://csddashboard.online/api/unit/sdo/${ID}`
+                    `http://localhost:5000/api/unit/sdo/${ID}`
                 );
                 const data = await response.json();
                 searchUnit(data);
+
+                console.log(data);
             } else {
-                const response = await fetch(
-                    `https://csddashboard.online/api/unit`
-                );
+                const response = await fetch(`http://localhost:5000/api/unit`);
                 const data = await response.json();
                 searchUnit(data);
+                console.log(data);
             }
         };
         getUnits();
@@ -74,44 +77,68 @@ const Units = () => {
     const columns = [
         {
             name: "#",
-            selector: "customId",
+            selector: (row) => row.customId,
             sortable: true,
+            width: "5%",
         },
         {
             name: "Name",
-            selector: "unit_name",
+            selector: (row) => row.unit_name,
             sortable: true,
         },
         {
             name: "Address",
-            selector: "unit_address",
+            selector: (row) => row.unit_address,
             sortable: true,
         },
         {
+            name: "Status",
+            selector: (row) => row.status,
+
+            cell: (row) => (
+                <span
+                    className={`px-2 py-1 text-white rounded-lg text-xs font-medium ${
+                        row.status === true ? "bg-green-500" : "bg-red-500"
+                    }`}
+                >
+                    {row.status === true ? "Active" : "Deactivated"}
+                </span>
+            ),
+        },
+        {
             name: "Contact",
-            selector: "unit_phone",
+            selector: (row) => row.unit_phone,
             sortable: true,
         },
         {
             name: "Email",
-            selector: "unit_email",
+            selector: (row) => row.unit_email,
             sortable: true,
         },
         {
             name: "Action",
             cell: (row) => (
-                <button
-                    data-modal-target="default-modal"
-                    data-modal-toggle="default-modal"
-                    className="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-3 py-2.5 text-center"
-                    type="button"
-                    onClick={() => {
-                        setUnit(row);
-                        setShowUpdateUnit(true);
-                    }}
-                >
-                    <FontAwesomeIcon icon={faEdit} />
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        data-modal-target="default-modal"
+                        data-modal-toggle="default-modal"
+                        className="text-blue-600 bg-none me-2"
+                        type="button"
+                        onClick={() => {
+                            setUnit(row);
+                            setShowUpdateUnit(true);
+                        }}
+                    >
+                        Update
+                    </button>
+                    <button
+                        className="text-red-600 bg-none"
+                        type="button"
+                        onClick={() => toggleUnitStatus(row)}
+                    >
+                        Set status
+                    </button>
+                </div>
             ),
         },
     ];
@@ -120,6 +147,38 @@ const Units = () => {
         ...unit,
         customId: index + 1,
     }));
+
+    const toggleUnitStatus = (row) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: `Do you want to toggle the status of ${row.unit_name}?`,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes",
+            cancelButtonText: "No",
+        }).then((result) => {
+            if (result.isConfirmed) {
+                //unit_status/:unitId
+                fetch(`http://localhost:5000/api/unit/status/${row.unit_id}`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        status: !row.status,
+                    }),
+                }).then(() => {
+                    Swal.fire(
+                        "Updated!",
+                        "Unit status has been updated.",
+                        "success"
+                    ).then(() => {
+                        setReload(!reload);
+                    });
+                });
+            }
+        });
+    };
 
     return (
         <section className="dashboard">

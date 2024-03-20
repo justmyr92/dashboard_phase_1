@@ -27,7 +27,7 @@ const AnnualReports = () => {
         const getAnnualReports = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online/api/annual_report/`
+                    `http://localhost:5000/api/annual_report/`
                 );
                 const jsonData = await response.json();
                 const promises = jsonData.map(async (annualReport) => {
@@ -110,7 +110,7 @@ const AnnualReports = () => {
             console.log(JSON.stringify(requestBody));
 
             const response = await fetch(
-                "https://csddashboard.online/api/annual_report",
+                "http://localhost:5000/api/annual_report",
                 {
                     method: "POST",
                     headers: {
@@ -185,9 +185,9 @@ const AnnualReports = () => {
                                                 >
                                                     <path
                                                         stroke="currentColor"
-                                                        stroke-linecap="round"
+                                                        strokeLinecap="round"
                                                         stroke-linejoin="round"
-                                                        stroke-width="2"
+                                                        strokeWidth="2"
                                                         d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                                                     />
                                                 </svg>

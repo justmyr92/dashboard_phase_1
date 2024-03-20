@@ -14,6 +14,7 @@ import {
     faBook,
     faSignOut,
     faTools,
+    faGear,
 } from "@fortawesome/free-solid-svg-icons";
 
 const Sidebar = () => {
@@ -22,6 +23,7 @@ const Sidebar = () => {
     const [role, setRole] = useState(localStorage.getItem("ROLE"));
     const [name, setName] = useState(localStorage.getItem("NAME"));
     const [links, setLinks] = useState([]);
+    const [sideMenu, setSideMenu] = useState(false);
 
     useEffect(() => {
         if (role === "csd") {
@@ -50,6 +52,11 @@ const Sidebar = () => {
                     url: "/csd/instruments",
                     text: "Instruments",
                     icon: faTools,
+                },
+                {
+                    url: "/csd/records",
+                    text: "Records",
+                    icon: faFileAlt,
                 },
             ]);
         } else if (role === "sdo") {
@@ -99,12 +106,6 @@ const Sidebar = () => {
         >
             <div className="h-full px-3 py-4 overflow-y-auto bg-[#E6243B] shadow-xl">
                 <img src={logo} alt="logo" className="w-32 h-32 mx-auto mb-5" />
-                <div className="flex items-center justify-start mb-5 border-y border-white p-2">
-                    <h6 className="text-base font-semibold text-start text-white">
-                        <FontAwesomeIcon icon={faUser} className="mr-2" />
-                        {name}
-                    </h6>
-                </div>
                 <ul className="space-y-2">
                     {links.map((link, index) => (
                         <li key={index}>
@@ -129,18 +130,43 @@ const Sidebar = () => {
                     {/* Add logout item here */}
                     <li>
                         <button
-                            className={`flex items-center p-2 rounded-lg text-gray-100 hover:bg-white hover:text-gray-800 w-full text-base transition-colors duration-200`}
+                            className={`flex flex-col items-start border-gray-500 p-2 rounded-lg text-gray-100 hover:bg-white hover:text-gray-800 w-full text-base transition-colors duration-200 ${
+                                sideMenu ? "" : "bg-white text-gray-800"
+                            }`}
                             onClick={() => {
-                                localStorage.clear();
-                                window.location.href = "/";
+                                setSideMenu(!sideMenu);
                             }}
                         >
-                            <FontAwesomeIcon
-                                icon={faSignOut}
-                                className="mr-2"
-                            />
-                            Logout
+                            <h6 className="text-base font-semibold">
+                                <FontAwesomeIcon
+                                    icon={faUser}
+                                    className="mr-2"
+                                />
+                                {name}
+                            </h6>
                         </button>
+                        <div
+                            className={`w-full p-2 rounded-lg shadow-lg mt-2 top-0 right-0 transition-all duration-300 ${
+                                sideMenu ? "bg-white" : "bg-transparent"
+                            }`}
+                            style={{
+                                display: sideMenu ? "block" : "none",
+                            }}
+                        >
+                            <button
+                                className="w-full h-1/2 text-left text-gray-800"
+                                onClick={() => {
+                                    localStorage.clear();
+                                    window.location.href = "/";
+                                }}
+                            >
+                                <FontAwesomeIcon
+                                    icon={faSignOut}
+                                    className="mr-2"
+                                />
+                                Logout
+                            </button>
+                        </div>
                     </li>
                 </ul>
             </div>

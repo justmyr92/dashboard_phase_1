@@ -19,7 +19,7 @@ const SetNotification = ({
         const getUnit = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online/api/unit/${selected.unit_id}`
+                    `http://localhost:5000/api/unit/${selected.unit_id}`
                 );
                 const jsonData = await response.json();
                 setUnit(jsonData);
@@ -96,7 +96,7 @@ const SetNotification = ({
 
         try {
             const response = await fetch(
-                `https://csddashboard.online/api/record_data/${selected.record_data_id}`,
+                `http://localhost:5000/api/record_data/${selected.record_data_id}`,
                 {
                     method: "PATCH",
                     body: JSON.stringify(data),
@@ -114,7 +114,7 @@ const SetNotification = ({
                 };
 
                 const response2 = await fetch(
-                    "https://csddashboard.online/api/notification",
+                    "http://localhost:5000/api/notification",
                     {
                         method: "POST",
                         body: JSON.stringify(notif),
@@ -171,9 +171,9 @@ const SetNotification = ({
                                 >
                                     <path
                                         stroke="currentColor"
-                                        stroke-linecap="round"
+                                        strokeLinecap="round"
                                         stroke-linejoin="round"
-                                        stroke-width="2"
+                                        strokeWidth="2"
                                         d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                                     />
                                 </svg>

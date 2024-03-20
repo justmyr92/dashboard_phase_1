@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
+import { MultiSelect, MultiSelectItem } from "@tremor/react";
 
 const InstrumentForm = () => {
     const [sdgIndicators, setSdgIndicators] = useState([]);
@@ -9,6 +10,8 @@ const InstrumentForm = () => {
     const [sdgIndicator, setSdgIndicator] = useState("");
     const [record, setRecord] = useState([]);
     const [page, setPage] = useState(1);
+
+    const [units, setUnits] = useState([]);
 
     const addRecordInput = () => {
         if (sdgIndicator === "") {
@@ -24,10 +27,16 @@ const InstrumentForm = () => {
             {
                 record_id: "",
                 record_name: "",
+                unit_ids: [],
                 sdg_id: sdgIndicator,
             },
         ]);
+        console.log(units);
     };
+
+    useEffect(() => {
+        console.log(record);
+    }, [record]);
 
     const deleteRecord = (index) => {
         setRecord((prevRecords) => {
@@ -57,8 +66,17 @@ const InstrumentForm = () => {
     };
 
     useEffect(() => {
+        const fetchUnits = async () => {
+            const response = await fetch("http://localhost:5000/api/unit");
+            const data = await response.json();
+            setUnits(data);
+        };
+        fetchUnits();
+    }, []);
+
+    useEffect(() => {
         const fetchSdgIndicators = async () => {
-            const response = await fetch("https://csddashboard.online/api/sdg");
+            const response = await fetch("http://localhost:5000/api/sdg");
             const data = await response.json();
             setSdgIndicators(data);
         };
@@ -86,7 +104,7 @@ const InstrumentForm = () => {
 
                 try {
                     const response = await fetch(
-                        "https://csddashboard.online/api/instruments",
+                        "http://localhost:5000/api/instruments",
                         {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
@@ -111,7 +129,7 @@ const InstrumentForm = () => {
                                 };
                                 try {
                                     const response = await fetch(
-                                        "https://csddashboard.online/api/addRecord",
+                                        "http://localhost:5000/api/addRecord",
                                         {
                                             method: "POST",
                                             headers: {
@@ -122,6 +140,41 @@ const InstrumentForm = () => {
                                         }
                                     );
                                     const data = await response.json();
+
+                                    if (response.ok) {
+                                        recordItem.unit_ids.map(
+                                            async (unit_id) => {
+                                                const tag = {
+                                                    record_id:
+                                                        newRecord.record_id,
+                                                    unit_id: unit_id,
+                                                };
+                                                try {
+                                                    const response =
+                                                        await fetch(
+                                                            "http://localhost:5000/api/tag",
+                                                            {
+                                                                method: "POST",
+                                                                headers: {
+                                                                    "Content-Type":
+                                                                        "application/json",
+                                                                },
+                                                                body: JSON.stringify(
+                                                                    tag
+                                                                ),
+                                                            }
+                                                        );
+                                                    const data =
+                                                        await response.json();
+                                                    if (response.ok) {
+                                                        console.log(data);
+                                                    }
+                                                } catch (error) {
+                                                    console.error(error);
+                                                }
+                                            }
+                                        );
+                                    }
                                 } catch (error) {
                                     console.error(error);
                                 }
@@ -265,10 +318,11 @@ const InstrumentForm = () => {
                                                     <label className="block text-gray-700 text-sm font-semibold">
                                                         Instrument Question
                                                     </label>
+
                                                     <input
                                                         className="w-full px-5 py-2 text-gray-900 rounded focus:outline-none focus:shadow-outline border border-gray-300 placeholder-gray-500 focus:bg-white"
                                                         type="text"
-                                                        placeholder="Record Name"
+                                                        placeholder="SAT Question"
                                                         value={
                                                             recordItem.record_name
                                                         }
@@ -280,18 +334,43 @@ const InstrumentForm = () => {
                                                             )
                                                         }
                                                     />
+                                                    <MultiSelect
+                                                        className="w-full bg-white"
+                                                        value={
+                                                            recordItem.unit_ids
+                                                        }
+                                                        onChange={(e) =>
+                                                            handleRecordChange(
+                                                                index,
+                                                                "unit_ids",
+                                                                e
+                                                            )
+                                                        }
+                                                    >
+                                                        {units.map((unit) => (
+                                                            <MultiSelectItem
+                                                                className="bg-white"
+                                                                key={
+                                                                    unit.unit_id
+                                                                }
+                                                                value={
+                                                                    unit.unit_id
+                                                                }
+                                                            >
+                                                                {unit.unit_name}
+                                                            </MultiSelectItem>
+                                                        ))}
+                                                    </MultiSelect>
+                                                    <button
+                                                        type="button"
+                                                        className="px-5 py-2 bg-red-500 text-white rounded-lg"
+                                                        onClick={() =>
+                                                            deleteRecord(index)
+                                                        }
+                                                    >
+                                                        Delete
+                                                    </button>
                                                 </div>
-
-                                                {/* Delete Button */}
-                                                <button
-                                                    type="button"
-                                                    className="px-5 py-2 bg-red-500 text-white rounded-lg"
-                                                    onClick={() =>
-                                                        deleteRecord(index)
-                                                    }
-                                                >
-                                                    Delete
-                                                </button>
                                             </div>
                                         )
                                 )}
@@ -311,6 +390,10 @@ const InstrumentForm = () => {
                                         type="button"
                                         className="p-2 px-4 bg-blue-500 text-white rounded-lg"
                                         onClick={() => setPage(2)}
+                                        disabled={
+                                            record.length === 0 ||
+                                            !instrumentName
+                                        }
                                     >
                                         Preview
                                     </button>

@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 
 const AddSDOfficer = ({ setReload, setModal }) => {
     const [campus, setCampus] = useState([]);
@@ -14,15 +14,9 @@ const AddSDOfficer = ({ setReload, setModal }) => {
     });
     useEffect(() => {
         const getCampus = async () => {
-            const response = await fetch(
-                "https://csddashboard.online/api/campus"
-            );
+            const response = await fetch("http://localhost:5000/api/campus");
             const data = await response.json();
             setCampus(data);
-            setSDOOfficers({
-                ...sdo_officer,
-                campus_id: data[0].campus_id,
-            });
             console.log(data);
         };
         getCampus();
@@ -30,20 +24,45 @@ const AddSDOfficer = ({ setReload, setModal }) => {
 
     const submitData = async (e) => {
         e.preventDefault();
+        //check if the form data is all filled
+        if (
+            sdo_officer.sdo_officer_name === "" ||
+            sdo_officer.sdo_officer_email === "" ||
+            sdo_officer.sdo_officer_phone === "" ||
+            sdo_officer.sdo_officer_password === "" ||
+            sdo_officer.campus_id === ""
+        ) {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Please fill all fields!",
+            });
+        }
         console.log(sdo_officer);
-        const response = await fetch(
-            "https://csddashboard.online/api/sdo_officer",
-            {
-                method: "POST",
-                headers: {
-                    "Content-type": "application/json",
-                },
-                body: JSON.stringify(sdo_officer),
-            }
-        );
+        const response = await fetch("http://localhost:5000/api/sdo_officer", {
+            method: "POST",
+            headers: {
+                "Content-type": "application/json",
+            },
+            body: JSON.stringify(sdo_officer),
+        });
         const data = await response.json();
-        setReload(true);
-        setModal(false);
+        if (response.status === 200) {
+            Swal.fire({
+                icon: "success",
+                title: "Success",
+                text: "SD Officer Added Successfully",
+            }).then(() => {
+                setReload(true);
+                setModal(false);
+            });
+        } else {
+            Swal.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Something went wrong!",
+            });
+        }
     };
 
     return (
@@ -75,9 +94,9 @@ const AddSDOfficer = ({ setReload, setModal }) => {
                                 >
                                     <path
                                         stroke="currentColor"
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        strokeWidth="2"
                                         d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                                     />
                                 </svg>
@@ -88,8 +107,8 @@ const AddSDOfficer = ({ setReload, setModal }) => {
                             {/* createa a selectinput where user  can select campus */}
                             <div>
                                 <label
-                                    for="campus"
                                     className="block text-sm font-medium text-gray-700"
+                                    htmlFor="campus"
                                 >
                                     Campus
                                 </label>
@@ -98,7 +117,7 @@ const AddSDOfficer = ({ setReload, setModal }) => {
                                     name="campus"
                                     autoComplete="campus"
                                     className="block w-full px-3 py-2 mt-1 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                    defaultValue={FormData.campus_id}
+                                    value={sdo_officer.campus_id}
                                     onChange={(e) =>
                                         setSDOOfficer({
                                             ...sdo_officer,
@@ -106,7 +125,7 @@ const AddSDOfficer = ({ setReload, setModal }) => {
                                         })
                                     }
                                 >
-                                    <option value="0" disabled>
+                                    <option value="0" selected>
                                         Select Campus
                                     </option>
                                     {campus
@@ -131,7 +150,7 @@ const AddSDOfficer = ({ setReload, setModal }) => {
 
                             <div>
                                 <label
-                                    for="name"
+                                    htmlFor="name"
                                     className="block text-sm font-medium text-gray-700"
                                 >
                                     Name
@@ -140,10 +159,10 @@ const AddSDOfficer = ({ setReload, setModal }) => {
                                     type="text"
                                     name="name"
                                     id="name"
-                                    autocomplete="name"
+                                    autoComplete="name"
                                     className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                     placeholder="Enter Name"
-                                    value={FormData.sdo_officer_name}
+                                    value={sdo_officer.sdo_officer_name}
                                     onChange={(e) =>
                                         setSDOOfficer({
                                             ...sdo_officer,
@@ -155,7 +174,7 @@ const AddSDOfficer = ({ setReload, setModal }) => {
 
                             <div>
                                 <label
-                                    for="email"
+                                    htmlFor="email"
                                     className="block text-sm font-medium text-gray-700"
                                 >
                                     Email
@@ -165,7 +184,7 @@ const AddSDOfficer = ({ setReload, setModal }) => {
                                         type="email"
                                         name="email"
                                         id="email"
-                                        autocomplete="email"
+                                        autoComplete="email"
                                         className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                         placeholder="Enter Email"
                                         value={FormData.sdo_officer_email}
@@ -182,7 +201,7 @@ const AddSDOfficer = ({ setReload, setModal }) => {
 
                             <div>
                                 <label
-                                    for="phone"
+                                    htmlFor="phone"
                                     className="block text-sm font-medium text-gray-700"
                                 >
                                     Phone
@@ -192,7 +211,7 @@ const AddSDOfficer = ({ setReload, setModal }) => {
                                         type="text"
                                         name="phone"
                                         id="phone"
-                                        autocomplete="phone"
+                                        autoComplete="phone"
                                         className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                         placeholder="Enter Phone"
                                         value={FormData.sdo_officer_phone}

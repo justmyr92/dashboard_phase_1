@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import Swal from "sweetalert2";
 
 const UpdateSDOfficer = ({ officer, setReload, setModal }) => {
     const [showPassword, setShowPassword] = useState(false);
     const [updatedOfficer, setUpdatedOfficer] = useState(officer);
     const [campus, setCampus] = useState([]);
+    const [password, setPassword] = useState(""); // New password state
 
     useEffect(() => {
         setUpdatedOfficer(officer);
@@ -12,9 +14,7 @@ const UpdateSDOfficer = ({ officer, setReload, setModal }) => {
 
     const fetchCampus = async () => {
         try {
-            const response = await fetch(
-                "https://csddashboard.online/api/campus"
-            );
+            const response = await fetch("http://localhost:5000/api/campus");
             if (!response.ok) {
                 throw new Error("Failed to fetch campus data");
             }
@@ -28,21 +28,34 @@ const UpdateSDOfficer = ({ officer, setReload, setModal }) => {
     const submitData = async (e) => {
         e.preventDefault();
         try {
+            const data = {
+                ...updatedOfficer,
+                password: password, // Include password in the data object
+            };
+
             const response = await fetch(
-                `https://csddashboard.online/api/sdo_officer/${updatedOfficer.sdo_officer_id}`,
+                `http://localhost:5000/api/sdo_officer/${updatedOfficer.sdo_officer_id}`,
                 {
                     method: "PATCH",
                     headers: {
                         "Content-type": "application/json",
                     },
-                    body: JSON.stringify(updatedOfficer),
+                    body: JSON.stringify(data),
                 }
             );
             if (!response.ok) {
                 throw new Error("Failed to update SD officer");
+            } else {
+                Swal.fire({
+                    title: "Success!",
+                    text: "SD Officer updated successfully!",
+                    icon: "success",
+                    confirmButtonText: "Okay",
+                }).then(() => {
+                    setReload(true);
+                    setModal(false);
+                });
             }
-            setReload(true);
-            setModal(false);
         } catch (error) {
             console.error("Error updating SD officer:", error);
         }
@@ -182,15 +195,54 @@ const UpdateSDOfficer = ({ officer, setReload, setModal }) => {
                                     <option value="" disabled>
                                         Select Campus
                                     </option>
-                                    {campus.map((campus) => (
-                                        <option
-                                            value={campus.campus_id}
-                                            key={campus.campus_id}
-                                        >
-                                            {campus.campus_name}
-                                        </option>
-                                    ))}
+                                    {campus
+                                        .filter(
+                                            (campus) =>
+                                                campus.campus_id === "1" ||
+                                                campus.campus_id === "2" ||
+                                                campus.campus_id === "3" ||
+                                                campus.campus_id === "4" ||
+                                                campus.campus_id === "5"
+                                        )
+                                        .map((campus) => (
+                                            <option
+                                                value={campus.campus_id}
+                                                key={campus.campus_id}
+                                            >
+                                                {campus.campus_name}
+                                            </option>
+                                        ))}
                                 </select>
+                            </div>
+
+                            <div>
+                                <label
+                                    htmlFor="password"
+                                    className="block text-sm font-medium text-gray-700"
+                                >
+                                    Password
+                                </label>
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    name="password"
+                                    id="password"
+                                    autoComplete="new-password"
+                                    className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                    placeholder="Enter Password"
+                                    value={password}
+                                    onChange={(e) =>
+                                        setPassword(e.target.value)
+                                    }
+                                />
+                                <button
+                                    type="button"
+                                    className="mt-2 text-sm text-gray-500 focus:outline-none"
+                                    onClick={() =>
+                                        setShowPassword(!showPassword)
+                                    }
+                                >
+                                    {showPassword ? "Hide" : "Show"} Password
+                                </button>
                             </div>
                         </div>
                         <div className="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b">

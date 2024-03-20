@@ -9,7 +9,7 @@ const ViewFiles = ({ record_data_id }) => {
     useEffect(() => {
         const getFiles = async () => {
             const response = await fetch(
-                `https://csddashboard.online/api/file/${record_data_id}`
+                `http://localhost:5000/api/file/${record_data_id}`
             );
             const data = await response.json();
             if (response.ok) {
@@ -82,9 +82,9 @@ const ViewFiles = ({ record_data_id }) => {
             {showModal && (
                 <div
                     id="default-modal"
-                    tabindex="-1"
+                    tabIndex="-1"
                     aria-hidden="true"
-                    className="overflow-y-auto overflow-x-hidden z-50 justify-center items-center w-full md:inset-0 max-h-full absolute inset-0 flex fixed top-0 left-0 right-0 bottom-0"
+                    className="overflow-y-auto overflow-x-hidden z-50 justify-center items-center w-full md:inset-0 max-h-full inset-0 flex fixed top-0 left-0 right-0 bottom-0"
                 >
                     <div className="relative p-4 w-full max-w-4xl max-h-full">
                         <div className="relative bg-white rounded-lg shadow">
@@ -105,9 +105,9 @@ const ViewFiles = ({ record_data_id }) => {
                                     >
                                         <path
                                             stroke="currentColor"
-                                            stroke-linecap="round"
-                                            stroke-linejoin="round"
-                                            stroke-width="2"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
                                             d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                                         />
                                     </svg>

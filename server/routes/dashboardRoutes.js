@@ -31,6 +31,37 @@ router.post("/sdo_officer", async (req, res) => {
         console.error(err.message);
     }
 });
+//fetch(`http://localhost:5000/api/unit/status/${row.unit_id}`, {
+// method: "PATCH",
+
+router.patch("/unit/status/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        const updateUnit = await pool.query(
+            "UPDATE unit_table SET status = $1 WHERE unit_id = $2",
+            [status, id]
+        );
+        res.json("Unit Status was updated");
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+//delete api to delete sdo officer by id
+router.delete("/sdo_officer/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await pool.query(
+            "DELETE FROM sdo_officer_table WHERE sdo_officer_id = $1",
+            [id]
+        );
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
 
 router.get("/sdo_officer", async (req, res) => {
     try {
@@ -180,10 +211,62 @@ router.get("/unit/:id", async (req, res) => {
     }
 });
 
+//get request
+router.get("/request", async (req, res) => {
+    try {
+        const allRequest = await pool.query("SELECT * FROM request_table");
+        res.json(allRequest.rows);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+router.post("/request", async (req, res) => {
+    try {
+        const {
+            request_title,
+            request_description,
+            start_date,
+            due_date,
+            instrument_id,
+        } = req.body;
+        const request_id = "RQ" + Math.floor(Math.random() * 100000);
+        const newRequest = await pool.query(
+            "INSERT INTO request_table (request_id, request_title, request_description, start_date, due_date, instrument_id) VALUES($1, $2, $3, $4, $5, $6) RETURNING *",
+            [
+                request_id,
+                request_title,
+                request_description,
+                start_date,
+                due_date,
+                instrument_id,
+            ]
+        );
+        res.json(newRequest.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+router.post("/notification", async (req, res) => {
+    try {
+        const { unit_id, notification_date, message } = req.body;
+        const newNotification = await pool.query(
+            "INSERT INTO notification_table (unit_id, notification_date, message) VALUES($1, $2, $3) RETURNING *",
+            [unit_id, notification_date, message]
+        );
+        res.json(newNotification.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
 router.get("/record_data/unit", async (req, res) => {
     try {
         const recordData = await pool.query(
-            "SELECT record_data_table.*, unit_table.*, sdg_table.* FROM record_data_table INNER JOIN unit_table ON record_data_table.unit_id = unit_table.unit_id INNER JOIN sdg_table ON unit_table.sdg_id = sdg_table.sdg_id"
+            //fetching all the record data from the record_data_table without sdg table
+            "SELECT record_data_table.*, unit_table.* FROM record_data_table INNER JOIN unit_table ON record_data_table.unit_id = unit_table.unit_id"
+            // "SELECT record_data_table.*, unit_table.*, sdg_table.* FROM record_data_table INNER JOIN unit_table ON record_data_table.unit_id = unit_table.unit_id INNER JOIN sdg_table ON unit_table.sdg_id = sdg_table.sdg_id"
         );
         res.json(recordData.rows);
     } catch (err) {
@@ -199,6 +282,20 @@ router.get("/sdg/unit/:id", async (req, res) => {
             [id]
         );
         res.json(sdg.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+//get all record_id from tag_table
+router.get("/tag/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const tag = await pool.query(
+            "SELECT record_id FROM tag_table WHERE unit_id = $1",
+            [id]
+        );
+        res.json(tag.rows);
     } catch (err) {
         console.error(err.message);
     }
@@ -328,14 +425,40 @@ router.get("/records/:id", async (req, res) => {
     }
 });
 
-router.get("/record/:id/:instrument_id", async (req, res) => {
+// router.get("/record/:id/:instrument_id", async (req, res) => {
+//     try {
+//         const { id, instrument_id } = req.params;
+//         const record = await pool.query(
+//             "SELECT * FROM record_table WHERE sdg_id = $1 AND instrument_id = $2",
+//             [id, instrument_id]
+//         );
+//         res.json(record.rows);
+//     } catch (err) {
+//         console.error(err.message);
+//     }
+// });
+
+router.get("/record/:id", async (req, res) => {
     try {
-        const { id, instrument_id } = req.params;
+        const { id } = req.params;
         const record = await pool.query(
-            "SELECT * FROM record_table WHERE sdg_id = $1 AND instrument_id = $2",
-            [id, instrument_id]
+            "SELECT * FROM record_table WHERE instrument_id = $1",
+            [id]
         );
         res.json(record.rows);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+router.post("/tag", async (req, res) => {
+    try {
+        const { record_id, unit_id } = req.body;
+        const newTag = await pool.query(
+            "INSERT INTO tag_table (record_id, unit_id) VALUES($1, $2) RETURNING *",
+            [record_id, unit_id]
+        );
+        res.json(newTag.rows[0]);
     } catch (err) {
         console.error(err.message);
     }
@@ -403,19 +526,6 @@ router.get("/record_data/approved/:id/:unit_id", async (req, res) => {
     }
 });
 
-router.post("/notification", async (req, res) => {
-    try {
-        const { unit_id, notification_date, message } = req.body;
-        const newNotification = await pool.query(
-            "INSERT INTO notification_table (unit_id, notification_date, message) VALUES($1, $2, $3) RETURNING *",
-            [unit_id, notification_date, message]
-        );
-        res.json(newNotification.rows[0]);
-    } catch (err) {
-        console.error(err.message);
-    }
-});
-
 router.get("/notification/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -466,7 +576,7 @@ router.post("/record_value", async (req, res) => {
     try {
         const record_value_id = "RV" + Math.floor(Math.random() * 100000);
         const { record_data_id, record_data_value, record_id } = req.body;
-        console.log(req.body);
+        console.log(req.body, "asdasd");
         const newRecordValue = await pool.query(
             "INSERT INTO record_value_table (record_value_id, record_data_id, value, record_id) VALUES($1, $2, $3, $4) RETURNING *",
             [record_value_id, record_data_id, record_data_value, record_id]
@@ -623,18 +733,39 @@ router.patch("/sdo_officer/:id", async (req, res) => {
             sdo_officer_email,
             sdo_officer_phone,
             campus_id,
+            sdo_officer_password,
         } = req.body;
-        const updateSdoOfficer = await pool.query(
-            "UPDATE sdo_officer_table SET sdo_officer_name = $1, sdo_officer_email = $2, sdo_officer_phone = $3, campus_id = $4 WHERE sdo_officer_id = $5 returning *",
-            [
-                sdo_officer_name,
-                sdo_officer_email,
-                sdo_officer_phone,
-                campus_id,
-                id,
-            ]
-        );
-        res.json(updateSdoOfficer.rows[0]);
+        if (sdo_officer_password) {
+            const salt = await bcrypt.genSalt(10);
+            const encryptedPassword = await bcrypt.hash(
+                sdo_officer_password,
+                salt
+            );
+            const updateSdoOfficer = await pool.query(
+                "UPDATE sdo_officer_table SET sdo_officer_name = $1, sdo_officer_email = $2, sdo_officer_phone = $3, campus_id = $4, sdo_officer_password = $5 WHERE sdo_officer_id = $6 returning *",
+                [
+                    sdo_officer_name,
+                    sdo_officer_email,
+                    sdo_officer_phone,
+                    campus_id,
+                    encryptedPassword,
+                    id,
+                ]
+            );
+            res.json(updateSdoOfficer.rows[0]);
+        } else {
+            const updateSdoOfficer = await pool.query(
+                "UPDATE sdo_officer_table SET sdo_officer_name = $1, sdo_officer_email = $2, sdo_officer_phone = $3, campus_id = $4 WHERE sdo_officer_id = $5 returning *",
+                [
+                    sdo_officer_name,
+                    sdo_officer_email,
+                    sdo_officer_phone,
+                    campus_id,
+                    id,
+                ]
+            );
+            res.json(updateSdoOfficer.rows[0]);
+        }
     } catch (err) {
         console.error(err.message);
     }
@@ -643,13 +774,38 @@ router.patch("/sdo_officer/:id", async (req, res) => {
 router.patch("/unit/update/:id", async (req, res) => {
     try {
         const { id } = req.params;
-        const { unit_name, unit_address, unit_phone, unit_email, campus_id } =
-            req.body;
-        const updateUnit = await pool.query(
-            "UPDATE unit_table SET unit_name = $1, unit_address = $2, unit_phone = $3, unit_email = $4, campus_id = $5 WHERE unit_id = $6 returning *",
-            [unit_name, unit_address, unit_phone, unit_email, campus_id, id]
-        );
-        res.json(updateUnit.rows[0]);
+        const {
+            unit_name,
+            unit_address,
+            unit_phone,
+            unit_email,
+            campus_id,
+            unit_password,
+        } = req.body;
+
+        if (unit_password) {
+            const salt = await bcrypt.genSalt(10);
+            const encryptedPassword = await bcrypt.hash(unit_password, salt);
+            const updateUnit = await pool.query(
+                "UPDATE unit_table SET unit_name = $1, unit_address = $2, unit_phone = $3, unit_email = $4, campus_id = $5, unit_password = $6 WHERE unit_id = $7 returning *",
+                [
+                    unit_name,
+                    unit_address,
+                    unit_phone,
+                    unit_email,
+                    campus_id,
+                    encryptedPassword,
+                    id,
+                ]
+            );
+            res.json(updateUnit.rows[0]);
+        } else {
+            const updateUnit = await pool.query(
+                "UPDATE unit_table SET unit_name = $1, unit_address = $2, unit_phone = $3, unit_email = $4, campus_id = $5 WHERE unit_id = $6 returning *",
+                [unit_name, unit_address, unit_phone, unit_email, campus_id, id]
+            );
+            res.json(updateUnit.rows[0]);
+        }
     } catch (err) {
         console.log(err.message);
     }

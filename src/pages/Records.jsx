@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import AddRecord from "../components/AddRecord";
 import ViewFiles from "../components/ViewFiles";
@@ -13,6 +13,8 @@ import {
     faSearch,
 } from "@fortawesome/free-solid-svg-icons";
 import Notifications from "../components/Notifications";
+import Swal from "sweetalert2";
+import { MultiSelect } from "@tremor/react";
 const Records = () => {
     const [ID, setID] = useState(localStorage.getItem("ID"));
     const [ROLE, setROLE] = useState(localStorage.getItem("ROLE"));
@@ -26,8 +28,16 @@ const Records = () => {
     const [ids, setIds] = useState([]);
     const [selectedRecords, setSelectedRecords] = useState([]);
     const [unit, setUnit] = useState([]);
+    const [showRequestModal, setShowRequestModal] = useState(false);
+    const [requestTitle, setRequestTitle] = useState("");
+    const [requestDescription, setRequestDescription] = useState("");
+    const [startDate, setStartDate] = useState("");
+    const [dueDate, setDueDate] = useState("");
+    const [selectedInstrument, setSelectedInstrument] = useState("");
 
     const [search, setSearch] = useState("");
+
+    const [requests, setRequests] = useState([]);
 
     const [showUpdateStatus, setShowUpdateStatus] = useState(false);
     useEffect(() => {
@@ -35,9 +45,7 @@ const Records = () => {
             window.location.href = "/login";
         }
         const getUnit = async () => {
-            const response = await fetch(
-                `https://csddashboard.online/api/unit`
-            );
+            const response = await fetch(`http://localhost:5000/api/unit`);
             const data = await response.json();
             setUnit(data);
         };
@@ -48,7 +56,7 @@ const Records = () => {
         console.log(reload);
         const getRecords = async () => {
             const response = await fetch(
-                `https://csddashboard.online/api/record_data/unit`
+                `http://localhost:5000/api/record_data/unit`
             );
             const data = await response.json();
             console.log(data);
@@ -118,11 +126,7 @@ const Records = () => {
             sortable: true,
             omit: ROLE === "unit",
         },
-        {
-            name: "SDG Indicator",
-            sortable: true,
-            selector: (row) => row.sdg_name,
-        },
+
         {
             name: "Date Uploaded",
             selector: (row) => row.record_date.toString().split("T")[0],
@@ -199,6 +203,83 @@ const Records = () => {
         },
     ];
 
+    const [instruments, setInstruments] = useState([]);
+
+    useEffect(() => {
+        // run
+        const getRequests = async () => {
+            const response = await fetch("http://localhost:5000/api/request");
+            const data = await response.json();
+            setRequests(data);
+            console.log(data);
+        };
+        getRequests();
+    }, []);
+
+    useEffect(() => {
+        // run getInstruments API call
+        const getInstruments = async () => {
+            const response = await fetch(
+                "http://localhost:5000/api/getInstruments/"
+            );
+            const data = await response.json();
+            setInstruments(data);
+            console.log(data);
+        };
+        getInstruments();
+    }, []);
+
+    const handleRequestSubmit = async (e) => {
+        e.preventDefault();
+        console.log("Form submitted:", {
+            requestTitle,
+            requestDescription,
+            startDate,
+            dueDate,
+            selectedInstrument,
+        });
+
+        Swal.fire({
+            title: "Request Submitted",
+            text: "Request has been submitted successfully",
+            icon: "success",
+            confirmButtonText: "OK",
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const response = await fetch(
+                        "http://localhost:5000/api/request",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                                request_title: requestTitle,
+                                request_description: requestDescription,
+                                start_date: startDate,
+                                due_date: dueDate,
+                                instrument_id: selectedInstrument,
+                            }),
+                        }
+                    );
+                    const data = await response.json();
+                    console.log(data);
+                } catch (error) {
+                    console.error("Error:", error);
+                }
+            }
+        });
+
+        // Reset form fields and close modal
+        setRequestTitle("");
+        setRequestDescription("");
+        setStartDate("");
+        setDueDate("");
+        setSelectedInstrument("");
+        setShowRequestModal(false);
+    };
+
     return (
         <section className="dashboard">
             {viewRecordModal && (
@@ -215,6 +296,127 @@ const Records = () => {
                     setReload={setReload}
                 />
             )}
+            {showRequestModal && (
+                <div className="request-modal absolute top-1/2 left-1/2 transform w-[40rem] -translate-x-1/2 -translate-y-1/2 z-20 bg-white p-8 rounded-lg shadow-lg">
+                    <h2 className="text-xl font-bold mb-4">
+                        Create New Request
+                    </h2>
+                    <form onSubmit={handleRequestSubmit}>
+                        <div className="mb-4">
+                            <label
+                                htmlFor="request-title"
+                                className="block text-sm font-medium text-gray-600"
+                            >
+                                Title
+                            </label>
+                            <input
+                                type="text"
+                                id="request-title"
+                                className="block w-full border border-gray-300 rounded px-3 py-2.5 mt-1 focus:outline-none focus:border-blue-500"
+                                value={requestTitle}
+                                onChange={(e) =>
+                                    setRequestTitle(e.target.value)
+                                }
+                                required
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label
+                                htmlFor="request-description"
+                                className="block text-sm font-medium text-gray-600"
+                            >
+                                Description
+                            </label>
+                            <textarea
+                                id="request-description"
+                                className="block w-full border border-gray-300 rounded px-3 py-2.5 mt-1 focus:outline-none focus:border-blue-500"
+                                value={requestDescription}
+                                onChange={(e) =>
+                                    setRequestDescription(e.target.value)
+                                }
+                                required
+                            ></textarea>
+                        </div>
+                        <div className="mb-4">
+                            <label
+                                htmlFor="start-date"
+                                className="block text-sm font-medium text-gray-600"
+                            >
+                                Start Date
+                            </label>
+                            <input
+                                type="date"
+                                id="start-date"
+                                className="block w-full border border-gray-300 rounded px-3 py-2.5 mt-1 focus:outline-none focus:border-blue-500"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label
+                                htmlFor="due-date"
+                                className="block text-sm font-medium text-gray-600"
+                            >
+                                Due Date
+                            </label>
+                            <input
+                                type="date"
+                                id="due-date"
+                                className="block w-full border border-gray-300 rounded px-3 py-2.5 mt-1 focus:outline-none focus:border-blue-500"
+                                value={dueDate}
+                                onChange={(e) => setDueDate(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div className="mb-4">
+                            <label
+                                htmlFor="instrument"
+                                className="block text-sm font-medium text-gray-600"
+                            >
+                                Select Instrument
+                            </label>
+                            <select
+                                id="instrument"
+                                className="block w-full border border-gray-300 rounded px-3 py-2.5 mt-1 focus:outline-none focus:border-blue-500"
+                                value={selectedInstrument}
+                                onChange={(e) =>
+                                    setSelectedInstrument(e.target.value)
+                                }
+                                required
+                            >
+                                <option value="" disabled>
+                                    Select Instrument
+                                </option>
+                                {instruments.map((instrument) => (
+                                    <option
+                                        key={instrument.instrument_id}
+                                        value={instrument.instrument_id}
+                                    >
+                                        {instrument.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                        <div className="flex justify-end">
+                            <button
+                                type="button"
+                                className="px-4 py-2.5 text-sm bg-gray-200 text-gray-600 hover:bg-gray-300 rounded-lg mr-2"
+                                onClick={() => setShowRequestModal(false)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="px-4 py-2.5 text-sm bg-blue-700 text-white hover:bg-blue-800 rounded-lg"
+                            >
+                                Submit
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            )}
+
             <Sidebar />
             <div className="p-4 sm:ml-64 h-screen">
                 <div className="p-4 border-2 border-gray-200 border-dashed rounded-lg h-full">
@@ -257,7 +459,7 @@ const Records = () => {
                                             <FontAwesomeIcon icon={faSearch} />{" "}
                                         </div>
                                     </div>
-                                    {ROLE !== "sdo" && (
+                                    {ROLE === "unit" && (
                                         <button
                                             data-modal-target="default-modal"
                                             data-modal-toggle="default-modal"
@@ -271,6 +473,17 @@ const Records = () => {
                                         </button>
                                     )}
                                     {ROLE === "unit" && <Notifications />}
+                                    {ROLE === "csd" && (
+                                        <button
+                                            className="block text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-[10px] px-3 py-2.5 text-center"
+                                            type="button"
+                                            onClick={() =>
+                                                setShowRequestModal(true)
+                                            }
+                                        >
+                                            Create Request
+                                        </button>
+                                    )}
                                 </div>
                                 {showAddRecord && (
                                     <AddRecord

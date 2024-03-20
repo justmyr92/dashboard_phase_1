@@ -19,6 +19,9 @@
         "@fortawesome/free-regular-svg-icons": "^6.4.2",
         "@fortawesome/free-solid-svg-icons": "^6.4.2",
         "@fortawesome/react-fontawesome": "^0.2.0",
+        "@headlessui/react": "^1.7.18",
+        "@headlessui/tailwindcss": "^0.2.0",
+        "@tremor/react": "^3.14.1",
         "alert": "^6.0.1",
         "bcrypt": "^5.1.1",
         "chart.js": "^4.4.0",
@@ -38,6 +41,7 @@
         "sweetalert2": "^11.9.0"
     },
     "devDependencies": {
+        "@tailwindcss/forms": "^0.5.7",
         "@types/react": "^18.2.15",
         "@types/react-dom": "^18.2.7",
         "@vitejs/plugin-react": "^4.0.3",

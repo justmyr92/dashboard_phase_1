@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
     Chart as ChartJS,
     ArcElement,
@@ -29,9 +29,11 @@ const RecordPieChart = () => {
         const fetchStatus = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online/api/status`
+                    `http://localhost:5000/api/status`
                 );
                 const data = await response.json();
+                // Sort the status data based on count in descending order
+                data.sort((a, b) => b.count - a.count);
                 setStatus(data);
             } catch (error) {
                 console.error("Error fetching status:", error);

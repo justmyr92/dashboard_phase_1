@@ -14,7 +14,7 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
                 record_data_id
             );
             const response = await fetch(
-                `https://csddashboard.online/api/record_value/${record_data_id}`
+                `http://localhost:5000/api/record_value/${record_data_id}`
             );
             const data = await response.json();
             setRecordValues(data);
@@ -36,7 +36,7 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
     const handleSave = async () => {
         recordValues.forEach(async (record) => {
             const response = await fetch(
-                `https://csddashboard.online/api/update_record_values/${record.record_value_id}`,
+                `http://localhost:5000/api/update_record_values/${record.record_value_id}`,
                 {
                     method: "PATCH",
                     headers: {
@@ -50,7 +50,7 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
                 console.log("Record values updated successfully!");
 
                 const response = await fetch(
-                    `https://csddashboard.online/api/record_data/${record_data_id}`,
+                    `http://localhost:5000/api/record_data/${record_data_id}`,
                     {
                         method: "PATCH",
                         headers: {
@@ -117,7 +117,7 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
                         </button>
                     </div>
                     <div className="p-6 space-y-6">
-                        <table className="table-auto">
+                        <table className="table-auto w-full">
                             <tbody>
                                 {recordValues.map((record, index) => (
                                     <tr key={record.record_value_id}>
@@ -129,7 +129,7 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
                                                 type="number"
                                                 id={`record-${record.record_value_id}`}
                                                 name={`record-${record.record_value_id}`}
-                                                className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                                                className="block w-24 px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 float-right"
                                                 value={record.value}
                                                 onChange={(e) =>
                                                     handleInputChange(
@@ -138,7 +138,8 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
                                                     )
                                                 }
                                                 disabled={
-                                                    role === "sdo"
+                                                    role === "sdo" ||
+                                                    role === "csd"
                                                         ? true
                                                         : false
                                                 }
@@ -158,15 +159,16 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
                         >
                             Close
                         </button>
-                        {role !== "sdo" && (
-                            <button
-                                type="button"
-                                className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm font-medium px-5 py-2.5"
-                                onClick={handleSave}
-                            >
-                                Save
-                            </button>
-                        )}
+                        {role !== "sdo" ||
+                            (role !== "csd" && (
+                                <button
+                                    type="button"
+                                    className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm font-medium px-5 py-2.5"
+                                    onClick={handleSave}
+                                >
+                                    Save
+                                </button>
+                            ))}
                     </div>
                 </div>
             </div>

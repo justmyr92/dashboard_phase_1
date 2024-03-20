@@ -19,9 +19,7 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
     useEffect(() => {
         const fetchSdg = async () => {
             try {
-                const response = await fetch(
-                    `https://csddashboard.online/api/sdg`
-                );
+                const response = await fetch(`http://localhost:5000/api/sdg`);
                 const data = await response.json();
                 setSdgs(data);
                 setSdg(data[0].sdg_id);
@@ -37,7 +35,7 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
         const fetchAllSdos = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online/api/sdo-officers`
+                    `http://localhost:5000/api/sdo-officers`
                 );
                 const jsonData = await response.json();
                 setSdoOfficers(jsonData);
@@ -66,7 +64,7 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
         const getCampus = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online/api/campus`
+                    `http://localhost:5000/api/campus`
                 );
                 const jsonData = await response.json();
 
@@ -173,22 +171,19 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
                       ).sdo_officer_id,
 
             campus_id: campus_id,
-            sdg_id: sdg,
+            // sdg_id: sdg,
         };
 
         console.log(data);
 
         try {
-            const response = await fetch(
-                "https://csddashboard.online/api/unit",
-                {
-                    method: "POST",
-                    body: JSON.stringify(data),
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
+            const response = await fetch("http://localhost:5000/api/unit", {
+                method: "POST",
+                body: JSON.stringify(data),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
 
             if (response.status === 200) {
                 Swal.fire({
@@ -198,6 +193,7 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
                 });
 
                 setShowModal(false);
+                setReload(true);
             }
         } catch (error) {
             console.error(error);
@@ -207,7 +203,7 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
     return (
         <div
             id="default-modal"
-            tabindex="-1"
+            tabIndex="-1"
             aria-hidden="true"
             className="fixed top-0 left-0 right-0 z-50 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full"
         >
@@ -232,9 +228,9 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
                             >
                                 <path
                                     stroke="currentColor"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    stroke-width="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
                                     d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                                 />
                             </svg>
@@ -261,7 +257,7 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
                                     autoComplete="false"
                                 />
                             </div>
-                            <div className="space-y-2">
+                            {/* <div className="space-y-2">
                                 <label
                                     htmlFor="unitSdg"
                                     className="block font-medium text-gray-900"
@@ -283,7 +279,7 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
                                         </option>
                                     ))}
                                 </select>
-                            </div>
+                            </div> */}
                             <div className="space-y-2">
                                 <label
                                     htmlFor="unitAddress"
