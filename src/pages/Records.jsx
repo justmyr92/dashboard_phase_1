@@ -46,7 +46,9 @@ const Records = () => {
             window.location.href = "/login";
         }
         const getUnit = async () => {
-            const response = await fetch(`https://csddashboard/api/unit`);
+            const response = await fetch(
+                `https://csddashboard.online/api/unit`
+            );
             const data = await response.json();
             setUnit(data);
             setUnitCount(data.length);
@@ -58,7 +60,7 @@ const Records = () => {
         console.log(reload);
         const getRecords = async () => {
             const response = await fetch(
-                `https://csddashboard/api/record_data/unit`
+                `https://csddashboard.online/api/record_data/unit`
             );
             const data = await response.json();
             console.log(data);
@@ -288,7 +290,7 @@ const Records = () => {
         const fetchData = async () => {
             try {
                 const response = await fetch(
-                    "https://csddashboard/api/request/"
+                    "https://csddashboard.online/api/request/"
                 );
                 const data = await response.json();
                 setRequests(data);
@@ -306,7 +308,7 @@ const Records = () => {
         // run getInstruments API call
         const getInstruments = async () => {
             const response = await fetch(
-                "https://csddashboard/api/getInstruments/"
+                "https://csddashboard.online/api/getInstruments/"
             );
             const data = await response.json();
             setInstruments(data);
@@ -334,7 +336,7 @@ const Records = () => {
             if (result.isConfirmed) {
                 try {
                     const response = await fetch(
-                        "https://csddashboard/api/request",
+                        "https://csddashboard.online/api/request",
                         {
                             method: "POST",
                             headers: {

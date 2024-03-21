@@ -19,7 +19,7 @@ const Instruments = () => {
         const getInstruments = async () => {
             try {
                 const response = await fetch(
-                    "https://csddashboard/api/getInstruments"
+                    "https://csddashboard.online/api/getInstruments"
                 );
                 const jsonData = await response.json();
                 if (search !== "") {
@@ -63,7 +63,7 @@ const Instruments = () => {
         const getRecords = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard/api/getRecords/${instrument.instrument_id}`
+                    `https://csddashboard.online/api/getRecords/${instrument.instrument_id}`
                 );
                 const jsonData = await response.json();
                 setRecord(jsonData);
@@ -89,7 +89,7 @@ const Instruments = () => {
 
     useEffect(() => {
         const fetchSdgIndicators = async () => {
-            const response = await fetch("https://csddashboard/api/sdg");
+            const response = await fetch("https://csddashboard.online/api/sdg");
             const data = await response.json();
             setSdgIndicators(data);
         };
@@ -115,7 +115,7 @@ const Instruments = () => {
                     try {
                         console.log(record);
                         const response = await fetch(
-                            `https://csddashboard/api/updateRecords`,
+                            `https://csddashboard.online/api/updateRecords`,
                             {
                                 method: "PATCH",
                                 headers: { "Content-Type": "application/json" },
@@ -164,7 +164,7 @@ const Instruments = () => {
             if (result.isConfirmed) {
                 try {
                     const response = await fetch(
-                        "https://csddashboard/api/updateInstrumentStatus",
+                        "https://csddashboard.online/api/updateInstrumentStatus",
                         {
                             method: "PATCH",
                             headers: { "Content-Type": "application/json" },

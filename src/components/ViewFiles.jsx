@@ -9,7 +9,7 @@ const ViewFiles = ({ record_data_id }) => {
     useEffect(() => {
         const getFiles = async () => {
             const response = await fetch(
-                `https://csddashboard/api/file/${record_data_id}`
+                `https://csddashboard.online/api/file/${record_data_id}`
             );
             const data = await response.json();
             if (response.ok) {
