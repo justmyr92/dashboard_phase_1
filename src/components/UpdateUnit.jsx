@@ -31,7 +31,7 @@ const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
         };
         try {
             const response = await fetch(
-                `http://localhost:5000/api/unit/update/${unitData.unit_id}`,
+                `https://csddashboard/api/unit/update/${unitData.unit_id}`,
                 {
                     method: "PATCH",
                     body: JSON.stringify(data),
@@ -59,7 +59,7 @@ const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
         const fetchAllSdos = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:5000/api/sdo-officers`
+                    `https://csddashboard/api/sdo-officers`
                 );
                 const jsonData = await response.json();
                 setSdoOfficers(jsonData);
@@ -87,9 +87,7 @@ const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
     useEffect(() => {
         const getCampus = async () => {
             try {
-                const response = await fetch(
-                    `http://localhost:5000/api/campus`
-                );
+                const response = await fetch(`https://csddashboard/api/campus`);
                 const jsonData = await response.json();
 
                 // if (localStorage.getItem("ROLE") === "sdo") {

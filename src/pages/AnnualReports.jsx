@@ -27,7 +27,7 @@ const AnnualReports = () => {
         const getAnnualReports = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:5000/api/annual_report/`
+                    `https://csddashboard/api/annual_report/`
                 );
                 const jsonData = await response.json();
                 const promises = jsonData.map(async (annualReport) => {
@@ -110,7 +110,7 @@ const AnnualReports = () => {
             console.log(JSON.stringify(requestBody));
 
             const response = await fetch(
-                "http://localhost:5000/api/annual_report",
+                "https://csddashboard/api/annual_report",
                 {
                     method: "POST",
                     headers: {

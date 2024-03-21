@@ -14,7 +14,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Notifications from "../components/Notifications";
 import Swal from "sweetalert2";
-import { MultiSelect } from "@tremor/react";
 const Records = () => {
     const [ID, setID] = useState(localStorage.getItem("ID"));
     const [ROLE, setROLE] = useState(localStorage.getItem("ROLE"));
@@ -34,10 +33,12 @@ const Records = () => {
     const [startDate, setStartDate] = useState("");
     const [dueDate, setDueDate] = useState("");
     const [selectedInstrument, setSelectedInstrument] = useState("");
-
+    const [selectedRequestID, setSelectedRequestID] = useState("");
+    const [unitCount, setUnitCount] = useState(0);
     const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
 
-    const [requests, setRequests] = useState([]);
+    // const [requests, setRequests] = useState([]);
 
     const [showUpdateStatus, setShowUpdateStatus] = useState(false);
     useEffect(() => {
@@ -45,9 +46,10 @@ const Records = () => {
             window.location.href = "/login";
         }
         const getUnit = async () => {
-            const response = await fetch(`http://localhost:5000/api/unit`);
+            const response = await fetch(`https://csddashboard/api/unit`);
             const data = await response.json();
             setUnit(data);
+            setUnitCount(data.length);
         };
         getUnit();
     }, [ID]);
@@ -56,7 +58,7 @@ const Records = () => {
         console.log(reload);
         const getRecords = async () => {
             const response = await fetch(
-                `http://localhost:5000/api/record_data/unit`
+                `https://csddashboard/api/record_data/unit`
             );
             const data = await response.json();
             console.log(data);
@@ -65,14 +67,26 @@ const Records = () => {
                 const filteredData = data.filter(
                     (record) => record.sdo_officer_id === ID
                 );
-                setRecords(filteredData);
+                //filert by selected request id
+                setRecords(
+                    filteredData.filter(
+                        (record) => record.request_id === selectedRequestID
+                    )
+                );
             } else if (ROLE === "unit") {
                 const filteredData = data.filter(
                     (record) => record.unit_id === ID
                 );
-                setRecords(filteredData);
+                setRecords(
+                    filteredData.filter((record) => record.request_id) ===
+                        selectedRequestID
+                );
             } else {
-                setRecords(data);
+                setRecords(
+                    data.filter(
+                        (record) => record.request_id === selectedRequestID
+                    )
+                );
             }
 
             setReload(false);
@@ -80,7 +94,7 @@ const Records = () => {
 
         getRecords();
         console.log(records);
-    }, [reload, ID, ROLE]);
+    }, [reload, ID, ROLE, selectedRequestID, records]);
 
     const [searchedRecords, setSearchedRecords] = useState([]);
 
@@ -119,6 +133,11 @@ const Records = () => {
             selector: (row) => row.record_data_id,
             sortable: true,
             width: "10%",
+        },
+        {
+            name: "Request ID",
+            selector: (row) => row.request_id,
+            sortable: true,
         },
         {
             name: "Unit Name",
@@ -203,24 +222,91 @@ const Records = () => {
         },
     ];
 
-    const [instruments, setInstruments] = useState([]);
+    const [requests, setRequests] = useState([]);
+
+    const columns2 = [
+        {
+            name: "Request ID",
+            selector: (row) => row.request_id,
+            sortable: true,
+        },
+        {
+            name: "Title",
+            selector: (row) => row.request_title,
+            sortable: true,
+        },
+        {
+            name: "Progress",
+            selector: (row) => {
+                const filteredRecords = records.filter(
+                    (record) => record.request_id === row.request_id
+                );
+                const progress = `${filteredRecords.length} / ${unitCount} (${(
+                    (filteredRecords.length / unitCount) *
+                    100
+                ).toFixed(2)}%)`;
+                return progress;
+            },
+            sortable: true,
+        },
+
+        {
+            name: "Start Date",
+            selector: (row) => row.start_date.toString().split("T")[0],
+            sortable: true,
+        },
+        {
+            name: "Due Date",
+            selector: (row) => row.due_date.toString().split("T")[0],
+            sortable: true,
+        },
+        {
+            name: "Instrument ID",
+            selector: (row) => row.instrument_id,
+            sortable: true,
+        },
+        // view submitted records
+        {
+            name: "Action",
+            selector: (row) => (
+                <button
+                    onClick={() => {
+                        setSelectedRequestID(row.request_id);
+                        console.log(row.request_id, "Asdasd");
+                        setPage(2);
+                    }}
+                    className="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-[10px] px-3 py-2.5 text-center"
+                    type="button"
+                >
+                    View Records
+                </button>
+            ),
+        },
+    ];
 
     useEffect(() => {
-        // run
-        const getRequests = async () => {
-            const response = await fetch("http://localhost:5000/api/request");
-            const data = await response.json();
-            setRequests(data);
-            console.log(data);
+        const fetchData = async () => {
+            try {
+                const response = await fetch(
+                    "https://csddashboard/api/request/"
+                );
+                const data = await response.json();
+                setRequests(data);
+            } catch (error) {
+                console.error("Error fetching requests:", error);
+            }
         };
-        getRequests();
-    }, []);
+
+        fetchData();
+    }, [reload]);
+
+    const [instruments, setInstruments] = useState([]);
 
     useEffect(() => {
         // run getInstruments API call
         const getInstruments = async () => {
             const response = await fetch(
-                "http://localhost:5000/api/getInstruments/"
+                "https://csddashboard/api/getInstruments/"
             );
             const data = await response.json();
             setInstruments(data);
@@ -248,7 +334,7 @@ const Records = () => {
             if (result.isConfirmed) {
                 try {
                     const response = await fetch(
-                        "http://localhost:5000/api/request",
+                        "https://csddashboard/api/request",
                         {
                             method: "POST",
                             headers: {
@@ -264,7 +350,8 @@ const Records = () => {
                         }
                     );
                     const data = await response.json();
-                    console.log(data);
+
+                    setReload(true);
                 } catch (error) {
                     console.error("Error:", error);
                 }
@@ -494,18 +581,43 @@ const Records = () => {
                                 )}
                             </div>
                             <hr className="my-5 border-gray-300 border-1" />
-                            <div className="border border-gray-200 rounded-lg max-w-[100vw] overflow-x-auto">
-                                <DataTable
-                                    columns={columns}
-                                    data={searchedRecords}
-                                    pagination
-                                    striped
-                                    highlightOnHover
-                                    responsive
-                                    defaultSortFieldId={2}
-                                    className="w-[100%] overflow-x-auto"
-                                />
-                            </div>
+                            {page === 2 && (
+                                <>
+                                    <button
+                                        onClick={() => setPage(1)}
+                                        className="block text-white bg-blue-700 hover:bg-blue-800 font-medium rounded-lg text-[10px] px-3 py-2.5 text-center mb-2"
+                                        type="button"
+                                    >
+                                        Back
+                                    </button>
+                                    <div className="border border-gray-200 rounded-lg max-w-[100vw] overflow-x-auto">
+                                        <DataTable
+                                            columns={columns}
+                                            data={searchedRecords}
+                                            pagination
+                                            striped
+                                            highlightOnHover
+                                            responsive
+                                            defaultSortFieldId={2}
+                                            className="w-[100%] overflow-x-auto"
+                                        />
+                                    </div>
+                                </>
+                            )}
+                            {page === 1 && (
+                                <div className="border border-gray-200 rounded-lg max-w-[100vw] overflow-x-auto">
+                                    <DataTable
+                                        columns={columns2}
+                                        data={requests}
+                                        pagination
+                                        striped
+                                        highlightOnHover
+                                        responsive
+                                        defaultSortFieldId={0}
+                                        className="w-[100%] overflow-x-auto"
+                                    />
+                                </div>
+                            )}
                         </>
                     )}
                 </div>

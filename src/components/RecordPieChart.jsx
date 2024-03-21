@@ -28,9 +28,7 @@ const RecordPieChart = () => {
     useEffect(() => {
         const fetchStatus = async () => {
             try {
-                const response = await fetch(
-                    `http://localhost:5000/api/status`
-                );
+                const response = await fetch(`https://csddashboard/api/status`);
                 const data = await response.json();
                 // Sort the status data based on count in descending order
                 data.sort((a, b) => b.count - a.count);

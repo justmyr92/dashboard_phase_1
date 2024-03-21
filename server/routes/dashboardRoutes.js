@@ -31,7 +31,7 @@ router.post("/sdo_officer", async (req, res) => {
         console.error(err.message);
     }
 });
-//fetch(`http://localhost:5000/api/unit/status/${row.unit_id}`, {
+//fetch(`https://csddashboard/api/unit/status/${row.unit_id}`, {
 // method: "PATCH",
 
 router.patch("/unit/status/:id", async (req, res) => {
@@ -264,8 +264,9 @@ router.post("/notification", async (req, res) => {
 router.get("/record_data/unit", async (req, res) => {
     try {
         const recordData = await pool.query(
-            //fetching all the record data from the record_data_table without sdg table
+            //fetching all the record data from the record_data_table then get requ
             "SELECT record_data_table.*, unit_table.* FROM record_data_table INNER JOIN unit_table ON record_data_table.unit_id = unit_table.unit_id"
+
             // "SELECT record_data_table.*, unit_table.*, sdg_table.* FROM record_data_table INNER JOIN unit_table ON record_data_table.unit_id = unit_table.unit_id INNER JOIN sdg_table ON unit_table.sdg_id = sdg_table.sdg_id"
         );
         res.json(recordData.rows);
@@ -896,6 +897,19 @@ router.post("/instruments", async (req, res) => {
     }
 });
 
+router.get("/getInstruments/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const instruments = await pool.query(
+            "SELECT * FROM instrument_table WHERE instrument_id = $1",
+            [id]
+        );
+        res.json(instruments.rows);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
 router.post("/addRecord", async (req, res) => {
     const { record_id, record_name, sdg_id, instrument_id } = req.body;
     const record_status = "active";
@@ -1063,12 +1077,20 @@ router.post("/record_data", async (req, res) => {
             record_status,
             record_id,
             unit_id,
+            request_id,
         } = req.body;
         console.log(req.body);
 
         const newRecordData = await pool.query(
-            "INSERT INTO record_data_table (record_data_id, record_date, record_status, record_id, unit_id) VALUES($1, $2, $3, $4, $5) RETURNING *",
-            [record_data_id, record_date, record_status, record_id, unit_id]
+            "INSERT INTO record_data_table (record_data_id, record_date, record_status, record_id, unit_id, request_id) VALUES($1, $2, $3, $4, $5, $6) RETURNING *",
+            [
+                record_data_id,
+                record_date,
+                record_status,
+                record_id,
+                unit_id,
+                request_id,
+            ]
         );
 
         res.json(newRecordData.rows[0]);

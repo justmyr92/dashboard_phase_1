@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import DataTable from "react-data-table-component";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -19,45 +19,58 @@ const SDOfficer = () => {
     const [reload, setReload] = useState(false);
     const [search, setSearch] = useState("");
     const [selectedOfficer, setSelectedOfficer] = useState(null);
-    
+
     const handleDelete = (sdo_officer_id) => {
         // Show confirmation dialog
         Swal.fire({
-          title: 'Are you sure?',
-          text: 'You won\'t be able to revert this!',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#d33',
-          cancelButtonColor: '#3085d6',
-          confirmButtonText: 'Yes, delete it!'
+            title: "Are you sure?",
+            text: "You won't be able to revert this!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, delete it!",
         }).then((result) => {
-          if (result.isConfirmed) {
-            // Make API call to delete item (replace with your actual API call)
-            fetch(`http://localhost:5000/api/sdo_officer/${sdo_officer_id}`, {
-              method: 'DELETE',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              
-            })
-            .then(response => {
-              if (response.ok) {
-                // Show success message alert then if press ok, trigeerr the reload state
-                Swal.fire('Deleted!', 'The item has been deleted.', 'success').then(() => setReload(true));
-
-              } else {
-                // Show error message
-                Swal.fire('Error!', 'Failed to delete the item.', 'error');
-              }
-            })
-            .catch(error => {
-              console.error('Error deleting item:', error);
-              // Show error message
-              Swal.fire('Error!', 'Failed to delete the item.', 'error');
-            });
-          }
+            if (result.isConfirmed) {
+                // Make API call to delete item (replace with your actual API call)
+                fetch(
+                    `https://csddashboard/api/sdo_officer/${sdo_officer_id}`,
+                    {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                    }
+                )
+                    .then((response) => {
+                        if (response.ok) {
+                            // Show success message alert then if press ok, trigeerr the reload state
+                            Swal.fire(
+                                "Deleted!",
+                                "The item has been deleted.",
+                                "success"
+                            ).then(() => setReload(true));
+                        } else {
+                            // Show error message
+                            Swal.fire(
+                                "Error!",
+                                "Failed to delete the item.",
+                                "error"
+                            );
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Error deleting item:", error);
+                        // Show error message
+                        Swal.fire(
+                            "Error!",
+                            "Failed to delete the item.",
+                            "error"
+                        );
+                    });
+            }
         });
-        };
+    };
     const columns = [
         {
             name: "#",
@@ -93,18 +106,21 @@ const SDOfficer = () => {
             name: "Actions",
             cell: (row) => (
                 <>
-                <span
-                    className="text-blue-600 bg-none me-2"
-                    onClick={() => {
-                        setSelectedOfficer(row);
-                        setUpdateModal(true);
-                    }}
-                >
-                    Edit
-                </span>
-                <span className="text-red-600 bg-none" onClick={() => handleDelete(row.sdo_officer_id)}>
-                    Delete
-                </span>
+                    <span
+                        className="text-blue-600 bg-none me-2"
+                        onClick={() => {
+                            setSelectedOfficer(row);
+                            setUpdateModal(true);
+                        }}
+                    >
+                        Edit
+                    </span>
+                    <span
+                        className="text-red-600 bg-none"
+                        onClick={() => handleDelete(row.sdo_officer_id)}
+                    >
+                        Delete
+                    </span>
                 </>
             ),
 
@@ -113,11 +129,10 @@ const SDOfficer = () => {
         },
     ];
 
-
     useEffect(() => {
         const getSDOfficers = async () => {
             const response = await fetch(
-                "http://localhost:5000/api/sdo-officers"
+                "https://csddashboard/api/sdo-officers"
             );
             const data = await response.json();
 

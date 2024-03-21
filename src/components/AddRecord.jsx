@@ -9,11 +9,15 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     const [records, setRecords] = useState([]);
     const [sdgID, setSdgID] = useState("");
     const [instruments, setInstruments] = useState([]);
+    const [instrument, setInstrument] = useState([]);
+
     const [instrumentID, setInstrumentID] = useState("");
     const [recordID, setRecordID] = useState("");
     const [recordFiles, setRecordFiles] = useState([]);
     const [recordValues, setRecordValues] = useState({});
     const [tags, setTags] = useState([]);
+    const [requestID, setRequestID] = useState("");
+
     const [totalCount, setTotalCount] = useState(0);
 
     const handleInputChange = (record_id, value) => {
@@ -27,31 +31,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     useEffect(() => {
         console.log("Fetching SDG");
         const fetchData = async () => {
-            // const response = await fetch(
-            //     `http://localhost:5000/api/sdg/unit/${ID}`
-            // );
-            // const data = await response.json();
-            // if (response.ok) {
-            //     console.log("SDG Data:", data);
-            //     setSdg(data);
-            //     console.log(data.sdg_id);
-            //     setSdgID(data.sdg_id);
-            // }
-
-            // router.get("/tag/:id", async (req, res) => {
-            //     try {
-            //         const { id } = req.params;
-            //         const tag = await pool.query(
-            //             "SELECT record_id FROM tag_table WHERE unit_id = $1",
-            //             [id]
-            //         );
-            //         res.json(tag.rows);
-            //     } catch (err) {
-            //         console.error(err.message);
-            //     }
-            // });
-
-            const response = await fetch(`http://localhost:5000/api/tag/${ID}`);
+            const response = await fetch(`https://csddashboard/api/tag/${ID}`);
             const data = await response.json();
 
             if (response.ok) {
@@ -66,13 +46,20 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     useEffect(() => {
         console.log("Fetching Instruments");
         const fetchInstruments = async () => {
-            const response = await fetch("http://localhost:5000/api/request");
+            const response = await fetch("https://csddashboard/api/request");
             const data = await response.json();
             if (response.ok) {
-                console.log("Instruments Data:", data);
-                // setInstruments(data);
+                setInstrumentID(data[0].instrument_id);
+                setRequestID(data[0].request_id);
 
-                setInstrumentID(data.instrument_id);
+                const response2 = await fetch(
+                    `https://csddashboard/api/getInstruments/${data[0].instrument_id}`
+                );
+                const data2 = await response2.json();
+                if (response2.ok) {
+                    console.log("Instrument Data 2:", data2);
+                    setInstruments(data2);
+                }
             }
         };
 
@@ -80,10 +67,14 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     }, []);
 
     useEffect(() => {
+        console.log("Instrument IDasdasd:", instrument);
+    }, [instrument]);
+
+    useEffect(() => {
         console.log("Fetching Records");
         const fetchData = async () => {
             const response = await fetch(
-                `http://localhost:5000/api/record/${instrumentID}`
+                `https://csddashboard/api/record/${instrumentID}`
             );
 
             const data = await response.json();
@@ -158,6 +149,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
             record_status: "For Approval",
             record_id: recordID,
             unit_id: ID,
+            request_id: requestID,
         };
 
         Swal.fire({
@@ -171,7 +163,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 const response = await fetch(
-                    "http://localhost:5000/api/record_data",
+                    "https://csddashboard/api/record_data",
                     {
                         method: "POST",
                         headers: {
@@ -198,7 +190,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                         console.log(values);
 
                         const response = await fetch(
-                            "http://localhost:5000/api/record_value",
+                            "https://csddashboard/api/record_value",
                             {
                                 method: "POST",
                                 headers: {
@@ -238,7 +230,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                             console.log("File Uploaded");
 
                             const fileResponse = await fetch(
-                                "http://localhost:5000/api/file",
+                                "https://csddashboard/api/file",
                                 {
                                     method: "POST",
                                     headers: {
@@ -314,6 +306,15 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                                     >
                                         Instrument
                                     </label>
+                                    {/* <input
+                                        type="text"
+                                        id="instrument"
+                                        name="instrument"
+                                        className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                                        value={instrumentID}
+                                        readOnly
+                                    /> */}
+
                                     <select
                                         id="instrument"
                                         name="instrument"

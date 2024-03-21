@@ -17,7 +17,7 @@ const Notifications = () => {
         const getNotifications = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:5000/api/notification/${id}`
+                    `https://csddashboard/api/notification/${id}`
                 );
                 const jsonData = await response.json();
                 setNotifications(jsonData);

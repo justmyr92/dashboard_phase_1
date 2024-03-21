@@ -19,7 +19,7 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
     useEffect(() => {
         const fetchSdg = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/api/sdg`);
+                const response = await fetch(`https://csddashboard/api/sdg`);
                 const data = await response.json();
                 setSdgs(data);
                 setSdg(data[0].sdg_id);
@@ -35,7 +35,7 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
         const fetchAllSdos = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:5000/api/sdo-officers`
+                    `https://csddashboard/api/sdo-officers`
                 );
                 const jsonData = await response.json();
                 setSdoOfficers(jsonData);
@@ -63,9 +63,7 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
     useEffect(() => {
         const getCampus = async () => {
             try {
-                const response = await fetch(
-                    `http://localhost:5000/api/campus`
-                );
+                const response = await fetch(`https://csddashboard/api/campus`);
                 const jsonData = await response.json();
 
                 // if (localStorage.getItem("ROLE") === "sdo") {
@@ -177,7 +175,7 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
         console.log(data);
 
         try {
-            const response = await fetch("http://localhost:5000/api/unit", {
+            const response = await fetch("https://csddashboard/api/unit", {
                 method: "POST",
                 body: JSON.stringify(data),
                 headers: {
