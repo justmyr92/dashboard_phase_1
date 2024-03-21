@@ -1,5 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
+import {
+    getRecordValuesByRecordDataId,
+    updateRecordDataStatus,
+    updateRecordValues,
+} from "../services/api";
 
 const ViewRecords = ({ setShowModal, record_data_id }) => {
     const [recordValues, setRecordValues] = useState([]);
@@ -8,21 +13,14 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
     const role = localStorage.getItem("ROLE");
 
     useEffect(() => {
-        const getValues = async () => {
-            console.log(
-                "Fetching record values for record_data_id:",
-                record_data_id
-            );
-            const response = await fetch(
-                `https://csddashboard.online/api/record_value/${record_data_id}`
-            );
-            const data = await response.json();
+        const fetchData = async () => {
+            const data = await getRecordValuesByRecordDataId(record_data_id);
             setRecordValues(data);
             setOriginalValues(data);
             console.log("Record values fetched:", data);
         };
 
-        getValues();
+        fetchData();
     }, [record_data_id]);
 
     const handleInputChange = (value, index) => {
@@ -35,32 +33,15 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
 
     const handleSave = async () => {
         recordValues.forEach(async (record) => {
-            const response = await fetch(
-                `https://csddashboard.online/api/update_record_values/${record.record_value_id}`,
-                {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ value: record.value }),
-                }
-            );
+            const response = await updateRecordValues(record);
 
             if (response.ok) {
                 console.log("Record values updated successfully!");
 
-                const response = await fetch(
-                    `https://csddashboard.online/api/record_data/${record_data_id}`,
-                    {
-                        method: "PATCH",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ status: "For Approval" }),
-                    }
+                const response = await updateRecordDataStatus(
+                    record_data_id,
+                    "For Approval"
                 );
-
-                const data = await response.json();
 
                 if (response.ok) {
                     Swal.fire({

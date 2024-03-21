@@ -11,11 +11,11 @@ import {
     faBuildingUser,
     faSquarePlus,
 } from "@fortawesome/free-solid-svg-icons";
-import { faEdit } from "@fortawesome/free-regular-svg-icons";
+import { getUnitPerSdoById, getUnits, updateUnitStatus } from "../services/api";
 
 const Units = () => {
-    const [ID, setID] = useState(localStorage.getItem("ID"));
-    const [ROLE, setROLE] = useState(localStorage.getItem("ROLE"));
+    const ID = useState(localStorage.getItem("ID"));
+    const ROLE = useState(localStorage.getItem("ROLE"));
     const [showAddUnit, setShowAddUnit] = useState(false);
     const [showUpdateUnit, setShowUpdateUnit] = useState(false);
     const [unit, setUnit] = useState(null);
@@ -55,25 +55,16 @@ const Units = () => {
                 setUnits(data);
             }
         }
-        const getUnits = async () => {
+        const fetchData = async () => {
             if (ROLE === "sdo") {
-                const response = await fetch(
-                    `https://csddashboard.online/api/unit/sdo/${ID}`
-                );
-                const data = await response.json();
+                const data = await getUnitPerSdoById(ID);
                 searchUnit(data);
-
-                console.log(data);
             } else {
-                const response = await fetch(
-                    `https://csddashboard.online/api/unit`
-                );
-                const data = await response.json();
+                const data = await getUnits();
                 searchUnit(data);
-                console.log(data);
             }
         };
-        getUnits();
+        fetchData();
     }, [reload, search, ROLE, ID]);
 
     const columns = [
@@ -158,29 +149,15 @@ const Units = () => {
             showCancelButton: true,
             confirmButtonText: "Yes",
             cancelButtonText: "No",
-        }).then((result) => {
+        }).then(async (result) => {
             if (result.isConfirmed) {
-                //unit_status/:unitId
-                fetch(
-                    `https://csddashboard.online/api/unit/status/${row.unit_id}`,
-                    {
-                        method: "PATCH",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({
-                            status: !row.status,
-                        }),
-                    }
-                ).then(() => {
-                    Swal.fire(
-                        "Updated!",
-                        "Unit status has been updated.",
-                        "success"
-                    ).then(() => {
-                        setReload(!reload);
-                    });
-                });
+                const data = await updateUnitStatus(row.unit_id, !row.status);
+                if (data) {
+                    Swal.fire("Success", "Unit status updated", "success");
+                    setReload(!reload);
+                } else {
+                    Swal.fire("Error", "Failed to update unit status", "error");
+                }
             }
         });
     };

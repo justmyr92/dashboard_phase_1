@@ -10,6 +10,7 @@ import {
     Title,
 } from "chart.js";
 import { Pie } from "react-chartjs-2";
+import { getStatus } from "../services/api";
 
 ChartJS.register(
     ArcElement,
@@ -26,24 +27,18 @@ const RecordPieChart = () => {
     const [reload, setReload] = useState(false);
 
     useEffect(() => {
-        const fetchStatus = async () => {
+        const fetchData = async () => {
             try {
-                const response = await fetch(
-                    `https://csddashboard.online/api/status`
-                );
-                const data = await response.json();
+                const data = await getStatus();
                 // Sort the status data based on count in descending order
                 data.sort((a, b) => b.count - a.count);
                 setStatus(data);
+                setReload(false);
             } catch (error) {
                 console.error("Error fetching status:", error);
             }
         };
 
-        const fetchData = async () => {
-            await fetchStatus();
-            setReload(false);
-        };
         fetchData();
     }, [reload]);
 

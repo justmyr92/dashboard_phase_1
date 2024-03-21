@@ -1,6 +1,7 @@
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
+import { getNotificationById } from "../services/api";
 
 const Notifications = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -14,20 +15,17 @@ const Notifications = () => {
     const id = localStorage.getItem("ID");
 
     useEffect(() => {
-        const getNotifications = async () => {
+        const fetchData = async () => {
             try {
-                const response = await fetch(
-                    `https://csddashboard.online/api/notification/${id}`
-                );
-                const jsonData = await response.json();
+                const jsonData = await getNotificationById(id);
                 setNotifications(jsonData);
             } catch (err) {
                 console.error(err.message);
             }
         };
 
-        getNotifications();
-    }, []);
+        fetchData();
+    }, [id]);
 
     return (
         <div className="notifications">

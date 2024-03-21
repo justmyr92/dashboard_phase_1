@@ -19,6 +19,7 @@ import SDG16 from "../assets/res/E-WEB-Goal-16.png";
 import SDG17 from "../assets/res/E-WEB-Goal-17.png";
 import RecordPieChart from "./RecordPieChart";
 import RecordBarChart from "./RecordBarchart";
+import { fetchData, getInstruments, getSDOfficers } from "../services/api";
 
 const ChartSDG = () => {
     const [sdg, setSdg] = useState("SDG1");
@@ -116,12 +117,9 @@ const ChartSDG = () => {
     };
 
     useEffect(() => {
-        const getSdOfficers = async () => {
+        const fetchData = async () => {
             try {
-                const response = await fetch(
-                    `https://csddashboard.online/api/sdo_officer`
-                );
-                const jsonData = await response.json();
+                const jsonData = await getSDOfficers();
                 setSdOfficers(
                     jsonData.sort((a, b) => a.campus_id - b.campus_id)
                 );
@@ -134,12 +132,9 @@ const ChartSDG = () => {
             }
         };
 
-        const getInstruments = async () => {
+        const fetchData2 = async () => {
             try {
-                const response = await fetch(
-                    `https://csddashboard.online/api/getInstruments`
-                );
-                const jsonData = await response.json();
+                const jsonData = await getInstruments();
                 setInstruments(jsonData);
                 setInstrument(jsonData[0]);
             } catch (err) {
@@ -147,9 +142,9 @@ const ChartSDG = () => {
             }
         };
 
-        getSdOfficers();
-        getInstruments();
-    }, []);
+        fetchData();
+        fetchData2();
+    }, [role]);
 
     function getCampusName(index) {
         switch (index) {

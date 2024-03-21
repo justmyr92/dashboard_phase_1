@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import ChartSDG from "../components/ChartSDG";
 import Notifications from "../components/Notifications";
@@ -6,8 +6,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDashboard } from "@fortawesome/free-solid-svg-icons";
 
 const DashboardAdmin = () => {
-    const [ID, setID] = useState(localStorage.getItem("ID"));
-    const [ROLE, setROLE] = useState(localStorage.getItem("ROLE"));
+    const ID = useState(localStorage.getItem("ID"));
+    const ROLE = useState(localStorage.getItem("ROLE"));
 
     useEffect(() => {
         if (!ID) {

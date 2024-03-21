@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
+import { addSDOOfficer } from "../services/api";
 
 const AddSDOfficer = ({ setReload, setModal }) => {
     const [campus, setCampus] = useState([]);
@@ -40,17 +41,8 @@ const AddSDOfficer = ({ setReload, setModal }) => {
                 text: "Please fill all fields!",
             });
         }
-        console.log(sdo_officer);
-        const response = await fetch(
-            "https://csddashboard.online/api/sdo_officer",
-            {
-                method: "POST",
-                headers: {
-                    "Content-type": "application/json",
-                },
-                body: JSON.stringify(sdo_officer),
-            }
-        );
+        const response = await addSDOOfficer(sdo_officer);
+
         const data = await response.json();
         if (response.status === 200) {
             Swal.fire({

@@ -1,16 +1,15 @@
 import { faFilePdf, faImage } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { storage } from "../firebase";
 import { getDownloadURL, ref } from "firebase/storage";
+import { getFileByRecordDataId } from "../services/api";
 
 const ViewFiles = ({ record_data_id }) => {
     const [files, setFiles] = useState([]);
     useEffect(() => {
         const getFiles = async () => {
-            const response = await fetch(
-                `https://csddashboard.online/api/file/${record_data_id}`
-            );
+            const response = await getFileByRecordDataId(record_data_id);
             const data = await response.json();
             if (response.ok) {
                 const getFiles = Promise.all(
@@ -36,7 +35,7 @@ const ViewFiles = ({ record_data_id }) => {
         getFiles();
 
         console.log(files);
-    }, []);
+    }, [record_data_id, files]);
 
     const [showModal, setShowModal] = useState(false);
     const [file, setFile] = useState(null);

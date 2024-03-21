@@ -10,6 +10,7 @@ import {
 import AddSDOfficer from "../components/AddSDOfficer";
 import Swal from "sweetalert2";
 import UpdateSDOfficer from "../components/updateSDO";
+import { getSDOfficers, deleteSDOfficer } from "../services/api";
 
 const SDOfficer = () => {
     const [SDOfficers, setSDOfficers] = useState([]);
@@ -21,7 +22,6 @@ const SDOfficer = () => {
     const [selectedOfficer, setSelectedOfficer] = useState(null);
 
     const handleDelete = (sdo_officer_id) => {
-        // Show confirmation dialog
         Swal.fire({
             title: "Are you sure?",
             text: "You won't be able to revert this!",
@@ -30,44 +30,27 @@ const SDOfficer = () => {
             confirmButtonColor: "#d33",
             cancelButtonColor: "#3085d6",
             confirmButtonText: "Yes, delete it!",
-        }).then((result) => {
+        }).then(async (result) => {
             if (result.isConfirmed) {
-                // Make API call to delete item (replace with your actual API call)
-                fetch(
-                    `https://csddashboard.online/api/sdo_officer/${sdo_officer_id}`,
-                    {
-                        method: "DELETE",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                    }
-                )
-                    .then((response) => {
-                        if (response.ok) {
-                            // Show success message alert then if press ok, trigeerr the reload state
-                            Swal.fire(
-                                "Deleted!",
-                                "The item has been deleted.",
-                                "success"
-                            ).then(() => setReload(true));
-                        } else {
-                            // Show error message
-                            Swal.fire(
-                                "Error!",
-                                "Failed to delete the item.",
-                                "error"
-                            );
-                        }
-                    })
-                    .catch((error) => {
-                        console.error("Error deleting item:", error);
-                        // Show error message
+                try {
+                    const response = await deleteSDOfficer(sdo_officer_id);
+                    if (response) {
+                        Swal.fire(
+                            "Deleted!",
+                            "The item has been deleted.",
+                            "success"
+                        ).then(() => setReload(true));
+                    } else {
                         Swal.fire(
                             "Error!",
                             "Failed to delete the item.",
                             "error"
                         );
-                    });
+                    }
+                } catch (error) {
+                    console.error("Error deleting item:", error);
+                    Swal.fire("Error!", "Failed to delete the item.", "error");
+                }
             }
         });
     };
@@ -130,12 +113,9 @@ const SDOfficer = () => {
     ];
 
     useEffect(() => {
-        const getSDOfficers = async () => {
-            const response = await fetch(
-                "https://csddashboard.online/api/sdo-officers"
-            );
-            const data = await response.json();
-
+        const fetchData = async () => {
+            const data = await getSDOfficers();
+            console.log(data);
             if (search.length > 0) {
                 setSDOfficers(
                     data.filter((officer) => {
@@ -159,7 +139,7 @@ const SDOfficer = () => {
                 setSDOfficers(data);
             }
         };
-        getSDOfficers();
+        fetchData();
         setReload(false);
     }, [reload, search]);
 

@@ -3,6 +3,13 @@ import Sidebar from "../components/Sidebar";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import { MultiSelect, MultiSelectItem } from "@tremor/react";
+import {
+    addInstrument,
+    addRecord,
+    addTag,
+    getSDG,
+    getUnits,
+} from "../services/api";
 
 const InstrumentForm = () => {
     const [sdgIndicators, setSdgIndicators] = useState([]);
@@ -66,23 +73,19 @@ const InstrumentForm = () => {
     };
 
     useEffect(() => {
-        const fetchUnits = async () => {
-            const response = await fetch(
-                "https://csddashboard.online/api/unit"
-            );
-            const data = await response.json();
+        const fetchData = async () => {
+            const data = await getUnits();
             setUnits(data);
         };
-        fetchUnits();
+        fetchData();
     }, []);
 
     useEffect(() => {
-        const fetchSdgIndicators = async () => {
-            const response = await fetch("https://csddashboard.online/api/sdg");
-            const data = await response.json();
+        const fetchData = async () => {
+            const data = await getSDG();
             setSdgIndicators(data);
         };
-        fetchSdgIndicators();
+        fetchData();
     }, []);
 
     const handleSubmit = async (e) => {
@@ -105,17 +108,8 @@ const InstrumentForm = () => {
                 };
 
                 try {
-                    const response = await fetch(
-                        "https://csddashboard.online/api/instruments",
-                        {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(instrument),
-                        }
-                    );
-                    const data = await response.json();
-                    console.log(data);
-                    if (response.ok) {
+                    const data = await addInstrument(instrument);
+                    if (data) {
                         if (instrumentName !== "") {
                             record.map(async (recordItem) => {
                                 if (recordItem.record_name === "") {
@@ -130,20 +124,8 @@ const InstrumentForm = () => {
                                     instrument_id: data.instrument_id,
                                 };
                                 try {
-                                    const response = await fetch(
-                                        "https://csddashboard.online/api/addRecord",
-                                        {
-                                            method: "POST",
-                                            headers: {
-                                                "Content-Type":
-                                                    "application/json",
-                                            },
-                                            body: JSON.stringify(newRecord),
-                                        }
-                                    );
-                                    const data = await response.json();
-
-                                    if (response.ok) {
+                                    const data2 = await addRecord(newRecord);
+                                    if (data2) {
                                         recordItem.unit_ids.map(
                                             async (unit_id) => {
                                                 const tag = {
@@ -152,25 +134,9 @@ const InstrumentForm = () => {
                                                     unit_id: unit_id,
                                                 };
                                                 try {
-                                                    const response =
-                                                        await fetch(
-                                                            "https://csddashboard.online/api/tag",
-                                                            {
-                                                                method: "POST",
-                                                                headers: {
-                                                                    "Content-Type":
-                                                                        "application/json",
-                                                                },
-                                                                body: JSON.stringify(
-                                                                    tag
-                                                                ),
-                                                            }
-                                                        );
-                                                    const data =
-                                                        await response.json();
-                                                    if (response.ok) {
-                                                        console.log(data);
-                                                    }
+                                                    const data3 = await addTag(
+                                                        tag
+                                                    );
                                                 } catch (error) {
                                                     console.error(error);
                                                 }

@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBook } from "@fortawesome/free-solid-svg-icons";
 import { storage } from "../firebase";
 import { uploadBytes, ref, getDownloadURL } from "firebase/storage";
+import { addAnnualReport, getAnnualReports } from "../services/api";
 
 const AnnualReports = () => {
-    const [ID, setID] = useState(localStorage.getItem("ID"));
-    const [ROLE, setROLE] = useState(localStorage.getItem("ROLE"));
+    const ID = useState(localStorage.getItem("ID"));
+    const ROLE = useState(localStorage.getItem("ROLE"));
     const [activeAccordion, setActiveAccordion] = useState(null);
     const [reload, setReload] = useState(false);
     const handleAccordionClick = (index) => {
@@ -24,12 +25,9 @@ const AnnualReports = () => {
     });
 
     useEffect(() => {
-        const getAnnualReports = async () => {
+        const fetchData = async () => {
             try {
-                const response = await fetch(
-                    `https://csddashboard.online/api/annual_report/`
-                );
-                const jsonData = await response.json();
+                const jsonData = await getAnnualReports();
                 const promises = jsonData.map(async (annualReport) => {
                     const storageRef = ref(
                         storage,
@@ -53,7 +51,7 @@ const AnnualReports = () => {
             }
         };
 
-        getAnnualReports();
+        fetchData();
     }, [reload]);
 
     const handleInputChange = (e) => {
@@ -109,25 +107,12 @@ const AnnualReports = () => {
 
             console.log(JSON.stringify(requestBody));
 
-            const response = await fetch(
-                "https://csddashboard.online/api/annual_report",
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify(requestBody),
-                }
-            );
-
-            console.log(response);
+            const response = await addAnnualReport(requestBody);
 
             if (response.status === 200) {
                 const storageRef = ref(storage, `reports/${newFileName}`);
                 await uploadBytes(storageRef, annualReport.annual_report_file);
             }
-
-            console.log(response.data);
         } catch (error) {
             console.error(error.message);
         }
@@ -158,26 +143,26 @@ const AnnualReports = () => {
                         {showModal ? (
                             <div
                                 id="default-modal"
-                                tabindex="-1"
+                                tabIndex="-1"
                                 aria-hidden="true"
-                                class="overflow-y-auto overflow-x-hidden fixed z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full flex"
+                                className="overflow-y-auto overflow-x-hidden fixed z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full flex"
                             >
-                                <div class="relative p-4 w-full max-w-2xl max-h-full">
-                                    <div class="relative bg-white rounded-lg shadow">
-                                        <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
-                                            <h3 class="text-xl font-semibold text-gray-900">
+                                <div className="relative p-4 w-full max-w-2xl max-h-full">
+                                    <div className="relative bg-white rounded-lg shadow">
+                                        <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t">
+                                            <h3 className="text-xl font-semibold text-gray-900">
                                                 Submit Annual Report
                                             </h3>
                                             <button
                                                 type="button"
-                                                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
+                                                className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center"
                                                 data-modal-hide="default-modal"
                                                 onClick={() => {
                                                     setShowModal(false);
                                                 }}
                                             >
                                                 <svg
-                                                    class="w-3 h-3"
+                                                    className="w-3 h-3"
                                                     aria-hidden="true"
                                                     xmlns="http://www.w3.org/2000/svg"
                                                     fill="none"
@@ -186,12 +171,12 @@ const AnnualReports = () => {
                                                     <path
                                                         stroke="currentColor"
                                                         strokeLinecap="round"
-                                                        stroke-linejoin="round"
+                                                        strokeLinejoin="round"
                                                         strokeWidth="2"
                                                         d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
                                                     />
                                                 </svg>
-                                                <span class="sr-only">
+                                                <span className="sr-only">
                                                     Close modal
                                                 </span>
                                             </button>

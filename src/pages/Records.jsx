@@ -14,6 +14,13 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import Notifications from "../components/Notifications";
 import Swal from "sweetalert2";
+import {
+    addRequest,
+    getInstruments,
+    getRecordDataPerUnit,
+    getRequests,
+    getUnits,
+} from "../services/api";
 const Records = () => {
     const [ID, setID] = useState(localStorage.getItem("ID"));
     const [ROLE, setROLE] = useState(localStorage.getItem("ROLE"));
@@ -24,7 +31,6 @@ const Records = () => {
     const [viewRecordModal, setViewRecordModal] = useState(false);
     const [record_data_id, setRecord_data_id] = useState(null);
     const [file, setFile] = useState(null);
-    const [ids, setIds] = useState([]);
     const [selectedRecords, setSelectedRecords] = useState([]);
     const [unit, setUnit] = useState([]);
     const [showRequestModal, setShowRequestModal] = useState(false);
@@ -45,25 +51,17 @@ const Records = () => {
         if (!ID) {
             window.location.href = "/login";
         }
-        const getUnit = async () => {
-            const response = await fetch(
-                `https://csddashboard.online/api/unit`
-            );
-            const data = await response.json();
+        const fetchData = async () => {
+            const data = await getUnits();
             setUnit(data);
             setUnitCount(data.length);
         };
-        getUnit();
+        fetchData();
     }, [ID]);
 
     useEffect(() => {
-        console.log(reload);
-        const getRecords = async () => {
-            const response = await fetch(
-                `https://csddashboard.online/api/record_data/unit`
-            );
-            const data = await response.json();
-            console.log(data);
+        const fetchData = async () => {
+            const data = await getRecordDataPerUnit();
 
             if (ROLE === "sdo") {
                 const filteredData = data.filter(
@@ -93,9 +91,7 @@ const Records = () => {
 
             setReload(false);
         };
-
-        getRecords();
-        console.log(records);
+        fetchData();
     }, [reload, ID, ROLE, selectedRequestID, records]);
 
     const [searchedRecords, setSearchedRecords] = useState([]);
@@ -274,7 +270,6 @@ const Records = () => {
                 <button
                     onClick={() => {
                         setSelectedRequestID(row.request_id);
-                        console.log(row.request_id, "Asdasd");
                         setPage(2);
                     }}
                     className="block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-[10px] px-3 py-2.5 text-center"
@@ -289,43 +284,27 @@ const Records = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch(
-                    "https://csddashboard.online/api/request/"
-                );
-                const data = await response.json();
+                const data = await getRequests();
                 setRequests(data);
             } catch (error) {
                 console.error("Error fetching requests:", error);
             }
         };
-
         fetchData();
     }, [reload]);
 
     const [instruments, setInstruments] = useState([]);
 
     useEffect(() => {
-        // run getInstruments API call
-        const getInstruments = async () => {
-            const response = await fetch(
-                "https://csddashboard.online/api/getInstruments/"
-            );
-            const data = await response.json();
+        const fetchData = async () => {
+            const data = await getInstruments();
             setInstruments(data);
-            console.log(data);
         };
-        getInstruments();
+        fetchData();
     }, []);
 
     const handleRequestSubmit = async (e) => {
         e.preventDefault();
-        console.log("Form submitted:", {
-            requestTitle,
-            requestDescription,
-            startDate,
-            dueDate,
-            selectedInstrument,
-        });
 
         Swal.fire({
             title: "Request Submitted",
@@ -335,27 +314,30 @@ const Records = () => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    const response = await fetch(
-                        "https://csddashboard.online/api/request",
-                        {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify({
-                                request_title: requestTitle,
-                                request_description: requestDescription,
-                                start_date: startDate,
-                                due_date: dueDate,
-                                instrument_id: selectedInstrument,
-                            }),
-                        }
-                    );
-                    const data = await response.json();
+                    const data = await addRequest({
+                        request_title: requestTitle,
+                        request_description: requestDescription,
+                        start_date: startDate,
+                        due_date: dueDate,
+                        instrument_id: selectedInstrument,
+                    });
 
+                    if (data) {
+                        Swal.fire({
+                            title: "Request Submitted",
+                            text: "Request has been submitted successfully",
+                            icon: "success",
+                            confirmButtonText: "OK",
+                        });
+                    }
                     setReload(true);
                 } catch (error) {
-                    console.error("Error:", error);
+                    Swal.fire({
+                        title: "Error",
+                        text: "An error occurred",
+                        icon: "error",
+                        confirmButtonText: "OK",
+                    });
                 }
             }
         });

@@ -5,6 +5,13 @@ import DataTable from "react-data-table-component";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch, faTools } from "@fortawesome/free-solid-svg-icons";
 import Swal from "sweetalert2";
+import {
+    getInstruments,
+    getRecordsByInstrumentId,
+    getSDG,
+    updateInstrumentStatus,
+    updateRecords,
+} from "../services/api";
 
 const Instruments = () => {
     const [instruments, setInstruments] = useState([]);
@@ -16,12 +23,9 @@ const Instruments = () => {
     const [reload, setReload] = useState(false);
 
     useEffect(() => {
-        const getInstruments = async () => {
+        const fecthData = async () => {
             try {
-                const response = await fetch(
-                    "https://csddashboard.online/api/getInstruments"
-                );
-                const jsonData = await response.json();
+                const jsonData = await getInstruments();
                 if (search !== "") {
                     setInstruments(
                         jsonData.filter(
@@ -50,7 +54,7 @@ const Instruments = () => {
                 console.error(err.message);
             }
         };
-        getInstruments();
+        fecthData();
     }, [search]);
 
     const [page, setPage] = useState(1);
@@ -59,15 +63,12 @@ const Instruments = () => {
     const viewRecord = (instrument) => {
         setInstrument(instrument);
         setPage(2);
-
         const getRecords = async () => {
             try {
-                const response = await fetch(
-                    `https://csddashboard.online/api/getRecords/${instrument.instrument_id}`
+                const jsonData = await getRecordsByInstrumentId(
+                    instrument.instrument_id
                 );
-                const jsonData = await response.json();
                 setRecord(jsonData);
-
                 setEditedRecords(jsonData.map((record) => ({ ...record })));
             } catch (err) {
                 console.error(err.message);
@@ -88,17 +89,12 @@ const Instruments = () => {
     };
 
     useEffect(() => {
-        const fetchSdgIndicators = async () => {
-            const response = await fetch("https://csddashboard.online/api/sdg");
-            const data = await response.json();
+        const fetchData = async () => {
+            const data = await getSDG();
             setSdgIndicators(data);
         };
-        fetchSdgIndicators();
+        fetchData();
     }, []);
-
-    useEffect(() => {
-        console.log(editedRecords);
-    }, [editedRecords]);
 
     const handleEditSubmit = async () => {
         Swal.fire({
@@ -113,19 +109,19 @@ const Instruments = () => {
             if (result.isConfirmed) {
                 editedRecords.map(async (record) => {
                     try {
-                        console.log(record);
-                        const response = await fetch(
-                            `https://csddashboard.online/api/updateRecords`,
-                            {
-                                method: "PATCH",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify(record),
-                            }
-                        );
+                        const response = await updateRecords(record);
                         if (response.ok) {
-                            console.log("Records updated successfully.");
+                            Swal.fire(
+                                "Updated!",
+                                "Your records have been updated.",
+                                "success"
+                            );
                         } else {
-                            console.error("Failed to update records.");
+                            Swal.fire(
+                                "Error!",
+                                "An error occurred while updating your records.",
+                                "error"
+                            );
                         }
                     } catch (err) {
                         console.error(err.message);
@@ -144,7 +140,7 @@ const Instruments = () => {
         setRecord(editedRecords);
     };
 
-    const updateInstrumentStatus = async (instrument_id, status) => {
+    const updateData = async (instrument_id, status) => {
         const instrument = {
             instrument_id: instrument_id,
             status: status === "Active" ? "Inactive" : "Active",
@@ -163,15 +159,20 @@ const Instruments = () => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
-                    const response = await fetch(
-                        "https://csddashboard.online/api/updateInstrumentStatus",
-                        {
-                            method: "PATCH",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify(instrument),
-                        }
-                    );
-                    const data = await response.json();
+                    const data = await updateInstrumentStatus(instrument);
+                    if (data) {
+                        Swal.fire(
+                            "Updated!",
+                            "Your instrument has been updated.",
+                            "success"
+                        );
+                    } else {
+                        Swal.fire(
+                            "Error!",
+                            "An error occurred while updating your instrument.",
+                            "error"
+                        );
+                    }
                 } catch (error) {
                     console.error(error);
                 }
@@ -268,7 +269,7 @@ const Instruments = () => {
                                                 <button
                                                     className="text-red-500"
                                                     onClick={() => {
-                                                        updateInstrumentStatus(
+                                                        updateData(
                                                             row.instrument_id,
                                                             row.status
                                                         );

@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import loginCover from "../assets/login-cover.png";
-import sdgLogo from "../assets/logo-1267x1283.png";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { loginUser } from "../services/api";
 
 const Login = () => {
     const navigate = useNavigate();
@@ -24,44 +24,32 @@ const Login = () => {
         if (localStorage.getItem("ID")) {
             navigate("/csd/dashboard");
         }
-    }, []);
+    }, [navigate]);
 
     const onSubmitForm = async (e) => {
         e.preventDefault();
         try {
-            const body = { username, password };
-            const response = await fetch(
-                "https://csddashboard.online/api/login",
-                {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(body),
-                }
-            );
+            const data = await loginUser({ username, password });
 
-            const parseRes = await response.json();
-
-            console.log(parseRes);
-
-            if (parseRes.message) {
+            if (data.message) {
                 Swal.fire({
                     icon: "error",
                     title: "Oops...",
-                    text: parseRes.message,
+                    text: data.message,
                 });
             } else {
-                if (parseRes.unit_id) {
-                    localStorage.setItem("ID", parseRes.unit_id);
+                if (data.unit_id) {
+                    localStorage.setItem("ID", data.unit_id);
                     localStorage.setItem("ROLE", "unit");
-                    localStorage.setItem("NAME", parseRes.unit_name);
-                } else if (parseRes.sdo_officer_id) {
-                    localStorage.setItem("ID", parseRes.sdo_officer_id);
+                    localStorage.setItem("NAME", data.unit_name);
+                } else if (data.sdo_officer_id) {
+                    localStorage.setItem("ID", data.sdo_officer_id);
                     localStorage.setItem("ROLE", "sdo");
-                    localStorage.setItem("NAME", parseRes.sdo_officer_name);
-                } else if (parseRes.csd_officer_id) {
-                    localStorage.setItem("ID", parseRes.csd_officer_id);
+                    localStorage.setItem("NAME", data.sdo_officer_name);
+                } else if (data.csd_officer_id) {
+                    localStorage.setItem("ID", data.csd_officer_id);
                     localStorage.setItem("ROLE", "csd");
-                    localStorage.setItem("NAME", parseRes.csd_officer_name);
+                    localStorage.setItem("NAME", data.csd_officer_name);
                 }
                 Swal.fire({
                     icon: "success",

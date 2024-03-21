@@ -2,6 +2,15 @@ import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { storage } from "../firebase";
 import { uploadBytes, ref } from "firebase/storage";
+import {
+    addRecordData,
+    addRecordValue,
+    getInstrumentById,
+    getRecordsByInstrumentId,
+    getRequests,
+    getTagById,
+    uploadFile,
+} from "../services/api";
 
 const AddRecord = ({ showModal, setShowModal, setReload }) => {
     const [ID, setID] = useState(localStorage.getItem("ID"));
@@ -29,14 +38,9 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     };
 
     useEffect(() => {
-        console.log("Fetching SDG");
         const fetchData = async () => {
-            const response = await fetch(
-                `https://csddashboard.online/api/tag/${ID}`
-            );
-            const data = await response.json();
-
-            if (response.ok) {
+            const data = await getTagById(ID);
+            if (data) {
                 console.log("Tag Data:", data);
                 setTags(data);
             }
@@ -46,22 +50,14 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     }, [ID]);
 
     useEffect(() => {
-        console.log("Fetching Instruments");
         const fetchInstruments = async () => {
-            const response = await fetch(
-                "https://csddashboard.online/api/request"
-            );
-            const data = await response.json();
-            if (response.ok) {
+            const data = await getRequests(ID);
+            if (data) {
                 setInstrumentID(data[0].instrument_id);
                 setRequestID(data[0].request_id);
 
-                const response2 = await fetch(
-                    `https://csddashboard.online/api/getInstruments/${data[0].instrument_id}`
-                );
-                const data2 = await response2.json();
-                if (response2.ok) {
-                    console.log("Instrument Data 2:", data2);
+                const data2 = await getInstrumentById(data[0].instrument_id);
+                if (data2) {
                     setInstruments(data2);
                 }
             }
@@ -77,20 +73,13 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     useEffect(() => {
         console.log("Fetching Records");
         const fetchData = async () => {
-            const response = await fetch(
-                `https://csddashboard.online/api/record/${instrumentID}`
-            );
-
-            const data = await response.json();
-            if (response.ok) {
-                console.log("Records Data:", data);
-                //set records that only exist in the tag
+            const data = await getRecordsByInstrumentId(instrumentID);
+            if (data) {
                 const filteredRecords = data.filter((record) =>
                     tags.some((tag) => tag.record_id === record.record_id)
                 );
                 setRecords(filteredRecords);
                 setTotalCount(filteredRecords.length);
-                console.log("Filtered Records:", filteredRecords);
                 setRecordID(filteredRecords[0].record_id);
             }
         };
@@ -99,14 +88,6 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
             fetchData();
         }
     }, [instrumentID, tags]);
-
-    console.log("Render", {
-        sdgID,
-        instrumentID,
-        records,
-        recordFiles,
-        recordValues,
-    });
 
     const handleFileInputChange = (files, index) => {
         const updatedFiles = [...recordFiles];
@@ -166,19 +147,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
             reverseButtons: true,
         }).then(async (result) => {
             if (result.isConfirmed) {
-                const response = await fetch(
-                    "https://csddashboard.online/api/record_data",
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify(formJSON),
-                    }
-                );
-                console.log(response);
-
-                const data = await response.json();
+                const data = await addRecordData(formJSON);
                 if (data.record_data_id) {
                     const recordDataID = data.record_data_id;
                     console.log(recordDataID);
@@ -191,20 +160,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                             record_id: key,
                         };
 
-                        console.log(values);
-
-                        const response = await fetch(
-                            "https://csddashboard.online/api/record_value",
-                            {
-                                method: "POST",
-                                headers: {
-                                    "Content-Type": "application/json",
-                                },
-                                body: JSON.stringify(values),
-                            }
-                        );
-
-                        const responseData = await response.json();
+                        const responseData = await addRecordValue(values);
                         console.log(responseData);
 
                         setReload(true);
@@ -233,16 +189,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                             const fileRef = await uploadBytes(storageRef, file);
                             console.log("File Uploaded");
 
-                            const fileResponse = await fetch(
-                                "https://csddashboard.online/api/file",
-                                {
-                                    method: "POST",
-                                    headers: {
-                                        "Content-Type": "application/json",
-                                    },
-                                    body: JSON.stringify(filePayload),
-                                }
-                            );
+                            const fileResponse = await uploadFile(filePayload);
 
                             if (!fileResponse.ok) {
                                 throw new Error(
@@ -251,7 +198,13 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                             }
 
                             const fileData = await fileResponse.json();
-                            console.log(fileData);
+                            if (fileData) {
+                                Swal.fire(
+                                    "Record Submitted!",
+                                    "Your record has been submitted.",
+                                    "success"
+                                );
+                            }
                         } catch (error) {
                             console.error("Error uploading file:", error);
                         }

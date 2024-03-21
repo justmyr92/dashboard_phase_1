@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
+import { getCampuses, getSDOfficers, updateUnit } from "../services/api";
 
 const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
+    const [unitID, setUnitID] = useState(unitData.unit_id);
     const [unitName, setUnitName] = useState(unitData.unit_name);
     const [unitAddress, setUnitAddress] = useState(unitData.unit_address);
     const [unitPhone, setUnitPhone] = useState(unitData.unit_phone);
@@ -19,7 +21,7 @@ const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         const data = {
-            unit_id: unitData.unit_id,
+            unit_id: unitID,
             unit_name: unitName,
             unit_address: options.find(
                 (option) => option.campus_id === campus_id
@@ -30,16 +32,7 @@ const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
             campus_id: campus_id,
         };
         try {
-            const response = await fetch(
-                `https://csddashboard.online/api/unit/update/${unitData.unit_id}`,
-                {
-                    method: "PATCH",
-                    body: JSON.stringify(data),
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }
-            );
+            const response = await updateUnit(data);
 
             if (response.status === 200) {
                 Swal.fire({
@@ -56,12 +49,9 @@ const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
     };
 
     useEffect(() => {
-        const fetchAllSdos = async () => {
+        const fetchData = async () => {
             try {
-                const response = await fetch(
-                    `https://csddashboard.online/api/sdo-officers`
-                );
-                const jsonData = await response.json();
+                const jsonData = await getSDOfficers();
                 setSdoOfficers(jsonData);
 
                 if (localStorage.getItem("ROLE") === "sdo") {
@@ -81,92 +71,20 @@ const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
             }
         };
 
-        fetchAllSdos();
+        fetchData();
     }, [localStorageId]);
 
     useEffect(() => {
-        const getCampus = async () => {
+        const fetchData = async () => {
             try {
-                const response = await fetch(
-                    `https://csddashboard.online/api/campus`
-                );
-                const jsonData = await response.json();
-
-                // if (localStorage.getItem("ROLE") === "sdo") {
-                //     //map the campus_id of the sdo officer to the campus_id of the campus
-                //     const sd = sdoOfficers.find(
-                //         (sdo) => sdo.sdo_officer_id === localStorageId
-                //     );
-                //     {
-                //         if (sd.sd_no === 1) {
-                //             setSdoNo(1);
-                //             setOptions(
-                //                 jsonData.filter((campus) => {
-                //                     return (
-                //                         campus.campus_name ===
-                //                             "Pablo Borbon Main Campus" ||
-                //                         campus.campus_name ===
-                //                             "Lemery Campus" ||
-                //                         campus.campus_name ===
-                //                             "Rosario Campus" ||
-                //                         campus.campus_name === "San Juan Campus"
-                //                     );
-                //                 })
-                //             );
-                //         } else if (sd.sd_no === 2) {
-                //             setSdoNo(2);
-
-                //             setOptions(
-                //                 jsonData.filter((campus) => {
-                //                     //if campus id === sdo officer campus id
-                //                     return (
-                //                         campus.campus_name ===
-                //                             "Alangilan Campus" ||
-                //                         campus.campus_name ===
-                //                             "Mabini Campus" ||
-                //                         campus.campus_name === "Lobo Campus" ||
-                //                         campus.campus_name === "Balayan Campus"
-                //                     );
-                //                 })
-                //             );
-                //         } else if (sd.sd_no === 3) {
-                //             setSdoNo(3);
-                //             setOptions(
-                //                 jsonData.filter((campus) => {
-                //                     return campus.campus_name === "Lipa Campus";
-                //                 })
-                //             );
-                //         } else if (sd.sd_no === 4) {
-                //             setSdoNo(4);
-                //             setOptions(
-                //                 jsonData.filter((campus) => {
-                //                     return (
-                //                         campus.campus_name === "Malvar Campus"
-                //                     );
-                //                 })
-                //             );
-                //         } else if (sd.sd_no === 5) {
-                //             setSdoNo(5);
-                //             setOptions(
-                //                 jsonData.filter((campus) => {
-                //                     return (
-                //                         campus.campus_name ===
-                //                         "ARASOF - Nasugbu Campus"
-                //                     );
-                //                 })
-                //             );
-                //         }
-                //     }
-                //     console.log(options);
-                // } else {
+                const jsonData = await getCampuses();
                 setOptions(jsonData);
-                // }
             } catch (error) {
                 console.error("Error fetching campus:", error);
             }
         };
 
-        getCampus();
+        fetchData();
     }, [sdoNo]);
 
     return (

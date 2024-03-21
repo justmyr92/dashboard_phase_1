@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
+import { getCampuses } from "../services/api";
 
 const AddUnit = ({ showModal, setShowModal, setReload }) => {
     const [unitName, setUnitName] = useState("");
@@ -34,7 +35,7 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
     }, []);
 
     useEffect(() => {
-        const fetchAllSdos = async () => {
+        const fetchData = async () => {
             try {
                 const response = await fetch(
                     `https://csddashboard.online/api/sdo-officers`
@@ -59,92 +60,21 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
             }
         };
 
-        fetchAllSdos();
+        fetchData();
     }, [localStorageId]);
 
     useEffect(() => {
-        const getCampus = async () => {
+        const fetchData = async () => {
             try {
-                const response = await fetch(
-                    `https://csddashboard.online/api/campus`
-                );
-                const jsonData = await response.json();
+                const jsonData = await getCampuses();
 
-                // if (localStorage.getItem("ROLE") === "sdo") {
-                //     //map the campus_id of the sdo officer to the campus_id of the campus
-                //     const sd = sdoOfficers.find(
-                //         (sdo) => sdo.sdo_officer_id === localStorageId
-                //     );
-                //     {
-                //         if (sd.sd_no === 1) {
-                //             setSdoNo(1);
-                //             setOptions(
-                //                 jsonData.filter((campus) => {
-                //                     return (
-                //                         campus.campus_name ===
-                //                             "Pablo Borbon Main Campus" ||
-                //                         campus.campus_name ===
-                //                             "Lemery Campus" ||
-                //                         campus.campus_name ===
-                //                             "Rosario Campus" ||
-                //                         campus.campus_name === "San Juan Campus"
-                //                     );
-                //                 })
-                //             );
-                //         } else if (sd.sd_no === 2) {
-                //             setSdoNo(2);
-
-                //             setOptions(
-                //                 jsonData.filter((campus) => {
-                //                     //if campus id === sdo officer campus id
-                //                     return (
-                //                         campus.campus_name ===
-                //                             "Alangilan Campus" ||
-                //                         campus.campus_name ===
-                //                             "Mabini Campus" ||
-                //                         campus.campus_name === "Lobo Campus" ||
-                //                         campus.campus_name === "Balayan Campus"
-                //                     );
-                //                 })
-                //             );
-                //         } else if (sd.sd_no === 3) {
-                //             setSdoNo(3);
-                //             setOptions(
-                //                 jsonData.filter((campus) => {
-                //                     return campus.campus_name === "Lipa Campus";
-                //                 })
-                //             );
-                //         } else if (sd.sd_no === 4) {
-                //             setSdoNo(4);
-                //             setOptions(
-                //                 jsonData.filter((campus) => {
-                //                     return (
-                //                         campus.campus_name === "Malvar Campus"
-                //                     );
-                //                 })
-                //             );
-                //         } else if (sd.sd_no === 5) {
-                //             setSdoNo(5);
-                //             setOptions(
-                //                 jsonData.filter((campus) => {
-                //                     return (
-                //                         campus.campus_name ===
-                //                         "ARASOF - Nasugbu Campus"
-                //                     );
-                //                 })
-                //             );
-                //         }
-                //     }
-                //     console.log(options);
-                // } else {
                 setOptions(jsonData);
-                // }
             } catch (error) {
                 console.error("Error fetching campus:", error);
             }
         };
 
-        getCampus();
+        fetchData();
     }, [sdoNo]);
 
     const handleSubmit = async (e) => {
@@ -262,29 +192,7 @@ const AddUnit = ({ showModal, setShowModal, setReload }) => {
                                     autoComplete="false"
                                 />
                             </div>
-                            {/* <div className="space-y-2">
-                                <label
-                                    htmlFor="unitSdg"
-                                    className="block font-medium text-gray-900"
-                                >
-                                    Unit SDG
-                                </label>
-                                <select
-                                    id="unitSdg"
-                                    value={sdg}
-                                    onChange={(e) => setSdg(e.target.value)}
-                                    className="w-full p-2 border border-gray-300 rounded"
-                                >
-                                    {sdgs.map((sdg) => (
-                                        <option
-                                            key={sdg.sdg_id}
-                                            value={sdg.sdg_id}
-                                        >
-                                            {sdg.sdg_name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div> */}
+
                             <div className="space-y-2">
                                 <label
                                     htmlFor="unitAddress"

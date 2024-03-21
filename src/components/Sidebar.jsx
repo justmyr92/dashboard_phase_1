@@ -127,7 +127,6 @@ const Sidebar = () => {
                             </a>
                         </li>
                     ))}
-                    {/* Add logout item here */}
                     <li>
                         <button
                             className={`flex flex-col items-start border-gray-500 p-2 rounded-lg text-gray-100 hover:bg-white hover:text-gray-800 w-full text-base transition-colors duration-200 ${

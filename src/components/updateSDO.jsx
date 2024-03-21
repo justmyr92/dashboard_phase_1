@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import Swal from "sweetalert2";
+import { getCampuses, updateSDOOfficer } from "../services/api";
 
 const UpdateSDOfficer = ({ officer, setReload, setModal }) => {
     const [showPassword, setShowPassword] = useState(false);
@@ -14,13 +15,7 @@ const UpdateSDOfficer = ({ officer, setReload, setModal }) => {
 
     const fetchCampus = async () => {
         try {
-            const response = await fetch(
-                "https://csddashboard.online/api/campus"
-            );
-            if (!response.ok) {
-                throw new Error("Failed to fetch campus data");
-            }
-            const data = await response.json();
+            const data = await getCampuses();
             setCampus(data);
         } catch (error) {
             console.error("Error fetching campus data:", error);
@@ -35,16 +30,7 @@ const UpdateSDOfficer = ({ officer, setReload, setModal }) => {
                 password: password, // Include password in the data object
             };
 
-            const response = await fetch(
-                `https://csddashboard.online/api/sdo_officer/${updatedOfficer.sdo_officer_id}`,
-                {
-                    method: "PATCH",
-                    headers: {
-                        "Content-type": "application/json",
-                    },
-                    body: JSON.stringify(data),
-                }
-            );
+            const response = await updateSDOOfficer(data);
             if (!response.ok) {
                 throw new Error("Failed to update SD officer");
             } else {

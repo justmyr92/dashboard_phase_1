@@ -1,4 +1,10 @@
 import React, { useState, useEffect } from "react";
+import {
+    getApprovedRecordDataByRecordIdAndUserId,
+    getRecordValuesByRecordDataId,
+    getRecordsBySdgAndInstrumentId,
+    getUnitPerSdoById,
+} from "../services/api";
 
 const Card = ({ sdg, instrument }) => {
     const [records, setRecords] = useState([]);
@@ -13,18 +19,17 @@ const Card = ({ sdg, instrument }) => {
 
     useEffect(() => {
         setID(localStorage.getItem("sdo"));
-        console.log(ID);
     }, []);
 
     const [isTableVisibleArray, setTableVisibilityArray] = useState([]);
 
     useEffect(() => {
-        const fetchRecords = async () => {
+        const fetchData = async () => {
             try {
-                const response = await fetch(
-                    `https://csddashboard.online/api/record/sdg/${sdg}/${instrument.instrument_id}`
+                const data = await getRecordsBySdgAndInstrumentId(
+                    sdg,
+                    instrument.instrument_id
                 );
-                const data = await response.json();
                 setRecords(data);
                 setTableVisibilityArray(new Array(data.length).fill(false));
                 console.log(data);
@@ -32,33 +37,31 @@ const Card = ({ sdg, instrument }) => {
                 console.error("Error fetching records:", error);
             }
         };
-        fetchRecords();
+        fetchData();
     }, [sdg, instrument.instrument_id, reload]);
 
     useEffect(() => {
-        const fetchUnit = async () => {
+        const fetchData = async () => {
             try {
-                const response = await fetch(
-                    `https://csddashboard.online/api/unit/sdo/${ID}`
-                );
-                const data = await response.json();
+                const data = await getUnitPerSdoById(ID);
                 setUnit(data);
-                console.log(data);
             } catch (error) {
                 console.error("Error fetching unit:", error);
             }
         };
 
-        fetchUnit();
+        fetchData();
     }, [ID]);
 
     useEffect(() => {
-        const fetchRecordsData = async () => {
+        const fetchData = async () => {
             try {
                 const dataPromises = records.map(async (record) => {
-                    const response = await fetch(
-                        `https://csddashboard.online/api/record_data/approved/${record.record_id}/${ID}`
-                    );
+                    const response =
+                        await getApprovedRecordDataByRecordIdAndUserId(
+                            record.record_id,
+                            ID
+                        );
                     return response.json();
                 });
                 const data = await Promise.all(dataPromises);
@@ -71,7 +74,7 @@ const Card = ({ sdg, instrument }) => {
             }
         };
         if (records.length > 0) {
-            fetchRecordsData();
+            fetchData();
         }
     }, [records, ID]);
 
@@ -82,10 +85,9 @@ const Card = ({ sdg, instrument }) => {
                 let temp = [];
                 for (const recordData of recordsData) {
                     for (const record of recordData) {
-                        const response = await fetch(
-                            `https://csddashboard.online/api/record_value/${record.record_data_id}`
+                        const data = await getRecordValuesByRecordDataId(
+                            record.record_data_id
                         );
-                        const data = await response.json();
                         if (data.length > 0) {
                             temp.push(data);
                             data.forEach((d, index) => {

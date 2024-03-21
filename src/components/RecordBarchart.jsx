@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
+import { getSdgCount } from "../services/api";
 
 const RecordBarChart = () => {
     const [sdgs, setSdgs] = useState([]);
@@ -26,12 +27,9 @@ const RecordBarChart = () => {
     ];
 
     useEffect(() => {
-        const fetchSdgs = async () => {
+        const fetchData = async () => {
             try {
-                const response = await fetch(
-                    `https://csddashboard.online/api/sdg/count`
-                );
-                const data = await response.json();
+                const data = await getSdgCount();
                 // Parse the SDG IDs as integers before sorting
                 data.forEach(
                     (sdg) =>
@@ -40,20 +38,14 @@ const RecordBarChart = () => {
                 // Sort the SDGs based on the SDG ID
                 data.sort((a, b) => a.sdg_id - b.sdg_id);
                 setSdgs(data);
+                setReload(false);
             } catch (error) {
                 console.error("Error fetching sdgs:", error);
             }
         };
-        const fetchData = async () => {
-            await fetchSdgs();
-            setReload(false);
-        };
+
         fetchData();
     }, [reload]);
-
-    const handleSdgSelect = (sdgId) => {
-        setSelectedSdg(sdgId);
-    };
 
     const data = {
         labels: sdgs.map((sdg) => `SDG ${sdg.sdg_id}`),
