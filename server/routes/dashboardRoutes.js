@@ -880,14 +880,14 @@ router.get("/getReport", async (req, res) => {
 });
 
 router.post("/instruments", async (req, res) => {
-    const { name, status, date_posted } = req.body;
+    const { name, status, date_posted, section_content } = req.body;
 
     const id = Math.floor(Math.random() * 1000000 + 9999999);
 
     try {
         const instrument = await pool.query(
-            "INSERT INTO instrument_table(instrument_id, name, status, date_posted) VALUES($1, $2, $3, $4) RETURNING *",
-            [id, name, status, date_posted]
+            "INSERT INTO instrument_table(instrument_id, name, status, date_posted section_content) VALUES($1, $2, $3, $4) RETURNING *",
+            [id, name, status, date_posted, section_content]
         );
         console.log(instrument);
         res.status(200).json(instrument.rows[0]);

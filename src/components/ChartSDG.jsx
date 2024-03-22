@@ -19,7 +19,7 @@ import SDG16 from "../assets/res/E-WEB-Goal-16.png";
 import SDG17 from "../assets/res/E-WEB-Goal-17.png";
 import RecordPieChart from "./RecordPieChart";
 import RecordBarChart from "./RecordBarchart";
-import { fetchData, getInstruments, getSDOfficers } from "../services/api";
+import { getInstruments, getSDOfficers } from "../services/api";
 
 const ChartSDG = () => {
     const [sdg, setSdg] = useState("SDG1");

@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import React from "react";
 import Sidebar from "../components/Sidebar";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
@@ -19,6 +20,7 @@ const InstrumentForm = () => {
     const [page, setPage] = useState(1);
 
     const [units, setUnits] = useState([]);
+    const [sectionContent, setSectionContent] = useState("");
 
     const addRecordInput = () => {
         if (sdgIndicator === "") {
@@ -105,6 +107,7 @@ const InstrumentForm = () => {
                     name: instrumentName,
                     status: "Active",
                     date_posted: new Date(),
+                    section_content: sectionContent,
                 };
 
                 try {
@@ -164,10 +167,6 @@ const InstrumentForm = () => {
             }
         });
     };
-
-    useEffect(() => {
-        console.log(record);
-    }, [record]);
 
     return (
         <section className="dashboard">
@@ -244,6 +243,24 @@ const InstrumentForm = () => {
                                                 )
                                             )}
                                         </select>
+                                    </div>
+                                    {/* Section Content Input col-1*/}
+                                    <div className="control-group flex flex-col gap-2 items-start">
+                                        <label className="block text-gray-700 text-sm font-semibold">
+                                            Section Content
+                                        </label>
+                                        <input
+                                            className="w-full px-5 py-2 text-gray-900 rounded focus:outline-none focus:shadow-outline border border-gray-300 placeholder-gray-500 focus:bg-white"
+                                            type="text"
+                                            placeholder="Section Content"
+                                            value={sectionContent}
+                                            onChange={(e) => {
+                                                setSectionContent(
+                                                    e.target.value
+                                                );
+                                            }}
+                                            required
+                                        />
                                     </div>
                                 </div>
                                 <div className="control-group flex flex-col gap-2 items-start mt-5">

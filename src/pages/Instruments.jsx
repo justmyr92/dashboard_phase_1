@@ -21,7 +21,6 @@ const Instruments = () => {
     const [isEdit, setIsEdit] = useState(false);
     const [editedRecords, setEditedRecords] = useState([]);
     const [reload, setReload] = useState(false);
-
     useEffect(() => {
         const fecthData = async () => {
             try {
@@ -254,6 +253,7 @@ const Instruments = () => {
                                             }),
                                         sortable: true,
                                     },
+
                                     {
                                         name: "Actions",
                                         cell: (row) => (

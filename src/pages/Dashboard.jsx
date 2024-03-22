@@ -37,7 +37,7 @@ const Dashboard = () => {
                         {ROLE === "unit" && <Notifications />}
                     </div>
                     <hr className="my-5 border-gray-300 border-1" />
-                    <ChartSDG />{" "}
+                    <ChartSDG />
                     <hr className="my-5 border-gray-300 border-1" />
                 </div>
             </div>
