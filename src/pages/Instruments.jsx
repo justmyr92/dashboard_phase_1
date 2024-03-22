@@ -305,6 +305,14 @@ const Instruments = () => {
                                         </td>
                                     </tr>
                                     <tr>
+                                        <th className="border px-4 py-2 text-left font-semibold">
+                                            Status
+                                        </th>
+                                        <td className="border px-4 py-2">
+                                            {instrument.section_content}
+                                        </td>
+                                    </tr>
+                                    <tr>
                                         <td
                                             className="border px-4 py-2 bg-red-500 text-white text-lg font-semibold text-center"
                                             colSpan={2}
