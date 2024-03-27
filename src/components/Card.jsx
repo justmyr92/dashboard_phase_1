@@ -22,7 +22,7 @@ const Card = ({ sdg, instrument }) => {
         const fetchRecords = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:5000/api/record/sdg/${sdg}/${instrument.instrument_id}`
+                    `https://csd.dashboard.online/api/record/sdg/${sdg}/${instrument.instrument_id}`
                 );
                 const data = await response.json();
                 setRecords(data);
@@ -39,7 +39,7 @@ const Card = ({ sdg, instrument }) => {
         const fetchUnit = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:5000/api/unit/sdo/${ID}`
+                    `https://csd.dashboard.online/api/unit/sdo/${ID}`
                 );
                 const data = await response.json();
                 setUnit(data);
@@ -57,7 +57,7 @@ const Card = ({ sdg, instrument }) => {
             try {
                 const dataPromises = records.map(async (record) => {
                     const response = await fetch(
-                        `http://localhost:5000/api/record_data/approved/${record.record_id}/${ID}`
+                        `https://csd.dashboard.online/api/record_data/approved/${record.record_id}/${ID}`
                     );
                     return response.json();
                 });
@@ -83,7 +83,7 @@ const Card = ({ sdg, instrument }) => {
                 for (const recordData of recordsData) {
                     for (const record of recordData) {
                         const response = await fetch(
-                            `http://localhost:5000/api/record_value/${record.record_data_id}`
+                            `https://csd.dashboard.online/api/record_value/${record.record_data_id}`
                         );
                         const data = await response.json();
                         if (data.length > 0) {

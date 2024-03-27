@@ -58,14 +58,16 @@ const Units = () => {
         const getUnits = async () => {
             if (ROLE === "sdo") {
                 const response = await fetch(
-                    `http://localhost:5000/api/unit/sdo/${ID}`
+                    `https://csd.dashboard.online/api/unit/sdo/${ID}`
                 );
                 const data = await response.json();
                 searchUnit(data);
 
                 console.log(data);
             } else {
-                const response = await fetch(`http://localhost:5000/api/unit`);
+                const response = await fetch(
+                    `https://csd.dashboard.online/api/unit`
+                );
                 const data = await response.json();
                 searchUnit(data);
                 console.log(data);
@@ -159,15 +161,18 @@ const Units = () => {
         }).then((result) => {
             if (result.isConfirmed) {
                 //unit_status/:unitId
-                fetch(`http://localhost:5000/api/unit/status/${row.unit_id}`, {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({
-                        status: !row.status,
-                    }),
-                }).then(() => {
+                fetch(
+                    `https://csd.dashboard.online/api/unit/status/${row.unit_id}`,
+                    {
+                        method: "PATCH",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            status: !row.status,
+                        }),
+                    }
+                ).then(() => {
                     Swal.fire(
                         "Updated!",
                         "Unit status has been updated.",

@@ -31,7 +31,7 @@ const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
         };
         try {
             const response = await fetch(
-                `http://localhost:5000/api/unit/update/${unitData.unit_id}`,
+                `https://csd.dashboard.online/api/unit/update/${unitData.unit_id}`,
                 {
                     method: "PATCH",
                     body: JSON.stringify(data),
@@ -59,7 +59,7 @@ const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
         const fetchAllSdos = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:5000/api/sdo-officers`
+                    `https://csd.dashboard.online/api/sdo-officers`
                 );
                 const jsonData = await response.json();
                 setSdoOfficers(jsonData);
@@ -88,7 +88,7 @@ const UpdateUnit = ({ showModal, setShowModal, setReload, unitData }) => {
         const getCampus = async () => {
             try {
                 const response = await fetch(
-                    `http://localhost:5000/api/campus`
+                    `https://csd.dashboard.online/api/campus`
                 );
                 const jsonData = await response.json();
 
