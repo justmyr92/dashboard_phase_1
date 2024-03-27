@@ -165,23 +165,11 @@ router.post("/unit", async (req, res) => {
             sdo_officer_id,
             campus_id,
         } = req.body;
-        //         Table "public.unit_table"
-        //         Column     |          Type          | Collation | Nullable | Default
-        //    ----------------+------------------------+-----------+----------+---------
-        //     unit_id        | character varying(25)  |           | not null |
-        //     unit_name      | character varying(50)  |           |          |
-        //     unit_address   | character varying(255) |           |          |
-        //     unit_phone     | character varying(25)  |           |          |
-        //     unit_email     | character varying(50)  |           |          |
-        //     unit_password  | character varying(255) |           |          |
-        //     sdo_officer_id | character varying(25)  |           |          |
-        //     campus_id      | character varying(25)  |           |          |
-        //     status         | boolean                |           |          |
         console.log(req.body);
         const salt = await bcrypt.genSalt(10);
         const encryptedPassword = await bcrypt.hash(unit_password, salt);
         const newUnit = await pool.query(
-            "INSERT INTO unit_table (unit_id, unit_name, unit_address, unit_phone, unit_email, unit_password, sdo_officer_id, campus_id) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *",
+            "INSERT INTO unit_table (unit_id, unit_name, unit_address, unit_phone, unit_email, unit_password, sdo_officer_id, campus_id, status) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *",
             [
                 unit_id,
                 unit_name,
@@ -191,6 +179,7 @@ router.post("/unit", async (req, res) => {
                 encryptedPassword,
                 sdo_officer_id,
                 campus_id,
+                true,
             ]
         );
         res.json(newUnit.rows[0]);
