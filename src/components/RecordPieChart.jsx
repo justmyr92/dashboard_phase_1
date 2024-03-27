@@ -29,7 +29,7 @@ const RecordPieChart = () => {
         const fetchStatus = async () => {
             try {
                 const response = await fetch(
-                    `https://csd.dashboard.online/api/status`
+                    `https://csddashboard.online/api/status`
                 );
                 const data = await response.json();
                 // Sort the status data based on count in descending order

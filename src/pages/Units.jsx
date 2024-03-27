@@ -58,7 +58,7 @@ const Units = () => {
         const getUnits = async () => {
             if (ROLE === "sdo") {
                 const response = await fetch(
-                    `https://csd.dashboard.online/api/unit/sdo/${ID}`
+                    `https://csddashboard.online/api/unit/sdo/${ID}`
                 );
                 const data = await response.json();
                 searchUnit(data);
@@ -66,7 +66,7 @@ const Units = () => {
                 console.log(data);
             } else {
                 const response = await fetch(
-                    `https://csd.dashboard.online/api/unit`
+                    `https://csddashboard.online/api/unit`
                 );
                 const data = await response.json();
                 searchUnit(data);
@@ -162,7 +162,7 @@ const Units = () => {
             if (result.isConfirmed) {
                 //unit_status/:unitId
                 fetch(
-                    `https://csd.dashboard.online/api/unit/status/${row.unit_id}`,
+                    `https://csddashboard.online/api/unit/status/${row.unit_id}`,
                     {
                         method: "PATCH",
                         headers: {

@@ -31,7 +31,7 @@ router.post("/sdo_officer", async (req, res) => {
         console.error(err.message);
     }
 });
-//fetch(`https://csd.dashboard.online/api/unit/status/${row.unit_id}`, {
+//fetch(`https://csddashboard.online/api/unit/status/${row.unit_id}`, {
 // method: "PATCH",
 
 router.patch("/unit/status/:id", async (req, res) => {

@@ -68,7 +68,7 @@ const InstrumentForm = () => {
     useEffect(() => {
         const fetchUnits = async () => {
             const response = await fetch(
-                "https://csd.dashboard.online/api/unit"
+                "https://csddashboard.online/api/unit"
             );
             const data = await response.json();
             setUnits(data);
@@ -78,9 +78,7 @@ const InstrumentForm = () => {
 
     useEffect(() => {
         const fetchSdgIndicators = async () => {
-            const response = await fetch(
-                "https://csd.dashboard.online/api/sdg"
-            );
+            const response = await fetch("https://csddashboard.online/api/sdg");
             const data = await response.json();
             setSdgIndicators(data);
         };
@@ -108,7 +106,7 @@ const InstrumentForm = () => {
 
                 try {
                     const response = await fetch(
-                        "https://csd.dashboard.online/api/instruments",
+                        "https://csddashboard.online/api/instruments",
                         {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
@@ -133,7 +131,7 @@ const InstrumentForm = () => {
                                 };
                                 try {
                                     const response = await fetch(
-                                        "https://csd.dashboard.online/api/addRecord",
+                                        "https://csddashboard.online/api/addRecord",
                                         {
                                             method: "POST",
                                             headers: {
@@ -156,7 +154,7 @@ const InstrumentForm = () => {
                                                 try {
                                                     const response =
                                                         await fetch(
-                                                            "https://csd.dashboard.online/api/tag",
+                                                            "https://csddashboard.online/api/tag",
                                                             {
                                                                 method: "POST",
                                                                 headers: {

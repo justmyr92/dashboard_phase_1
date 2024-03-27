@@ -19,7 +19,7 @@ const SetNotification = ({
         const getUnit = async () => {
             try {
                 const response = await fetch(
-                    `https://csd.dashboard.online/api/unit/${selected.unit_id}`
+                    `https://csddashboard.online/api/unit/${selected.unit_id}`
                 );
                 const jsonData = await response.json();
                 setUnit(jsonData);
@@ -96,7 +96,7 @@ const SetNotification = ({
 
         try {
             const response = await fetch(
-                `https://csd.dashboard.online/api/record_data/${selected.record_data_id}`,
+                `https://csddashboard.online/api/record_data/${selected.record_data_id}`,
                 {
                     method: "PATCH",
                     body: JSON.stringify(data),
@@ -114,7 +114,7 @@ const SetNotification = ({
                 };
 
                 const response2 = await fetch(
-                    "https://csd.dashboard.online/api/notification",
+                    "https://csddashboard.online/api/notification",
                     {
                         method: "POST",
                         body: JSON.stringify(notif),
