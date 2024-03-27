@@ -14,9 +14,7 @@ const AddSDOfficer = ({ setReload, setModal }) => {
     });
     useEffect(() => {
         const getCampus = async () => {
-            const response = await fetch(
-                "https://csddashboard.online/api/campus"
-            );
+            const response = await fetch("http://localhost:5000/api/campus");
             const data = await response.json();
             setCampus(data);
             console.log(data);
@@ -41,16 +39,13 @@ const AddSDOfficer = ({ setReload, setModal }) => {
             });
         }
         console.log(sdo_officer);
-        const response = await fetch(
-            "https://csddashboard.online/api/sdo_officer",
-            {
-                method: "POST",
-                headers: {
-                    "Content-type": "application/json",
-                },
-                body: JSON.stringify(sdo_officer),
-            }
-        );
+        const response = await fetch("http://localhost:5000/api/sdo_officer", {
+            method: "POST",
+            headers: {
+                "Content-type": "application/json",
+            },
+            body: JSON.stringify(sdo_officer),
+        });
         const data = await response.json();
         if (response.status === 200) {
             Swal.fire({

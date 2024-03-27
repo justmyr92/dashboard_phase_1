@@ -34,7 +34,7 @@ const SDOfficer = () => {
             if (result.isConfirmed) {
                 // Make API call to delete item (replace with your actual API call)
                 fetch(
-                    `https://csddashboard.online/api/sdo_officer/${sdo_officer_id}`,
+                    `http://localhost:5000/api/sdo_officer/${sdo_officer_id}`,
                     {
                         method: "DELETE",
                         headers: {
@@ -132,7 +132,7 @@ const SDOfficer = () => {
     useEffect(() => {
         const getSDOfficers = async () => {
             const response = await fetch(
-                "https://csddashboard.online/api/sdo-officers"
+                "http://localhost:5000/api/sdo-officers"
             );
             const data = await response.json();
 
