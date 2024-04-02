@@ -66,9 +66,9 @@ const Records = () => {
             console.log(data);
 
             if (ROLE === "sdo") {
-                const filteredData = data.filter(
-                    (record) => record.sdo_officer_id === ID
-                );
+                const filteredData = data
+                    ? data.filter((record) => record.sdo_officer_id === ID)
+                    : [];
                 //filert by selected request id
                 setRecords(
                     filteredData.filter(
@@ -101,6 +101,7 @@ const Records = () => {
     const [searchedRecords, setSearchedRecords] = useState([]);
 
     useEffect(() => {
+        if (search === "") return;
         setSearchedRecords(
             records.filter(
                 (record) =>
@@ -240,9 +241,13 @@ const Records = () => {
         {
             name: "Progress",
             selector: (row) => {
-                const filteredRecords = records.filter(
-                    (record) => record.request_id === row.request_id
-                );
+                // Check if records is an array and has data before using filter method
+                const filteredRecords = Array.isArray(records)
+                    ? records.filter(
+                          (record) => record.request_id === row.request_id
+                      )
+                    : [];
+
                 const progress = `${filteredRecords.length} / ${unitCount} (${(
                     (filteredRecords.length / unitCount) *
                     100
@@ -251,7 +256,6 @@ const Records = () => {
             },
             sortable: true,
         },
-
         {
             name: "Start Date",
             selector: (row) => row.start_date.toString().split("T")[0],

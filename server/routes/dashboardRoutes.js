@@ -13,6 +13,7 @@ router.post("/sdo_officer", async (req, res) => {
             sdo_officer_password,
             campus_id,
         } = req.body;
+        console.log(req.body);
         const salt = await bcrypt.genSalt(10);
         const encryptedPassword = await bcrypt.hash(sdo_officer_password, salt);
         const newSdoOfficer = await pool.query(
