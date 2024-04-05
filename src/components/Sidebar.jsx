@@ -38,11 +38,11 @@ const Sidebar = () => {
                     text: "SD Officers",
                     icon: faUser,
                 },
-                {
-                    url: "/csd/units",
-                    text: "Units",
-                    icon: faBuilding,
-                },
+                // {
+                //     url: "/csd/units",
+                //     text: "Units",
+                //     icon: faBuilding,
+                // },
                 {
                     url: "/csd/annual-reports",
                     text: "Annual Reports",
@@ -66,11 +66,11 @@ const Sidebar = () => {
                     text: "Dashboard",
                     icon: faDashboard,
                 },
-                {
-                    url: "/csd/units",
-                    text: "Units",
-                    icon: faBuilding,
-                },
+                // {
+                //     url: "/csd/units",
+                //     text: "Units",
+                //     icon: faBuilding,
+                // },
                 {
                     url: "/csd/records",
                     text: "Records",

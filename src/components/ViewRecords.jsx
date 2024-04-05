@@ -9,17 +9,24 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
 
     useEffect(() => {
         const getValues = async () => {
-            console.log(
-                "Fetching record values for record_data_id:",
-                record_data_id
-            );
-            const response = await fetch(
-                `https://csddashboard.online/api/record_value/${record_data_id}`
-            );
-            const data = await response.json();
-            setRecordValues(data);
-            setOriginalValues(data);
-            console.log("Record values fetched:", data);
+            try {
+                console.log(
+                    "Fetching record values for record_data_id:",
+                    record_data_id
+                );
+                const response = await fetch(
+                    `https://csddashboard.online/api/record_value/${record_data_id}`
+                );
+                if (!response.ok) {
+                    throw new Error("Failed to fetch record values");
+                }
+                const data = await response.json();
+                console.log("Record values fetched:", data);
+                setRecordValues(data);
+                setOriginalValues(data);
+            } catch (error) {
+                console.error("Error fetching record values:", error);
+            }
         };
 
         getValues();
@@ -138,7 +145,6 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
                                                     )
                                                 }
                                                 disabled={
-                                                    role === "sdo" ||
                                                     role === "csd"
                                                         ? true
                                                         : false
@@ -159,16 +165,15 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
                         >
                             Close
                         </button>
-                        {role !== "sdo" ||
-                            (role !== "csd" && (
-                                <button
-                                    type="button"
-                                    className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm font-medium px-5 py-2.5"
-                                    onClick={handleSave}
-                                >
-                                    Save
-                                </button>
-                            ))}
+                        {role !== "csd" && (
+                            <button
+                                type="button"
+                                className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm font-medium px-5 py-2.5"
+                                onClick={handleSave}
+                            >
+                                Save
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>

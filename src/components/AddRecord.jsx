@@ -5,13 +5,15 @@ import { uploadBytes, ref } from "firebase/storage";
 
 const AddRecord = ({ showModal, setShowModal, setReload }) => {
     const [ID, setID] = useState(localStorage.getItem("ID"));
-    const [sdg, setSdg] = useState([]);
+    const [sdgs, setSdgs] = useState([]);
     const [records, setRecords] = useState([]);
     const [sdgID, setSdgID] = useState("");
     const [instruments, setInstruments] = useState([]);
     const [instrument, setInstrument] = useState([]);
 
     const [instrumentID, setInstrumentID] = useState("");
+    const [name, setName] = useState("");
+    const [section, setSection] = useState("");
     const [recordID, setRecordID] = useState("");
     const [recordFiles, setRecordFiles] = useState([]);
     const [recordValues, setRecordValues] = useState({});
@@ -29,45 +31,29 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     };
 
     useEffect(() => {
-        console.log("Fetching SDG");
-        const fetchData = async () => {
-            const response = await fetch(
-                `https://csddashboard.online/api/tag/${ID}`
-            );
-            const data = await response.json();
-
-            if (response.ok) {
-                console.log("Tag Data:", data);
-                setTags(data);
-            }
-        };
-
-        fetchData();
-    }, [ID]);
-
-    useEffect(() => {
         console.log("Fetching Instruments");
         const fetchInstruments = async () => {
             const response = await fetch(
-                "https://csddashboard.online/api/request"
+                "https://csddashboard.online/api/getInstruments"
             );
             const data = await response.json();
             if (response.ok) {
-                setInstrumentID(data[0].instrument_id);
-                setRequestID(data[0].request_id);
+                setInstruments(data);
+            }
+        };
 
-                const response2 = await fetch(
-                    `https://csddashboard.online/api/getInstruments/${data[0].instrument_id}`
-                );
-                const data2 = await response2.json();
-                if (response2.ok) {
-                    console.log("Instrument Data 2:", data2);
-                    setInstruments(data2);
-                }
+        const fetchTags = async () => {
+            const response = await fetch(
+                `https://csddashboard.online/api/sdg/`
+            );
+            const data = await response.json();
+            if (response.ok) {
+                setSdgs(data);
             }
         };
 
         fetchInstruments();
+        fetchTags();
     }, []);
 
     useEffect(() => {
@@ -83,22 +69,15 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
 
             const data = await response.json();
             if (response.ok) {
-                console.log("Records Data:", data);
-                //set records that only exist in the tag
-                const filteredRecords = data.filter((record) =>
-                    tags.some((tag) => tag.record_id === record.record_id)
-                );
-                setRecords(filteredRecords);
-                setTotalCount(filteredRecords.length);
-                console.log("Filtered Records:", filteredRecords);
-                setRecordID(filteredRecords[0].record_id);
+                setRecords(data);
+                setTotalCount(data.length);
             }
         };
 
         if (instrumentID !== "") {
             fetchData();
         }
-    }, [instrumentID, tags]);
+    }, [instrumentID]);
 
     console.log("Render", {
         sdgID,
@@ -144,16 +123,13 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
         formData.append("record_data_id", record_data_id);
         formData.append("record_date", new Date().toISOString().slice(0, 10));
         formData.append("record_status", "For Approval");
-        formData.append("record_id", recordID);
         formData.append("unit_id", ID);
 
         const formJSON = {
             record_data_id: record_data_id,
             record_date: new Date().toISOString().slice(0, 10),
             record_status: "For Approval",
-            record_id: recordID,
             unit_id: ID,
-            request_id: requestID,
         };
 
         Swal.fire({
@@ -303,48 +279,123 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                     <form onSubmit={handleSubmit} encType="multipart/form-data">
                         <div className="p-6 space-y-6">
                             {
-                                <div className="flex flex-col">
-                                    <label
-                                        htmlFor="instrument"
-                                        className="text-sm font-semibold text-gray-600"
-                                    >
-                                        Instrument
-                                    </label>
-                                    {/* <input
-                                        type="text"
-                                        id="instrument"
-                                        name="instrument"
-                                        className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                                        value={instrumentID}
-                                        readOnly
-                                    /> */}
+                                <>
+                                    <div className="flex flex-col">
+                                        <h5 className="font-medium">
+                                            Instrument
+                                        </h5>
+                                    </div>
+                                    <div className="flex flex-col">
+                                        SDG
+                                        <select
+                                            id="sdg"
+                                            name="sdg"
+                                            className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                                            onChange={(e) => {
+                                                setSdgID(e.target.value);
+                                                const tag = sdgs.find(
+                                                    (sdg) =>
+                                                        sdg.sdg_id ===
+                                                        e.target.value
+                                                );
+                                            }}
+                                        >
+                                            <option value="" disabled selected>
+                                                Select SDG
+                                            </option>
+                                            {sdgs.map((sdg, index) => (
+                                                <option
+                                                    value={sdg.sdg_id}
+                                                    key={sdg.sdg_id}
+                                                >
+                                                    SDG {index + 1 + " - "}{" "}
+                                                    {sdg.sdg_name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </div>
 
-                                    <select
-                                        id="instrument"
-                                        name="instrument"
-                                        className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                                        onChange={(e) =>
-                                            setInstrumentID(e.target.value)
-                                        }
-                                    >
-                                        {instruments.map(
-                                            (instrument) =>
-                                                instrument.status ===
-                                                    "Active" && (
-                                                    <option
-                                                        value={
-                                                            instrument.instrument_id
-                                                        }
-                                                        key={
-                                                            instrument.instrument_id
-                                                        }
-                                                    >
-                                                        {instrument.name}
-                                                    </option>
-                                                )
-                                        )}
-                                    </select>
-                                </div>
+                                    <div className="flex flex-col">
+                                        <label
+                                            htmlFor="instrument"
+                                            className="text-sm font-semibold text-gray-600"
+                                        >
+                                            Subtitle
+                                        </label>
+
+                                        <select
+                                            id="subtitle"
+                                            name="subtitle"
+                                            className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                                            onChange={(e) =>
+                                                setName(e.target.value)
+                                            }
+                                            disabled={!sdgID}
+                                        >
+                                            <option value="" disabled selected>
+                                                Select Subtitle
+                                            </option>
+                                            {instruments.map(
+                                                (instrument) =>
+                                                    instrument.status ===
+                                                        "Active" &&
+                                                    instrument.sdg_id ===
+                                                        sdgID && (
+                                                        <option
+                                                            value={
+                                                                instrument.name
+                                                            }
+                                                            key={
+                                                                instrument.instrument_id
+                                                            }
+                                                        >
+                                                            {instrument.name}
+                                                        </option>
+                                                    )
+                                            )}
+                                        </select>
+                                    </div>
+
+                                    <div className="flex flex-col">
+                                        <label
+                                            htmlFor="record"
+                                            className="text-sm font-semibold text-gray-600"
+                                        >
+                                            Section
+                                        </label>
+                                        <select
+                                            id="record"
+                                            name="record"
+                                            className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                                            onChange={(e) =>
+                                                setInstrumentID(e.target.value)
+                                            }
+                                            disabled={!name}
+                                        >
+                                            <option value="" disabled selected>
+                                                Select Section
+                                            </option>
+                                            {instruments.map(
+                                                (instrument) =>
+                                                    instrument.status ===
+                                                        "Active" &&
+                                                    instrument.name ===
+                                                        name && (
+                                                        <option
+                                                            value={
+                                                                instrument.instrument_id
+                                                            }
+                                                            key={
+                                                                instrument.instrument_id
+                                                            }
+                                                        >
+                                                            {instrument.section}
+                                                        </option>
+                                                    )
+                                            )}
+                                        </select>
+                                    </div>
+                                </>
                             }
                             {records &&
                                 records.length > 0 &&

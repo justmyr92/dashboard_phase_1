@@ -25,6 +25,8 @@ const Units = () => {
     useEffect(() => {
         if (!ID) {
             window.location.href = "/login";
+        } else {
+            window.location.href = "/csd/sd/dashboard";
         }
     }, [ID]);
 

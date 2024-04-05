@@ -35,6 +35,20 @@ router.post("/sdo_officer", async (req, res) => {
 //fetch(`https://csddashboard.online/api/unit/status/${row.unit_id}`, {
 // method: "PATCH",
 
+router.patch("/instrument/name/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, section } = req.body;
+        const updateInstrument = await pool.query(
+            "UPDATE instrument_table SET name = $1, section = $2 WHERE instrument_id = $3",
+            [name, section, id]
+        );
+        res.json("Instrument Name was updated");
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
 router.patch("/unit/status/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -265,8 +279,10 @@ router.get("/record_data/unit", async (req, res) => {
     try {
         const recordData = await pool.query(
             //fetching all the record data from the record_data_table then get requ
-            "SELECT record_data_table.*, unit_table.* FROM record_data_table INNER JOIN unit_table ON record_data_table.unit_id = unit_table.unit_id"
+            // "SELECT record_data_table.*, unit_table.* FROM record_data_table INNER JOIN unit_table ON record_data_table.unit_id = unit_table.unit_id"
+            //select from sdo_officer_table where sdo_officer_id = $1
 
+            "SELECT record_data_table.*, sdo_officer_table.* FROM record_data_table INNER JOIN sdo_officer_table ON record_data_table.sdo_officer_id = sdo_officer_table.sdo_officer_id"
             // "SELECT record_data_table.*, unit_table.*, sdg_table.* FROM record_data_table INNER JOIN unit_table ON record_data_table.unit_id = unit_table.unit_id INNER JOIN sdg_table ON unit_table.sdg_id = sdg_table.sdg_id"
         );
         res.json(recordData.rows);
@@ -593,7 +609,7 @@ router.get("/record_value/:id", async (req, res) => {
         const { id } = req.params;
         const recordValue = await pool.query(
             // "SELECT record_value_table.*, record_table.*, sdg_table.* FROM record_value_table INNER JOIN record_table ON record_value_table.record_id = record_table.record_id INNER JOIN sdg_table ON record_table.sdg_id = sdg_table.sdg_id WHERE record_value_table.record_data_id = $1",
-            "SELECT record_value_table.*, record_table.*, sdg_table.* , unit_table.* FROM record_value_table INNER JOIN record_table ON record_value_table.record_id = record_table.record_id INNER JOIN sdg_table ON record_table.sdg_id = sdg_table.sdg_id INNER JOIN record_data_table ON record_value_table.record_data_id = record_data_table.record_data_id INNER JOIN unit_table ON record_data_table.unit_id = unit_table.unit_id WHERE record_value_table.record_data_id = $1",
+            "SELECT record_value_table.*, record_table.*, sdg_table.* , sdo_officer_table.* FROM record_value_table INNER JOIN record_table ON record_value_table.record_id = record_table.record_id INNER JOIN sdg_table ON record_table.sdg_id = sdg_table.sdg_id INNER JOIN record_data_table ON record_value_table.record_data_id = record_data_table.record_data_id INNER JOIN sdo_officer_table ON record_data_table.sdo_officer_id = sdo_officer_table.sdo_officer_id WHERE record_value_table.record_data_id = $1",
             [id]
         );
         res.json(recordValue.rows);
@@ -880,14 +896,13 @@ router.get("/getReport", async (req, res) => {
 });
 
 router.post("/instruments", async (req, res) => {
-    const { name, status, date_posted } = req.body;
-
+    const { name, status, date_posted, section, sdg_id } = req.body;
     const id = Math.floor(Math.random() * 1000000 + 9999999);
 
     try {
         const instrument = await pool.query(
-            "INSERT INTO instrument_table(instrument_id, name, status, date_posted) VALUES($1, $2, $3, $4) RETURNING *",
-            [id, name, status, date_posted]
+            "INSERT INTO instrument_table(instrument_id, name, status, date_posted, section, sdg_id) VALUES($1, $2, $3, $4, $5, $6) RETURNING *",
+            [id, name, status, date_posted, section, sdg_id]
         );
         console.log(instrument);
         res.status(200).json(instrument.rows[0]);
@@ -1071,26 +1086,13 @@ router.delete("/deleteNotification", async (req, res) => {
 
 router.post("/record_data", async (req, res) => {
     try {
-        const {
-            record_data_id,
-            record_date,
-            record_status,
-            record_id,
-            unit_id,
-            request_id,
-        } = req.body;
+        const { record_data_id, record_date, record_status, unit_id } =
+            req.body;
         console.log(req.body);
 
         const newRecordData = await pool.query(
-            "INSERT INTO record_data_table (record_data_id, record_date, record_status, record_id, unit_id, request_id) VALUES($1, $2, $3, $4, $5, $6) RETURNING *",
-            [
-                record_data_id,
-                record_date,
-                record_status,
-                record_id,
-                unit_id,
-                request_id,
-            ]
+            "INSERT INTO record_data_table (record_data_id, record_date, record_status, sdo_officer_id) VALUES($1, $2, $3, $4) RETURNING *",
+            [record_data_id, record_date, record_status, unit_id]
         );
 
         res.json(newRecordData.rows[0]);

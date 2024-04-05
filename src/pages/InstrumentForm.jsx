@@ -12,6 +12,7 @@ const InstrumentForm = () => {
     const [page, setPage] = useState(1);
 
     const [units, setUnits] = useState([]);
+    const [instrumentSection, setInstrumentSection] = useState("");
 
     const addRecordInput = () => {
         if (sdgIndicator === "") {
@@ -33,10 +34,6 @@ const InstrumentForm = () => {
         ]);
         console.log(units);
     };
-
-    useEffect(() => {
-        console.log(record);
-    }, [record]);
 
     const deleteRecord = (index) => {
         setRecord((prevRecords) => {
@@ -102,6 +99,8 @@ const InstrumentForm = () => {
                     name: instrumentName,
                     status: "Active",
                     date_posted: new Date(),
+                    section: instrumentSection,
+                    sdg_id: sdgIndicator,
                 };
 
                 try {
@@ -142,41 +141,6 @@ const InstrumentForm = () => {
                                         }
                                     );
                                     const data = await response.json();
-
-                                    if (response.ok) {
-                                        recordItem.unit_ids.map(
-                                            async (unit_id) => {
-                                                const tag = {
-                                                    record_id:
-                                                        newRecord.record_id,
-                                                    unit_id: unit_id,
-                                                };
-                                                try {
-                                                    const response =
-                                                        await fetch(
-                                                            "https://csddashboard.online/api/tag",
-                                                            {
-                                                                method: "POST",
-                                                                headers: {
-                                                                    "Content-Type":
-                                                                        "application/json",
-                                                                },
-                                                                body: JSON.stringify(
-                                                                    tag
-                                                                ),
-                                                            }
-                                                        );
-                                                    const data =
-                                                        await response.json();
-                                                    if (response.ok) {
-                                                        console.log(data);
-                                                    }
-                                                } catch (error) {
-                                                    console.error(error);
-                                                }
-                                            }
-                                        );
-                                    }
                                 } catch (error) {
                                     console.error(error);
                                 }
@@ -230,15 +194,32 @@ const InstrumentForm = () => {
                                 <div className="grid-cols-2 gap-4 grid">
                                     <div className="control-group flex flex-col gap-2 items-start">
                                         <label className="block text-gray-700 text-sm font-semibold">
-                                            Instrument Name
+                                            Subtitle
                                         </label>
                                         <input
                                             className="w-full px-5 py-2 text-gray-900 rounded focus:outline-none focus:shadow-outline border border-gray-300 placeholder-gray-500 focus:bg-white"
                                             type="text"
-                                            placeholder="Instrument Name"
+                                            placeholder="Subtitle"
                                             value={instrumentName}
                                             onChange={(e) => {
                                                 setInstrumentName(
+                                                    e.target.value
+                                                );
+                                            }}
+                                            required
+                                        />
+                                    </div>
+                                    <div className="control-group flex flex-col gap-2 items-start">
+                                        <label className="block text-gray-700 text-sm font-semibold">
+                                            Section
+                                        </label>
+                                        <input
+                                            className="w-full px-5 py-2 text-gray-900 rounded focus:outline-none focus:shadow-outline border border-gray-300 placeholder-gray-500 focus:bg-white"
+                                            type="text"
+                                            placeholder="Section"
+                                            value={instrumentSection}
+                                            onChange={(e) => {
+                                                setInstrumentSection(
                                                     e.target.value
                                                 );
                                             }}
@@ -336,33 +317,7 @@ const InstrumentForm = () => {
                                                             )
                                                         }
                                                     />
-                                                    <MultiSelect
-                                                        className="w-full bg-white"
-                                                        value={
-                                                            recordItem.unit_ids
-                                                        }
-                                                        onChange={(e) =>
-                                                            handleRecordChange(
-                                                                index,
-                                                                "unit_ids",
-                                                                e
-                                                            )
-                                                        }
-                                                    >
-                                                        {units.map((unit) => (
-                                                            <MultiSelectItem
-                                                                className="bg-white"
-                                                                key={
-                                                                    unit.unit_id
-                                                                }
-                                                                value={
-                                                                    unit.unit_id
-                                                                }
-                                                            >
-                                                                {unit.unit_name}
-                                                            </MultiSelectItem>
-                                                        ))}
-                                                    </MultiSelect>
+
                                                     <button
                                                         type="button"
                                                         className="px-5 py-2 bg-red-500 text-white rounded-lg"
