@@ -161,9 +161,7 @@ const Instruments = () => {
 
     useEffect(() => {
         const fetchSdgIndicators = async () => {
-            const response = await fetch(
-                "https://csddashboard.online/api/sdg"
-            );
+            const response = await fetch("https://csddashboard.online/api/sdg");
             const data = await response.json();
             console.log(data);
             setSdgIndicators(data);
@@ -396,12 +394,13 @@ const Instruments = () => {
                                                 </p>
 
                                                 <p>
-                                                    {row.sdg_id &&
+                                                    {
                                                         sdgIndicators.find(
                                                             (sdgItem) =>
                                                                 sdgItem.sdg_id ===
                                                                 row.sdg_id
-                                                        ).sdg_name}
+                                                        )?.sdg_name
+                                                    }
                                                 </p>
                                             </div>
                                         ),
