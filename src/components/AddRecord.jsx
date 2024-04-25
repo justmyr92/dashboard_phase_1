@@ -9,7 +9,6 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     const [records, setRecords] = useState([]);
     const [sdgID, setSdgID] = useState("");
     const [instruments, setInstruments] = useState([]);
-    const [instrument, setInstrument] = useState([]);
 
     const [instrumentID, setInstrumentID] = useState("");
     const [name, setName] = useState("");
@@ -57,63 +56,44 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     }, []);
 
     useEffect(() => {
-        console.log("Instrument IDasdasd:", instrument);
-    }, [instrument]);
-
-    useEffect(() => {
         console.log("Fetching Records");
         const fetchData = async () => {
             const response = await fetch(
-                `https://csddashboard.online/api/record/${instrumentID}`
+                `https://csddashboard.online/api/record/`
             );
-
             const data = await response.json();
             if (response.ok) {
                 setRecords(data);
-                setTotalCount(data.length);
             }
         };
-
-        if (instrumentID !== "") {
-            fetchData();
-        }
-    }, [instrumentID]);
-
-    console.log("Render", {
-        sdgID,
-        instrumentID,
-        records,
-        recordFiles,
-        recordValues,
-    });
-
-    const handleFileInputChange = (files, index) => {
-        const updatedFiles = [...recordFiles];
-        updatedFiles[index] = files[0];
-        setRecordFiles(updatedFiles);
-    };
+        fetchData();
+    }, [sdgID]);
 
     useEffect(() => {
-        console.log(recordFiles);
-    }, [recordFiles]);
-
-    const handleAddFileInput = () => {
-        setRecordFiles([...recordFiles, null]);
-    };
+        console.log(records);
+        console.log(recordValues);
+    }, [records, recordValues]);
 
     useEffect(() => {
-        console.log(recordFiles);
-    }, [recordFiles]);
+        setRecordValues([]);
+        records.map((record) => {
+            if (record.sdg_id === sdgID) {
+                setRecordValues((prevValues) => ({
+                    ...prevValues,
+                    [record.record_id]:
+                        record.rtype === "number"
+                            ? 0
+                            : tags.find(
+                                  (tag) => tag.record_id === record.record_id
+                              )?.option_value || "",
+                }));
+            }
+        });
+    }, [sdgID]);
 
-    useEffect(() => {
-        console.log(instrumentID);
-    }, [instrumentID]);
-
-    const handleRemoveFileInput = (index) => {
-        setRecordFiles((prevFiles) => [
-            ...prevFiles.slice(0, index),
-            ...prevFiles.slice(index + 1),
-        ]);
+    const handleFileInputChange = (files, instrument_id) => {
+        const newFileEntry = { file: files[0], instrument_id };
+        setRecordFiles((prevFiles) => [...prevFiles, newFileEntry]);
     };
 
     const handleSubmit = async (e) => {
@@ -124,14 +104,11 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
         formData.append("record_date", new Date().toISOString().slice(0, 10));
         formData.append("record_status", "For Approval");
         formData.append("unit_id", ID);
-
         const formJSON = {
             record_data_id: record_data_id,
-            record_date: new Date().toISOString().slice(0, 10),
             record_status: "For Approval",
             unit_id: ID,
         };
-
         Swal.fire({
             title: "Are you sure?",
             text: "You won't be able to revert this!",
@@ -167,8 +144,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                             record_id: key,
                         };
 
-                        console.log(values);
-
+                        console.log(values, "Values");
                         const response = await fetch(
                             "https://csddashboard.online/api/record_value",
                             {
@@ -179,14 +155,13 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                                 body: JSON.stringify(values),
                             }
                         );
-
                         const responseData = await response.json();
                         console.log(responseData);
-
-                        setReload(true);
                     }
+                    recordFiles.map(async (fileEntry) => {
+                        const file = fileEntry.file; // Accessing the file object from the fileEntry
+                        const instrument_id = fileEntry.instrument_id; // Accessing the instrument_id
 
-                    recordFiles.map(async (file) => {
                         const filePayload = {
                             file: file.name,
                             record_data_id: recordDataID,
@@ -200,44 +175,65 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                             "File Payload:",
                             JSON.stringify(filePayload)
                         );
-
-                        try {
-                            const storageRef = ref(
-                                storage,
-                                `evidence/${filePayload.file}`
-                            );
-                            const fileRef = await uploadBytes(storageRef, file);
-                            console.log("File Uploaded");
-
-                            const fileResponse = await fetch(
-                                "https://csddashboard.online/api/file",
-                                {
-                                    method: "POST",
-                                    headers: {
-                                        "Content-Type": "application/json",
-                                    },
-                                    body: JSON.stringify(filePayload),
-                                }
-                            );
-
-                            if (!fileResponse.ok) {
-                                throw new Error(
-                                    `HTTP error! Status: ${fileResponse.status}`
+                        if (file) {
+                            try {
+                                const storageRef = ref(
+                                    storage,
+                                    `evidence/${filePayload.file}`
                                 );
-                            }
+                                const fileRef = await uploadBytes(
+                                    storageRef,
+                                    file
+                                );
+                                console.log("File Uploaded");
 
-                            const fileData = await fileResponse.json();
-                            console.log(fileData);
-                        } catch (error) {
-                            console.error("Error uploading file:", error);
+                                const fileResponse = await fetch(
+                                    "https://csddashboard.online/api/file",
+                                    {
+                                        method: "POST",
+                                        headers: {
+                                            "Content-Type": "application/json",
+                                        },
+                                        body: JSON.stringify(filePayload),
+                                    }
+                                );
+
+                                if (!fileResponse.ok) {
+                                    throw new Error(
+                                        `HTTP error! Status: ${fileResponse.status}`
+                                    );
+                                }
+
+                                const fileData = await fileResponse.json();
+                                console.log(fileData);
+                            } catch (error) {
+                                console.error("Error uploading file:", error);
+                            }
                         }
                     });
                 }
+                window.location.reload();
             }
         });
-
-        setShowModal(false);
     };
+
+    //getOptions
+    useEffect(() => {
+        const getOptions = async () => {
+            const response = await fetch(
+                `https://csddashboard.online/api/getOptions`
+            );
+            const data = await response.json();
+            setTags(data);
+        };
+
+        getOptions();
+    }, []);
+
+    useEffect(() => {
+        console.log(recordValues);
+        console.log(recordFiles);
+    }, [recordValues, recordFiles]);
 
     return (
         <div
@@ -278,228 +274,211 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                     </div>
                     <form onSubmit={handleSubmit} encType="multipart/form-data">
                         <div className="p-6 space-y-6">
-                            {
-                                <>
-                                    <div className="flex flex-col">
-                                        <h5 className="font-medium">
-                                            Instrument
-                                        </h5>
-                                    </div>
-                                    <div className="flex flex-col">
-                                        SDG
-                                        <select
-                                            id="sdg"
-                                            name="sdg"
-                                            className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                                            onChange={(e) => {
-                                                setSdgID(e.target.value);
-                                                const tag = sdgs.find(
-                                                    (sdg) =>
-                                                        sdg.sdg_id ===
-                                                        e.target.value
-                                                );
-                                            }}
+                            <div className="flex flex-col">
+                                <h5 className="font-medium">Instrument</h5>
+                            </div>
+                            <div className="flex flex-col">
+                                SDG
+                                <select
+                                    id="sdg"
+                                    name="sdg"
+                                    className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                                    onChange={(e) => {
+                                        setSdgID(e.target.value);
+                                    }}
+                                >
+                                    <option value="" disabled selected>
+                                        Select SDG
+                                    </option>
+                                    {sdgs.map((sdg, index) => (
+                                        <option
+                                            key={sdg.sdg_id}
+                                            value={sdg.sdg_id}
                                         >
-                                            <option value="" disabled selected>
-                                                Select SDG
-                                            </option>
-                                            {sdgs.map((sdg, index) => (
-                                                <option
-                                                    value={sdg.sdg_id}
-                                                    key={sdg.sdg_id}
-                                                >
-                                                    SDG {index + 1 + " - "}{" "}
-                                                    {sdg.sdg_name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
+                                            SDG {index + 1}: {sdg.sdg_name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
 
-                                    <div className="flex flex-col">
-                                        <label
-                                            htmlFor="instrument"
-                                            className="text-sm font-semibold text-gray-600"
-                                        >
-                                            Subtitle
-                                        </label>
-
-                                        <select
-                                            id="subtitle"
-                                            name="subtitle"
-                                            className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                                            onChange={(e) =>
-                                                setName(e.target.value)
-                                            }
-                                            disabled={!sdgID}
-                                        >
-                                            <option value="" disabled selected>
-                                                Select Subtitle
-                                            </option>
-                                            {instruments.map(
-                                                (instrument) =>
-                                                    instrument.status ===
-                                                        "Active" &&
-                                                    instrument.sdg_id ===
-                                                        sdgID && (
-                                                        <option
-                                                            value={
-                                                                instrument.name
-                                                            }
-                                                            key={
-                                                                instrument.instrument_id
-                                                            }
-                                                        >
-                                                            {instrument.name}
-                                                        </option>
-                                                    )
-                                            )}
-                                        </select>
-                                    </div>
-
-                                    <div className="flex flex-col">
-                                        <label
-                                            htmlFor="record"
-                                            className="text-sm font-semibold text-gray-600"
-                                        >
-                                            Section
-                                        </label>
-                                        <select
-                                            id="record"
-                                            name="record"
-                                            className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                                            onChange={(e) =>
-                                                setInstrumentID(e.target.value)
-                                            }
-                                            disabled={!name}
-                                        >
-                                            <option value="" disabled selected>
-                                                Select Section
-                                            </option>
-                                            {instruments.map(
-                                                (instrument) =>
-                                                    instrument.status ===
-                                                        "Active" &&
-                                                    instrument.name ===
-                                                        name && (
-                                                        <option
-                                                            value={
-                                                                instrument.instrument_id
-                                                            }
-                                                            key={
-                                                                instrument.instrument_id
-                                                            }
-                                                        >
-                                                            {instrument.section}
-                                                        </option>
-                                                    )
-                                            )}
-                                        </select>
-                                    </div>
-                                </>
-                            }
-                            {records &&
-                                records.length > 0 &&
-                                records.map((record) => {
-                                    return (
-                                        <div
-                                            key={record.record_id}
-                                            className="mb-4"
-                                        >
-                                            <label
-                                                htmlFor={`record-${record.record_id}`}
-                                                className="text-sm font-semibold text-gray-600"
+                            {sdgID &&
+                                instruments.map(
+                                    (instrument) =>
+                                        instrument.status === "Active" &&
+                                        instrument.sdg_id === sdgID && (
+                                            <div
+                                                key={instrument.instrument_id}
+                                                className="mb-4"
                                             >
-                                                {record.record_name}
-                                            </label>
-                                            <input
-                                                type="number"
-                                                id={`record-${record.record_id}`}
-                                                name={`record-${record.record_id}`}
-                                                className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                                                min="0"
-                                                onChange={(e) =>
-                                                    handleInputChange(
-                                                        record.record_id,
-                                                        parseInt(
-                                                            e.target.value,
-                                                            10
-                                                        )
+                                                <h5 className="font-medium">
+                                                    Subtitle: {instrument.name}
+                                                </h5>
+                                                <p className="text-gray-600">
+                                                    Section:{" "}
+                                                    {instrument.section}
+                                                </p>
+                                                {/* Filter questions for this subtitle and section */}
+                                                {records
+                                                    .filter(
+                                                        (record) =>
+                                                            record.instrument_id ===
+                                                            instrument.instrument_id
                                                     )
-                                                }
-                                                value={
-                                                    recordValues[
-                                                        record.record_id
-                                                    ] !== undefined
-                                                        ? recordValues[
-                                                              record.record_id
-                                                          ]
-                                                        : 0
-                                                }
-                                                required
-                                            />
-                                        </div>
-                                    );
-                                })}
+                                                    .map((record) => (
+                                                        <div
+                                                            key={
+                                                                record.record_id
+                                                            }
+                                                            className="mb-4"
+                                                        >
+                                                            {record.rtype ===
+                                                            "number" ? (
+                                                                <>
+                                                                    {" "}
+                                                                    <label
+                                                                        htmlFor={`record-${record.record_id}`}
+                                                                        className="text-sm font-semibold text-gray-600"
+                                                                    >
+                                                                        {
+                                                                            record.record_name
+                                                                        }
+                                                                    </label>
+                                                                    <input
+                                                                        type="number"
+                                                                        id={`record-${record.record_id}`}
+                                                                        name={`record-${record.record_id}`}
+                                                                        className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                                                                        min="0"
+                                                                        onChange={(
+                                                                            e
+                                                                        ) =>
+                                                                            handleInputChange(
+                                                                                record.record_id,
+                                                                                parseInt(
+                                                                                    e
+                                                                                        .target
+                                                                                        .value,
+                                                                                    10
+                                                                                )
+                                                                            )
+                                                                        }
+                                                                        value={
+                                                                            recordValues[
+                                                                                record
+                                                                                    .record_id
+                                                                            ] !==
+                                                                            undefined
+                                                                                ? recordValues[
+                                                                                      record
+                                                                                          .record_id
+                                                                                  ]
+                                                                                : 0
+                                                                        }
+                                                                        required
+                                                                    />
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <label
+                                                                        htmlFor={`record-${record.record_id}`}
+                                                                        className="text-sm font-semibold text-gray-600"
+                                                                    >
+                                                                        {
+                                                                            record.record_name
+                                                                        }
+                                                                    </label>
+                                                                    <select
+                                                                        id={`record-${record.record_id}`}
+                                                                        name={`record-${record.record_id}`}
+                                                                        className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                                                                        onChange={(
+                                                                            e
+                                                                        ) =>
+                                                                            handleInputChange(
+                                                                                record.record_id,
+                                                                                e
+                                                                                    .target
+                                                                                    .value
+                                                                            )
+                                                                        }
+                                                                        value={
+                                                                            recordValues[
+                                                                                record
+                                                                                    .record_id
+                                                                            ] !==
+                                                                            undefined
+                                                                                ? recordValues[
+                                                                                      record
+                                                                                          .record_id
+                                                                                  ]
+                                                                                : ""
+                                                                        }
+                                                                        required
+                                                                    >
+                                                                        <option
+                                                                            value=""
+                                                                            disabled
+                                                                            selected
+                                                                        >
+                                                                            Select
+                                                                            an
+                                                                            option
+                                                                        </option>
+                                                                        {tags
+                                                                            .filter(
+                                                                                (
+                                                                                    tag
+                                                                                ) =>
+                                                                                    tag.record_id ===
+                                                                                    record.record_id
+                                                                            )
+                                                                            .map(
+                                                                                (
+                                                                                    tag
+                                                                                ) => (
+                                                                                    <option
+                                                                                        key={
+                                                                                            tag.option_id
+                                                                                        }
+                                                                                        value={
+                                                                                            tag.option_value
+                                                                                        }
+                                                                                    >
+                                                                                        {
+                                                                                            tag.option_value
+                                                                                        }
+                                                                                    </option>
+                                                                                )
+                                                                            )}
+                                                                    </select>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    ))}
 
-                            {instrumentID &&
-                                recordFiles.map((file, index) => (
-                                    <div
-                                        key={index}
-                                        className="flex items-center space-x-2"
-                                    >
-                                        <label
-                                            htmlFor={`file-${index}`}
-                                            className="text-sm font-semibold text-gray-600"
-                                        >
-                                            File{" "}
-                                            {
-                                                "(PDF should be less than 10MB and image should be less than 5MB)"
-                                            }
-                                        </label>
-                                        <input
-                                            type="file"
-                                            id={`file-${index}`}
-                                            name={`file-${index}`}
-                                            className={`block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50 ${
-                                                file &&
-                                                file.type ===
-                                                    "application/pdf" &&
-                                                file.size > 15000000
-                                                    ? "border-red-500"
-                                                    : ""
-                                            } ${
-                                                file &&
-                                                file.type.match(/image-*/i) &&
-                                                file.size > 30000000
-                                                    ? "border-red-500"
-                                                    : ""
-                                            }`}
-                                            accept=".pdf, .jpg, .jpeg, .png"
-                                            onChange={(e) =>
-                                                handleFileInputChange(
-                                                    e.target.files,
-                                                    index
-                                                )
-                                            }
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                handleRemoveFileInput(index)
-                                            }
-                                            className="text-white bg-red-500 hover:bg-red-600 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-3 py-1.5"
-                                        >
-                                            Remove
-                                        </button>
-                                    </div>
-                                ))}
-                            <button
-                                type="button"
-                                onClick={handleAddFileInput}
-                                className="text-white bg-green-500 hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-3 py-1.5 mt-2"
-                            >
-                                Add File
-                            </button>
+                                                <div className="mb-4">
+                                                    <label
+                                                        htmlFor={`file-${instrument.instrument_id}`}
+                                                        className="text-sm font-semibold text-gray-600"
+                                                    >
+                                                        Upload Evidence
+                                                    </label>
+                                                    <input
+                                                        type="file"
+                                                        id={`file-${instrument.instrument_id}`}
+                                                        name={`file-${instrument.instrument_id}`}
+                                                        className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                                                        onChange={(e) =>
+                                                            handleFileInputChange(
+                                                                e.target.files,
+                                                                instrument.instrument_id
+                                                            )
+                                                        }
+                                                    />
+                                                </div>
+                                            </div>
+                                        )
+                                )}
                         </div>
 
                         <div className="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b">
@@ -509,7 +488,8 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                                 className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                             >
                                 {/* Display count of non-NaN, undefined, and null values in recordValues over totalCount */}
-                                Submit (
+                                Submit
+                                {/* (
                                 {
                                     Object.keys(recordValues).filter(
                                         (key) =>
@@ -518,7 +498,8 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                                             !isNaN(recordValues[key])
                                     ).length
                                 }
-                                /{totalCount})
+                                {/* divdetotacl count of record per selected sdg */}
+                                {/* /{totalCount}) */}
                             </button>
                             <button
                                 data-modal-hide="default-modal"

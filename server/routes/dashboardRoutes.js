@@ -651,10 +651,20 @@ router.get("/record_value/record_data/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const recordValue = await pool.query(
-            "SELECT record_value_table.*, record_data_table.*, record_table.*  FROM record_value_table INNER JOIN record_data_table ON record_value_table.record_data_id = record_data_table.record_data_id INNER JOIN record_table ON record_data_table.record_id = record_table.record_id  WHERE record_value_table.record_data_id = $1",
+            "SELECT record_value_table.*, record_data_table.*, record_table.*  FROM record_value_table INNER JOIN record_data_table ON record_value_table.record_data_id = record_data_table.record_data_id INNER JOIN record_table ON record_data_table.record_id = record_table.record_id WHERE record_value_table.record_data_id = $1",
             [id]
         );
         res.json(recordValue.rows);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+//fet from topotion matching with record_value_id
+router.get("/toption", async (req, res) => {
+    try {
+        const recordValueOption = await pool.query("SELECT * FROM toption");
+        res.json(recordValueOption.rows);
     } catch (err) {
         console.error(err.message);
     }
@@ -926,18 +936,28 @@ router.get("/getInstruments/:id", async (req, res) => {
 });
 
 router.post("/addRecord", async (req, res) => {
-    const { record_id, record_name, sdg_id, instrument_id } = req.body;
+    const { record_id, record_name, sdg_id, instrument_id, type } = req.body;
     const record_status = "active";
     try {
         const result = await pool.query(
-            "INSERT INTO record_table (record_id, record_name, sdg_id , instrument_id, record_status) VALUES ($1, $2, $3, $4, $5) RETURNING *",
-            [record_id, record_name, sdg_id, instrument_id, record_status]
+            "INSERT INTO record_table (record_id, record_name, sdg_id , instrument_id, record_status, rtype) VALUES($1, $2, $3, $4, $5, $6) RETURNING *",
+            [record_id, record_name, sdg_id, instrument_id, record_status, type]
         );
 
         res.json(result.rows[0]);
     } catch (error) {
         console.error(error);
         res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+//get option from toption
+router.get("/getOptions", async (req, res) => {
+    try {
+        const options = await pool.query("SELECT * FROM toption");
+        res.json(options.rows);
+    } catch (err) {
+        console.error(err.message);
     }
 });
 
@@ -1086,13 +1106,12 @@ router.delete("/deleteNotification", async (req, res) => {
 
 router.post("/record_data", async (req, res) => {
     try {
-        const { record_data_id, record_date, record_status, unit_id } =
-            req.body;
+        const { record_data_id, record_status, unit_id } = req.body;
         console.log(req.body);
 
         const newRecordData = await pool.query(
-            "INSERT INTO record_data_table (record_data_id, record_date, record_status, sdo_officer_id) VALUES($1, $2, $3, $4) RETURNING *",
-            [record_data_id, record_date, record_status, unit_id]
+            "INSERT INTO record_data_table (record_data_id, record_status, sdo_officer_id) VALUES($1, $2, $3) RETURNING *",
+            [record_data_id, record_status, unit_id]
         );
 
         res.json(newRecordData.rows[0]);
@@ -1215,4 +1234,16 @@ router.delete("/deleteSdoOfficer/:id", async (req, res) => {
     }
 });
 
+router.post("/toption", async (req, res) => {
+    try {
+        const { option_value, record_id } = req.body;
+        const newOption = await pool.query(
+            "INSERT INTO toption (option_value, record_id) VALUES( $1, $2) RETURNING *",
+            [option_value, record_id]
+        );
+        res.json(newOption.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
 module.exports = router;

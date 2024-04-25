@@ -10,10 +10,8 @@ const InstrumentForm = () => {
     const [sdgIndicator, setSdgIndicator] = useState("");
     const [record, setRecord] = useState([]);
     const [page, setPage] = useState(1);
-
     const [units, setUnits] = useState([]);
     const [instrumentSection, setInstrumentSection] = useState("");
-
     const addRecordInput = () => {
         if (sdgIndicator === "") {
             Swal.fire({
@@ -30,6 +28,8 @@ const InstrumentForm = () => {
                 record_name: "",
                 unit_ids: [],
                 sdg_id: sdgIndicator,
+                options: ["Option 1", "Option 2"],
+                type: "number",
             },
         ]);
         console.log(units);
@@ -82,6 +82,18 @@ const InstrumentForm = () => {
         fetchSdgIndicators();
     }, []);
 
+    // if sdgIndicator changes, update the record
+    useEffect(() => {
+        setRecord((prevRecords) =>
+            prevRecords.map((record) => {
+                return {
+                    ...record,
+                    sdg_id: sdgIndicator,
+                };
+            })
+        );
+    }, [sdgIndicator]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -102,7 +114,6 @@ const InstrumentForm = () => {
                     section: instrumentSection,
                     sdg_id: sdgIndicator,
                 };
-
                 try {
                     const response = await fetch(
                         "https://csddashboard.online/api/instruments",
@@ -127,6 +138,7 @@ const InstrumentForm = () => {
                                     record_name: recordItem.record_name,
                                     sdg_id: recordItem.sdg_id,
                                     instrument_id: data.instrument_id,
+                                    type: recordItem.type,
                                 };
                                 try {
                                     const response = await fetch(
@@ -141,6 +153,43 @@ const InstrumentForm = () => {
                                         }
                                     );
                                     const data = await response.json();
+
+                                    if (response.ok) {
+                                        if (recordItem.type === "choice") {
+                                            recordItem.options.map(
+                                                async (option) => {
+                                                    if (option === "") {
+                                                        return;
+                                                    }
+                                                    const newOption = {
+                                                        option_value: option,
+                                                        record_id:
+                                                            data.record_id,
+                                                    };
+                                                    try {
+                                                        const response =
+                                                            await fetch(
+                                                                "https://csddashboard.online/api/toption",
+                                                                {
+                                                                    method: "POST",
+                                                                    headers: {
+                                                                        "Content-Type":
+                                                                            "application/json",
+                                                                    },
+                                                                    body: JSON.stringify(
+                                                                        newOption
+                                                                    ),
+                                                                }
+                                                            );
+                                                        const data =
+                                                            await response.json();
+                                                    } catch (error) {
+                                                        console.error(error);
+                                                    }
+                                                }
+                                            );
+                                        }
+                                    }
                                 } catch (error) {
                                     console.error(error);
                                 }
@@ -298,26 +347,110 @@ const InstrumentForm = () => {
                                             >
                                                 {/* Add an input for Record Name */}
                                                 <div className="control-group flex flex-col gap-2 items-start w-full justify-end">
-                                                    <label className="block text-gray-700 text-sm font-semibold">
-                                                        Instrument Question
-                                                    </label>
-
-                                                    <input
-                                                        className="w-full px-5 py-2 text-gray-900 rounded focus:outline-none focus:shadow-outline border border-gray-300 placeholder-gray-500 focus:bg-white"
-                                                        type="text"
-                                                        placeholder="SAT Question"
-                                                        value={
-                                                            recordItem.record_name
-                                                        }
-                                                        onChange={(e) =>
-                                                            handleRecordChange(
-                                                                index,
-                                                                "record_name",
-                                                                e.target.value
+                                                    <div className="flex w-full gap-4">
+                                                        <div className="input-group w-[80%]">
+                                                            <label className="block text-gray-700 text-sm font-semibold">
+                                                                Instrument
+                                                                Question
+                                                            </label>
+                                                            <input
+                                                                className="w-full px-5 py-2 text-gray-900 rounded focus:outline-none focus:shadow-outline border border-gray-300 placeholder-gray-500 focus:bg-white"
+                                                                type="text"
+                                                                placeholder="SAT Question"
+                                                                value={
+                                                                    recordItem.record_name
+                                                                }
+                                                                onChange={(e) =>
+                                                                    handleRecordChange(
+                                                                        index,
+                                                                        "record_name",
+                                                                        e.target
+                                                                            .value
+                                                                    )
+                                                                }
+                                                            />
+                                                        </div>
+                                                        <div className="input-group w-[20%]">
+                                                            <label className="block text-gray-700 text-sm font-semibold">
+                                                                Type
+                                                            </label>
+                                                            <select
+                                                                className="w-full px-5 py-2 text-gray-900 rounded focus:outline-none focus:shadow-outline border border-gray-300 focus:bg-white"
+                                                                value={
+                                                                    recordItem.type
+                                                                }
+                                                                onChange={(e) =>
+                                                                    handleRecordChange(
+                                                                        index,
+                                                                        "type",
+                                                                        e.target
+                                                                            .value
+                                                                    )
+                                                                }
+                                                                required
+                                                            >
+                                                                <option
+                                                                    value="number"
+                                                                    selected
+                                                                >
+                                                                    Number
+                                                                </option>
+                                                                <option value="choice">
+                                                                    Multiple
+                                                                    Choice
+                                                                </option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    {recordItem.type ===
+                                                        "choice" &&
+                                                        recordItem.options.map(
+                                                            (
+                                                                option,
+                                                                optionIndex
+                                                            ) => (
+                                                                <div
+                                                                    key={
+                                                                        optionIndex
+                                                                    }
+                                                                    className="input-group w-full"
+                                                                >
+                                                                    <label className="block text-gray-700 text-sm font-semibold">
+                                                                        Option{" "}
+                                                                        {optionIndex +
+                                                                            1}
+                                                                    </label>
+                                                                    <input
+                                                                        className="w-full px-5 py-2 text-gray-900 rounded focus:outline-none focus:shadow-outline border border-gray-300 placeholder-gray-500 focus:bg-white"
+                                                                        type="text"
+                                                                        placeholder="Option"
+                                                                        value={
+                                                                            option
+                                                                        }
+                                                                        onChange={(
+                                                                            e
+                                                                        ) =>
+                                                                            handleRecordChange(
+                                                                                index,
+                                                                                "options",
+                                                                                recordItem.options.map(
+                                                                                    (
+                                                                                        option,
+                                                                                        i
+                                                                                    ) =>
+                                                                                        i ===
+                                                                                        optionIndex
+                                                                                            ? e
+                                                                                                  .target
+                                                                                                  .value
+                                                                                            : option
+                                                                                )
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                </div>
                                                             )
-                                                        }
-                                                    />
-
+                                                        )}
                                                     <button
                                                         type="button"
                                                         className="px-5 py-2 bg-red-500 text-white rounded-lg"
@@ -361,8 +494,9 @@ const InstrumentForm = () => {
                             <>
                                 <table className="table-auto w-full">
                                     <tbody>
+                                        {/* Table header */}
                                         <tr>
-                                            <th className="border px-4 py-2 text-left font-semibold ">
+                                            <th className="border px-4 py-2 text-left font-semibold">
                                                 Instrument Name
                                             </th>
                                             <td className="border px-4 py-2">
@@ -377,14 +511,14 @@ const InstrumentForm = () => {
                                                 Questionnaire
                                             </td>
                                         </tr>
+                                        {/* Render SDG records */}
                                         {Object.keys(
                                             groupRecordsBySdgId(record)
                                         )
-                                            .sort((a, b) => {
-                                                return (
+                                            .sort(
+                                                (a, b) =>
                                                     parseInt(a) - parseInt(b)
-                                                );
-                                            })
+                                            )
                                             .map((sdg_id) => (
                                                 <React.Fragment key={sdg_id}>
                                                     <tr>
@@ -410,6 +544,7 @@ const InstrumentForm = () => {
                                                             }
                                                         </td>
                                                     </tr>
+                                                    {/* Render record items */}
                                                     {groupRecordsBySdgId(
                                                         record
                                                     )[sdg_id].map(
@@ -424,10 +559,40 @@ const InstrumentForm = () => {
                                                                         }
                                                                     >
                                                                         {index +
-                                                                            1 +
-                                                                            ". " +
-                                                                            recordItem.record_name}
+                                                                            1}
+                                                                        .{" "}
+                                                                        {
+                                                                            recordItem.record_name
+                                                                        }{" "}
+                                                                        <br />{" "}
+                                                                        {recordItem.type ===
+                                                                        "number"
+                                                                            ? "Number"
+                                                                            : "Multiple Choice"}{" "}
+                                                                        <br />
+                                                                        <ul className="list-disc ml-10">
+                                                                            {recordItem.options.map(
+                                                                                (
+                                                                                    option,
+                                                                                    optionIndex
+                                                                                ) => (
+                                                                                    <li
+                                                                                        key={
+                                                                                            optionIndex
+                                                                                        }
+                                                                                    >
+                                                                                        <span>
+                                                                                            {
+                                                                                                option
+                                                                                            }
+                                                                                        </span>
+                                                                                    </li>
+                                                                                )
+                                                                            )}
+                                                                        </ul>
                                                                     </td>
+
+                                                                    {/* Conditional rendering for type and choices */}
                                                                 </tr>
                                                             )
                                                     )}

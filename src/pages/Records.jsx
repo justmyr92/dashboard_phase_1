@@ -36,8 +36,18 @@ const Records = () => {
     const [selectedRequestID, setSelectedRequestID] = useState("");
     const [unitCount, setUnitCount] = useState(0);
     const [search, setSearch] = useState("");
+    const [sdgs, setSdgs] = useState([]);
 
     // const [requests, setRequests] = useState([]);
+    useEffect(() => {
+        const getSDGs = async () => {
+            const response = await fetch("https://csddashboard.online/api/sdg");
+            const data = await response.json();
+            setSdgs(data);
+            console.log(data, "sdg data");
+        };
+        getSDGs();
+    }, []);
 
     const [showUpdateStatus, setShowUpdateStatus] = useState(false);
     useEffect(() => {
@@ -68,7 +78,8 @@ const Records = () => {
                     throw new Error("Failed to fetch records");
                 }
                 const data = await response.json();
-                setRecords(data);
+                //sort records by date
+                setRecords(data.sort((a, b) => a.record_date - b.record_date));
                 setSearchedRecords(data);
                 console.log(data, "was fetched");
             } catch (error) {
@@ -77,10 +88,10 @@ const Records = () => {
         };
 
         fetchRecords();
-    }, []);
+    }, [reload]);
 
     useEffect(() => {
-        if (search === "") return;
+        if (search === "") setSearchedRecords(records);
         setSearchedRecords(
             records.filter(
                 (record) =>
@@ -90,10 +101,6 @@ const Records = () => {
                         .toLowerCase()
                         .includes(search.toLowerCase()) ||
                     record.sdo_officer_name
-                        .toString()
-                        .toLowerCase()
-                        .includes(search.toLowerCase()) ||
-                    record.sdg_name
                         .toString()
                         .toLowerCase()
                         .includes(search.toLowerCase()) ||
@@ -126,11 +133,14 @@ const Records = () => {
 
         {
             name: "Date Uploaded",
-            selector: (row) => row.record_date.toString().split("T")[0],
+            selector: (row) =>
+                new Date(row.record_date).toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                }),
+
             sortable: true,
-            sortFunction: (a, b) => {
-                return new Date(a.record_date) - new Date(b.record_date);
-            },
         },
         {
             name: "Status",
