@@ -89,7 +89,7 @@ const Instruments = () => {
         const getInstruments = async () => {
             try {
                 const response = await fetch(
-                    "https://csddashboard.online/api/getInstruments"
+                    "http://localhost:5000/api/getInstruments"
                 );
                 const jsonData = await response.json();
                 if (search !== "") {
@@ -134,7 +134,7 @@ const Instruments = () => {
         const getRecords = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online/api/getRecords/${instrument.instrument_id}`
+                    `http://localhost:5000/api/getRecords/${instrument.instrument_id}`
                 );
                 const jsonData = await response.json();
                 setRecord(jsonData);
@@ -161,7 +161,7 @@ const Instruments = () => {
 
     useEffect(() => {
         const fetchSdgIndicators = async () => {
-            const response = await fetch("https://csddashboard.online/api/sdg");
+            const response = await fetch("http://localhost:5000/api/sdg");
             const data = await response.json();
             console.log(data);
             setSdgIndicators(data);
@@ -188,7 +188,7 @@ const Instruments = () => {
                     try {
                         console.log(record);
                         const response = await fetch(
-                            `https://csddashboard.online/api/updateRecords`,
+                            `http://localhost:5000/api/updateRecords`,
                             {
                                 method: "PATCH",
                                 headers: { "Content-Type": "application/json" },
@@ -206,7 +206,7 @@ const Instruments = () => {
                 });
                 try {
                     const response = await fetch(
-                        `https://csddashboard.online/api/instrument/name/${instrument.instrument_id}`,
+                        `http://localhost:5000/api/instrument/name/${instrument.instrument_id}`,
                         {
                             method: "PATCH",
                             headers: { "Content-Type": "application/json" },
@@ -232,7 +232,7 @@ const Instruments = () => {
                         );
                         try {
                             const response = await fetch(
-                                `https://csddashboard.online/api/addRecord`,
+                                `http://localhost:5000/api/addRecord`,
                                 {
                                     method: "POST",
                                     headers: {
@@ -285,7 +285,7 @@ const Instruments = () => {
             if (result.isConfirmed) {
                 try {
                     const response = await fetch(
-                        "https://csddashboard.online/api/updateInstrumentStatus",
+                        "http://localhost:5000/api/updateInstrumentStatus",
                         {
                             method: "PATCH",
                             headers: { "Content-Type": "application/json" },

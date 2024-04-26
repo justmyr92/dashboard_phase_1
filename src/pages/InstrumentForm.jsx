@@ -64,9 +64,7 @@ const InstrumentForm = () => {
 
     useEffect(() => {
         const fetchUnits = async () => {
-            const response = await fetch(
-                "https://csddashboard.online/api/unit"
-            );
+            const response = await fetch("http://localhost:5000/api/unit");
             const data = await response.json();
             setUnits(data);
         };
@@ -75,7 +73,7 @@ const InstrumentForm = () => {
 
     useEffect(() => {
         const fetchSdgIndicators = async () => {
-            const response = await fetch("https://csddashboard.online/api/sdg");
+            const response = await fetch("http://localhost:5000/api/sdg");
             const data = await response.json();
             setSdgIndicators(data);
         };
@@ -116,7 +114,7 @@ const InstrumentForm = () => {
                 };
                 try {
                     const response = await fetch(
-                        "https://csddashboard.online/api/instruments",
+                        "http://localhost:5000/api/instruments",
                         {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
@@ -142,7 +140,7 @@ const InstrumentForm = () => {
                                 };
                                 try {
                                     const response = await fetch(
-                                        "https://csddashboard.online/api/addRecord",
+                                        "http://localhost:5000/api/addRecord",
                                         {
                                             method: "POST",
                                             headers: {
@@ -169,7 +167,7 @@ const InstrumentForm = () => {
                                                     try {
                                                         const response =
                                                             await fetch(
-                                                                "https://csddashboard.online/api/toption",
+                                                                "http://localhost:5000/api/toption",
                                                                 {
                                                                     method: "POST",
                                                                     headers: {

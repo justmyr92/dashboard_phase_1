@@ -119,7 +119,7 @@ const ChartSDG = () => {
         const getSdOfficers = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online/api/sdo_officer`
+                    `http://localhost:5000/api/sdo_officer`
                 );
                 const jsonData = await response.json();
                 setSdOfficers(
@@ -137,7 +137,7 @@ const ChartSDG = () => {
         const getInstruments = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online/api/getInstruments`
+                    `http://localhost:5000/api/getInstruments`
                 );
                 const jsonData = await response.json();
                 setInstruments(jsonData);
@@ -220,10 +220,10 @@ const ChartSDG = () => {
                     ))}
                 </div>
                 <div className="my-5 flex justify-between items-end">
-                    <h1 className="text-xl font-bold text-gray-700 title text-red-500">
+                    <h1 className="text-xl font-bold title text-red-500">
                         {sdgName}
                     </h1>
-                    <div className="filter-group flex flex-row items-center gap-2">
+                    {/* <div className="filter-group flex flex-row items-center gap-2">
                         <h1 className="text-base text-gray-700 mb-1">
                             Filter by Instrument
                         </h1>
@@ -240,14 +240,14 @@ const ChartSDG = () => {
                                 </option>
                             ))}
                         </select>
-                    </div>
+                    </div> */}
                 </div>
 
                 <hr className="my-5 border-gray-300 border-1" />
             </div>
-            <div className="grid grid-cols-4 gap-4 mt-5">
-                {sdg && localStorage.getItem("sdo") && instrument && (
-                    <Card sdg={sdg} instrument={instrument} key={reloadKey} />
+            <div className="w-full">
+                {sdg && localStorage.getItem("sdo") && (
+                    <Card sdg={sdg} key={reloadKey} />
                 )}
             </div>
         </>

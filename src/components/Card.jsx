@@ -1,218 +1,244 @@
 import React, { useState, useEffect } from "react";
 
-const Card = ({ sdg, instrument }) => {
+const Card = ({ sdg }) => {
+    const [groupedInstruments, setGroupedInstruments] = useState([]);
+    const [instruments, setInstruments] = useState([]);
     const [records, setRecords] = useState([]);
-    const [recordsData, setRecordsData] = useState([]);
-    const [recordValue, setRecordValue] = useState([]);
-    const [sum, setSum] = useState([]);
-    const [reload, setReload] = useState(false);
-
-    const [unit, setUnit] = useState([]);
-
-    const [ID, setID] = useState(localStorage.getItem("sdo"));
-
+    const [tOptions, setTOptions] = useState([]);
+    const [recordData, setRecordData] = useState([]);
+    const sid = localStorage.getItem("sdo");
     useEffect(() => {
-        setID(localStorage.getItem("sdo"));
-        console.log(ID);
-    }, []);
-
-    const [isTableVisibleArray, setTableVisibilityArray] = useState([]);
-
-    useEffect(() => {
-        const fetchRecords = async () => {
+        const getInstruments = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online/api/record/sdg/${sdg}/${instrument.instrument_id}`
+                    `http://localhost:5000/api/instrument/sdg/${sdg}`
                 );
+                const jsonData = await response.json();
+                setInstruments(jsonData);
+                console.log(jsonData);
+            } catch (err) {
+                console.error(err.message);
+            }
+        };
+        const getRecords = async () => {
+            try {
+                const response = await fetch(
+                    `http://localhost:5000/api/record/sdg/${sdg}`
+                );
+                if (!response.ok) {
+                    throw new Error("Failed to fetch records");
+                }
                 const data = await response.json();
                 setRecords(data);
-                setTableVisibilityArray(new Array(data.length).fill(false));
-                console.log(data);
             } catch (error) {
                 console.error("Error fetching records:", error);
             }
         };
-        fetchRecords();
-    }, [sdg, instrument.instrument_id, reload]);
-
-    useEffect(() => {
-        const fetchUnit = async () => {
+        const getOptions = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online/api/unit/sdo/${ID}`
+                    `http://localhost:5000/api/toption`
                 );
-                const data = await response.json();
-                setUnit(data);
-                console.log(data);
-            } catch (error) {
-                console.error("Error fetching unit:", error);
-            }
-        };
-
-        fetchUnit();
-    }, [ID]);
-
-    useEffect(() => {
-        const fetchRecordsData = async () => {
-            try {
-                const dataPromises = records.map(async (record) => {
-                    const response = await fetch(
-                        `https://csddashboard.online/api/record_data/approved/${record.record_id}/${ID}`
-                    );
-                    return response.json();
-                });
-                const data = await Promise.all(dataPromises);
-
-                const filteredData = data.filter((d) => d.length > 0);
-
-                setRecordsData(filteredData);
-            } catch (error) {
-                console.error("Error fetching records data:", error);
-            }
-        };
-        if (records.length > 0) {
-            fetchRecordsData();
-        }
-    }, [records, ID]);
-
-    useEffect(() => {
-        const fetchRecordValues = async () => {
-            try {
-                let sum = [];
-                let temp = [];
-                for (const recordData of recordsData) {
-                    for (const record of recordData) {
-                        const response = await fetch(
-                            `https://csddashboard.online/api/record_value/${record.record_data_id}`
-                        );
-                        const data = await response.json();
-                        if (data.length > 0) {
-                            temp.push(data);
-                            data.forEach((d, index) => {
-                                if (
-                                    sum[index] === undefined ||
-                                    sum[index] === null
-                                ) {
-                                    sum[index] = 0;
-                                }
-                                sum[index] += parseInt(d.value);
-                            });
-                        }
-                    }
+                if (!response.ok) {
+                    throw new Error("Failed to fetch options");
                 }
-                setRecordValue(temp);
-                setSum(sum);
+                const data = await response.json();
+                setTOptions(data);
             } catch (error) {
-                console.error("Error fetching record values:", error);
+                console.error("Error fetching options:", error);
             }
         };
-        if (recordsData.length > 0) {
-            fetchRecordValues();
-        }
-    }, [recordsData]);
 
-    const [hoveredIndex, setHoveredIndex] = useState(null);
+        const getRecordData = async () => {
+            try {
+                const response = await fetch(
+                    `http://localhost:5000/api/record_data/status`
+                );
+                if (!response.ok) {
+                    throw new Error("Failed to fetch record data");
+                }
+                const data = await response.json();
+                setRecordData(data);
+                console.log("Record Data", data);
+            } catch (error) {
+                console.error("Error fetching record data:", error);
+            }
+        };
 
-    const handleHover = (index) => {
-        setTableVisibilityArray((prev) =>
-            prev.map((value, i) => (i === index ? true : value))
-        );
-        setHoveredIndex(index);
-    };
+        getInstruments();
+        getRecords();
+        getOptions();
+        // getRecordData();
+    }, [sdg]);
 
-    const handleLeave = (index) => {
-        setTableVisibilityArray((prev) =>
-            prev.map((value, i) => (i === index ? false : value))
-        );
-        setHoveredIndex(null);
-    };
+    useEffect(() => {
+        // console.log("Records", records);
+        // console.log("Options", tOptions);
+        // console.log("Instruments", instruments);
+        console.log("asdasd", recordData);
+
+        const fetchData = async () => {
+            try {
+                const getRecordValue = async (id) => {
+                    try {
+                        const response = await fetch(
+                            `http://localhost:5000/api/getRecordValue/${id}/${sid}`
+                        );
+                        const jsonData = await response.json();
+                        console.log(
+                            `http://localhost:5000/api/getRecordValue/${id}/${sid}`
+                        );
+                        return jsonData;
+                    } catch (err) {
+                        console.error(err.message);
+                    }
+                };
+
+                const groupedData = await Promise.all(
+                    instruments.map(async (instrument) => {
+                        const filteredRecords = records.filter(
+                            (record) =>
+                                record.instrument_id ===
+                                instrument.instrument_id
+                        );
+
+                        // Get record values for each record
+                        const recordValuesPromises = filteredRecords.map(
+                            async (record) => {
+                                const recordValue = await getRecordValue(
+                                    record.record_id
+                                );
+                                return recordValue;
+                            }
+                        );
+
+                        // Wait for all record values promises to resolve
+                        const recordValues = await Promise.all(
+                            recordValuesPromises
+                        );
+
+                        console.log("Record Values", recordValues.length);
+
+                        // Add record values to each record in filteredRecords
+                        const filteredRecordsWithValues = filteredRecords.map(
+                            (record, index) => ({
+                                ...record,
+                                record_values: recordValues[index]
+                                    ? recordValues[index]
+                                    : null, // Add record values to each record
+                            })
+                        );
+
+                        return {
+                            instrument_id: instrument.instrument_id,
+                            name: instrument.name,
+                            section: instrument.section,
+                            records: filteredRecordsWithValues, // Include record_values in the return object
+                        };
+                    })
+                );
+
+                // Once all data is fetched and processed, update the state
+                setGroupedInstruments(groupedData);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        fetchData();
+    }, [instruments, records, tOptions, recordData]);
+
+    useEffect(() => {
+        console.log("Grouped Instruments2", groupedInstruments);
+    }, [groupedInstruments]);
 
     return (
-        <>
-            {records.map((value, index) => (
-                <div
-                    className="card bg-white shadow-lg rounded-lg p-5 border border-gray-200 hover:border-blue-500 relative"
-                    onMouseOver={() => handleHover(index)}
-                    onMouseLeave={() => handleLeave(index)}
-                    key={index}
-                >
-                    <div className="card-body">
-                        <h5 className="card-title text-3xl font-bold text-blue-500">
-                            {sum[index] || 0}
-                        </h5>
-                        <hr className="my-1" />
-                        <p className="card-text text-black text-base justify-between">
-                            {value.record_name}
-                        </p>
-
-                        {isTableVisibleArray[index] && recordValue[index] && (
-                            <div
-                                className={`absolute text-gray-900 p-4 rounded-md mt-2 w-[30rem] z-10 bg-white shadow-lg transition-all duration-300 
-        ${(index + 1) % 4 === 1 ? "left-0 -top-[100%] translate-y-[-50%]" : ""}
-        ${(index + 1) % 4 === 0 ? "right-0 -top-[100%] translate-y-[-50%]" : ""}
-        ${
-            (index + 1) % 4 !== 0 && (index + 1) % 4 !== 1
-                ? "left-[50%] -top-[100%] translate-x-[-50%] translate-y-[-50%]"
-                : ""
-        }
-    `}
-                            >
-                                <table className="w-full">
-                                    <thead>
-                                        <tr>
-                                            <th className="border font-semibold p-2 text-sm">
-                                                Record ID
-                                            </th>
-                                            <th className="border font-semibold p-2 text-sm">
-                                                Question
-                                            </th>
-                                            <th className="border font-semibold p-2 text-sm">
-                                                Unit
-                                            </th>
-                                            <th className="border font-semibold p-2 text-sm">
-                                                Value
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {recordValue.map(
-                                            (record, recordIndex) => (
-                                                <tr key={recordIndex}>
-                                                    <td className="border p-2 text-sm">
-                                                        {
-                                                            record[recordIndex]
-                                                                .record_data_id
-                                                        }
-                                                    </td>
-                                                    <td className="border p-2 text-sm">
-                                                        {
-                                                            record[recordIndex]
-                                                                .question
-                                                        }
-                                                    </td>
-                                                    <td className="border p-2 text-sm">
-                                                        {
-                                                            record[recordIndex]
-                                                                .unit_name
-                                                        }
-                                                    </td>
-                                                    <td className="border p-2 text-sm">
-                                                        {
-                                                            record[recordIndex]
-                                                                .value
-                                                        }
-                                                    </td>
-                                                </tr>
-                                            )
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
+        <div className="card w-full border">
+            <div className="card-body border w-full">
+                <table className="w-full bg-white shadow-md rounded-lg overflow-hidden">
+                    <tbody>
+                        {groupedInstruments ? (
+                            groupedInstruments.map((instrument) => (
+                                <tr
+                                    key={instrument.instrument_id}
+                                    className="border-b border-gray-200"
+                                >
+                                    <td className="py-4 px-6">
+                                        <div>
+                                            <p className="font-semibold text-lg">
+                                                {instrument.name}
+                                            </p>
+                                            <p className="text-gray-600">
+                                                {instrument.section}
+                                            </p>
+                                        </div>
+                                        <div className="grid grid-cols-3 gap-2 mt-4">
+                                            {instrument.records.length > 0 &&
+                                                instrument.records.map(
+                                                    (record) => (
+                                                        <div
+                                                            key={
+                                                                record.record_id
+                                                            }
+                                                            className="p-2 bg-gray-100 rounded-lg min-h-[100px]"
+                                                        >
+                                                            <p className="text-sm">
+                                                                {
+                                                                    record.record_name
+                                                                }
+                                                            </p>
+                                                            {record.record_values &&
+                                                            record.record_values
+                                                                .length > 0 ? (
+                                                                <ul className="mt-1 ml-2">
+                                                                    <li>
+                                                                        <p className="text-3xl text-blue-500">
+                                                                            {record.rtype ===
+                                                                            "number"
+                                                                                ? record.record_values.reduce(
+                                                                                      (
+                                                                                          acc,
+                                                                                          curr
+                                                                                      ) =>
+                                                                                          acc +
+                                                                                          parseFloat(
+                                                                                              curr.value
+                                                                                          ),
+                                                                                      0
+                                                                                  )
+                                                                                : record
+                                                                                      .record_values[0]
+                                                                                      .value}
+                                                                        </p>
+                                                                    </li>
+                                                                </ul>
+                                                            ) : (
+                                                                <p className="text-3xl text-blue-500">
+                                                                    0
+                                                                </p>
+                                                            )}
+                                                        </div>
+                                                    )
+                                                )}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr>
+                                <td className="py-4 px-6">
+                                    <div>
+                                        <p className="font-semibold text-lg">
+                                            Loading data...
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
                         )}
-                    </div>
-                </div>
-            ))}
-        </>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     );
 };
 

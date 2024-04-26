@@ -28,7 +28,7 @@ const DashboardAdmin = () => {
                             />
                             Dashboard
                         </h3>
-                        {ROLE === "unit" && <Notifications />}
+                        {ROLE === "sdo" && <Notifications />}
                     </div>
                     <hr className="my-5 border-gray-300 border-1" />
                     <ChartSDG />{" "}

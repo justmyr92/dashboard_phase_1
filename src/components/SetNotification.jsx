@@ -12,14 +12,14 @@ const SetNotification = ({
     const [unit, setUnit] = useState({});
     const [ID, setID] = useState(localStorage.getItem("ID"));
     const [nmessage, setnMessage] = useState("");
-
+    console.log(selected);
     useEffect(() => {
         setSelected(selectedRecords);
 
         const getUnit = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online/api/unit/${selected.unit_id}`
+                    `http://localhost:5000/api/unit/${selected.unit_id}`
                 );
                 const jsonData = await response.json();
                 setUnit(jsonData);
@@ -62,10 +62,10 @@ const SetNotification = ({
 
         form.innerHTML = `
         <input type="hidden" name="from_name" value="SDO Officer" />
-        <input type="hidden" name="to_name" value="${selected.unit_name}" />
+        <input type="hidden" name="to_name" value="${selected.sdo_officer_name}" />
         <input type="hidden" name="message" value="${message}" />
         <input type="hidden" name="reply_to" value=" " />
-        <input type="hidden" name="your_email" value="${selected.unit_email}" />
+        <input type="hidden" name="your_email" value="${selected.sdo_officer_email}" />
 
         
     `;
@@ -96,7 +96,7 @@ const SetNotification = ({
 
         try {
             const response = await fetch(
-                `https://csddashboard.online/api/record_data/${selected.record_data_id}`,
+                `http://localhost:5000/api/record_data/${selected.record_data_id}`,
                 {
                     method: "PATCH",
                     body: JSON.stringify(data),
@@ -108,13 +108,15 @@ const SetNotification = ({
 
             if (response.status === 200) {
                 const notif = {
-                    unit_id: selected.unit_id,
+                    sdo_officer_id: selected.sdo_officer_id, // Corrected column name
                     notification_date: new Date(),
                     message: nmessage,
                 };
 
+                console.log(notif);
+
                 const response2 = await fetch(
-                    "https://csddashboard.online/api/notification",
+                    "http://localhost:5000/api/notification",
                     {
                         method: "POST",
                         body: JSON.stringify(notif),
@@ -203,6 +205,7 @@ const SetNotification = ({
                             <textarea
                                 class="block w-[25rem] p-3 text-base border border-gray-300 rounded-lg focus:outline-none focus:border-blue-300 focus:ring-2 focus:ring-blue-300 focus:ring-offset-2"
                                 placeholder="Message"
+                                value={nmessage}
                                 onChange={(e) => {
                                     setnMessage(e.target.value);
                                 }}
@@ -214,7 +217,7 @@ const SetNotification = ({
                                 type="submit"
                                 class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
                             >
-                                I accept
+                                Update
                             </button>
                             <button
                                 data-modal-hide="default-modal"

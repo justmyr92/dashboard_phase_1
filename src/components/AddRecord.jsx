@@ -33,7 +33,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
         console.log("Fetching Instruments");
         const fetchInstruments = async () => {
             const response = await fetch(
-                "https://csddashboard.online/api/getInstruments"
+                "http://localhost:5000/api/getInstruments"
             );
             const data = await response.json();
             if (response.ok) {
@@ -42,9 +42,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
         };
 
         const fetchTags = async () => {
-            const response = await fetch(
-                `https://csddashboard.online/api/sdg/`
-            );
+            const response = await fetch(`http://localhost:5000/api/sdg/`);
             const data = await response.json();
             if (response.ok) {
                 setSdgs(data);
@@ -58,9 +56,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     useEffect(() => {
         console.log("Fetching Records");
         const fetchData = async () => {
-            const response = await fetch(
-                `https://csddashboard.online/api/record/`
-            );
+            const response = await fetch(`http://localhost:5000/api/record/`);
             const data = await response.json();
             if (response.ok) {
                 setRecords(data);
@@ -120,7 +116,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
         }).then(async (result) => {
             if (result.isConfirmed) {
                 const response = await fetch(
-                    "https://csddashboard.online/api/record_data",
+                    "http://localhost:5000/api/record_data",
                     {
                         method: "POST",
                         headers: {
@@ -146,7 +142,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
 
                         console.log(values, "Values");
                         const response = await fetch(
-                            "https://csddashboard.online/api/record_value",
+                            "http://localhost:5000/api/record_value",
                             {
                                 method: "POST",
                                 headers: {
@@ -188,7 +184,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                                 console.log("File Uploaded");
 
                                 const fileResponse = await fetch(
-                                    "https://csddashboard.online/api/file",
+                                    "http://localhost:5000/api/file",
                                     {
                                         method: "POST",
                                         headers: {
@@ -211,8 +207,9 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                             }
                         }
                     });
+
+                    window.location.reload();
                 }
-                window.location.reload();
             }
         });
     };
@@ -221,7 +218,7 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     useEffect(() => {
         const getOptions = async () => {
             const response = await fetch(
-                `https://csddashboard.online/api/getOptions`
+                `http://localhost:5000/api/getOptions`
             );
             const data = await response.json();
             setTags(data);

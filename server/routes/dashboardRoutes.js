@@ -32,7 +32,7 @@ router.post("/sdo_officer", async (req, res) => {
         console.error(err.message);
     }
 });
-//fetch(`https://csddashboard.online/api/unit/status/${row.unit_id}`, {
+//fetch(`http://localhost:5000/api/unit/status/${row.unit_id}`, {
 // method: "PATCH",
 
 router.patch("/instrument/name/:id", async (req, res) => {
@@ -44,6 +44,20 @@ router.patch("/instrument/name/:id", async (req, res) => {
             [name, section, id]
         );
         res.json("Instrument Name was updated");
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+//get instrument by sdg_id
+router.get("/instrument/sdg/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const instrument = await pool.query(
+            "SELECT * FROM instrument_table WHERE sdg_id = $1",
+            [id]
+        );
+        res.json(instrument.rows);
     } catch (err) {
         console.error(err.message);
     }
@@ -264,14 +278,16 @@ router.post("/request", async (req, res) => {
 
 router.post("/notification", async (req, res) => {
     try {
-        const { unit_id, notification_date, message } = req.body;
+        const { sdo_officer_id, notification_date, message } = req.body; // Change unit_id to sdo_officer_id
+        console.log(req.body);
         const newNotification = await pool.query(
-            "INSERT INTO notification_table (unit_id, notification_date, message) VALUES($1, $2, $3) RETURNING *",
-            [unit_id, notification_date, message]
+            "INSERT INTO notification_table (notification_date, message, sdo_officer_id) VALUES($1, $2, $3) RETURNING *",
+            [notification_date, message, sdo_officer_id] // Change unit_id to sdo_officer_id
         );
         res.json(newNotification.rows[0]);
     } catch (err) {
         console.error(err.message);
+        res.status(500).send("Internal Server Error");
     }
 });
 
@@ -547,7 +563,7 @@ router.get("/notification/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const notification = await pool.query(
-            "SELECT * FROM notification_table WHERE unit_id = $1",
+            "SELECT * FROM notification_table WHERE sdo_officer_id = $1",
             [id]
         );
         res.json(notification.rows);
@@ -608,7 +624,6 @@ router.get("/record_value/:id", async (req, res) => {
     try {
         const { id } = req.params;
         const recordValue = await pool.query(
-            // "SELECT record_value_table.*, record_table.*, sdg_table.* FROM record_value_table INNER JOIN record_table ON record_value_table.record_id = record_table.record_id INNER JOIN sdg_table ON record_table.sdg_id = sdg_table.sdg_id WHERE record_value_table.record_data_id = $1",
             "SELECT record_value_table.*, record_table.*, sdg_table.* , sdo_officer_table.* FROM record_value_table INNER JOIN record_table ON record_value_table.record_id = record_table.record_id INNER JOIN sdg_table ON record_table.sdg_id = sdg_table.sdg_id INNER JOIN record_data_table ON record_value_table.record_data_id = record_data_table.record_data_id INNER JOIN sdo_officer_table ON record_data_table.sdo_officer_id = sdo_officer_table.sdo_officer_id WHERE record_value_table.record_data_id = $1",
             [id]
         );
@@ -619,6 +634,21 @@ router.get("/record_value/:id", async (req, res) => {
     }
 });
 
+// router.get("/record_value/sdg/:sdg_id/", async (req, res) => {
+//     try {
+//         const { sdg_id } = req.params;
+//         console.log(sdg_id, "asdasd");
+//         const recordValue = await pool.query(
+//             "SELECT record_value_table.*, record_table.*, sdg_table.* , sdo_officer_table.* FROM record_value_table INNER JOIN record_table ON record_value_table.record_id = record_table.record_id INNER JOIN sdg_table ON record_table.sdg_id = sdg_table.sdg_id INNER JOIN record_data_table ON record_value_table.record_data_id = record_data_table.record_data_id INNER JOIN sdo_officer_table ON record_data_table.sdo_officer_id = sdo_officer_table.sdo_officer_id WHERE sdg_table.sdg_id = $1",
+//             [sdg_id]
+//         );
+//         res.json(recordValue.rows);
+//         console.log(recordValue.rows);
+//     } catch (err) {
+//         console.error(err.message);
+//     }
+// });
+
 router.patch("/update_record_values/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -628,6 +658,7 @@ router.patch("/update_record_values/:id", async (req, res) => {
             "UPDATE record_value_table SET value = $1 WHERE record_value_id = $2",
             [value, id]
         );
+        console.log("adasdas");
         res.json("Record Value was updated");
     } catch (err) {
         console.error(err.message);
@@ -700,6 +731,25 @@ router.get("/record/sdg/:id/:instrument_id", async (req, res) => {
     }
 });
 
+router.get("/record/sdg/:id/", async (req, res) => {
+    try {
+        const { id } = req.params;
+        console.log(id);
+        const record = await pool.query(
+            "SELECT * FROM record_table WHERE sdg_id = $1",
+            [id]
+        );
+
+        //record_status  | character varying(50) |           |          |
+        console.log(record.rows);
+        res.json(record.rows);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+//get
+
 router.get("/record/unit/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -711,6 +761,36 @@ router.get("/record/unit/:id", async (req, res) => {
     } catch (err) {
         console.error(err.message);
         res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
+router.get("/getRecordValue/:id/:user_id", async (req, res) => {
+    try {
+        const { id, user_id } = req.params;
+        const recordValue = await pool.query(
+            //select record_status inner join record value table on record_data_id
+            "SELECT record_data_table.record_status, record_value_table.* FROM record_data_table INNER JOIN record_value_table ON record_data_table.record_data_id = record_value_table.record_data_id WHERE record_value_table.record_id = $1 AND lower(record_data_table.record_status) = 'approved' AND record_data_table.sdo_officer_id = $2",
+            // "SELECT * FROM record_value_table WHERE record_id = $1",
+            [id, user_id]
+        );
+
+        res.json(recordValue.rows);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+router.get("/record_data/status/:id", async (req, res) => {
+    try {
+        //get status by record_data_id
+        const recordData = await pool.query(
+            "SELECT record_status FROM record_data_table WHERE record_data_id = $1"
+        );
+
+        res.json(recordData.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 
@@ -1035,9 +1115,9 @@ router.get("/status", async (req, res) => {
 router.get("/sdg/count", async (req, res) => {
     try {
         const sdg = await pool.query(
-            "SELECT sdg_table.sdg_id, sdg_table.sdg_name, COUNT(record_data_table.record_data_id) FROM sdg_table LEFT JOIN record_table ON sdg_table.sdg_id = record_table.sdg_id LEFT JOIN record_data_table ON record_table.record_id = record_data_table.record_id GROUP BY sdg_table.sdg_id"
+            // "SELECT sdg_table.sdg_id, sdg_table.sdg_name, COUNT(record_data_table.record_data_id) FROM sdg_table LEFT JOIN record_table ON sdg_table.sdg_id = record_table.sdg_id LEFT JOIN record_data_table ON record_table.record_id = record_data_table.record_id GROUP BY sdg_table.sdg_id"
+            "SELECT sdg_table.sdg_id, sdg_table.sdg_name, COUNT(record_data_table.record_data_id) FROM sdg_table LEFT JOIN instrument_table ON sdg_table.sdg_id = instrument_table.sdg_id LEFT JOIN record_table ON instrument_table.instrument_id = record_table.instrument_id LEFT JOIN record_value_table ON record_table.record_id = record_value_table.record_id LEFT JOIN record_data_table ON record_value_table.record_data_id = record_data_table.record_data_id GROUP BY sdg_table.sdg_id, sdg_table.sdg_name"
         );
-
         res.json(sdg.rows);
     } catch (err) {
         console.error(err.message);

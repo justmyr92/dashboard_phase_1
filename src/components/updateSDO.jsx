@@ -14,9 +14,7 @@ const UpdateSDOfficer = ({ officer, setReload, setModal }) => {
 
     const fetchCampus = async () => {
         try {
-            const response = await fetch(
-                "https://csddashboard.online/api/campus"
-            );
+            const response = await fetch("http://localhost:5000/api/campus");
             if (!response.ok) {
                 throw new Error("Failed to fetch campus data");
             }
@@ -36,7 +34,7 @@ const UpdateSDOfficer = ({ officer, setReload, setModal }) => {
             };
 
             const response = await fetch(
-                `https://csddashboard.online/api/sdo_officer/${updatedOfficer.sdo_officer_id}`,
+                `http://localhost:5000/api/sdo_officer/${updatedOfficer.sdo_officer_id}`,
                 {
                     method: "PATCH",
                     headers: {

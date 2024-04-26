@@ -2,9 +2,6 @@ import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 
 const ViewRecords = ({ setShowModal, record_data_id }) => {
-    const [recordValues, setRecordValues] = useState([]);
-    const [originalValues, setOriginalValues] = useState([]);
-
     const role = localStorage.getItem("ROLE");
 
     const [instruments, setInstruments] = useState([]);
@@ -15,7 +12,7 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
         const getInstruments = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online/api/getInstruments`
+                    `http://localhost:5000/api/getInstruments`
                 );
                 if (!response.ok) {
                     throw new Error("Failed to fetch instruments");
@@ -29,7 +26,7 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
         const getRecords = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online/api/record_value/${record_data_id}`
+                    `http://localhost:5000/api/record_value/${record_data_id}`
                 );
 
                 if (!response.ok) {
@@ -41,11 +38,10 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
                 console.error("Error fetching records:", error);
             }
         };
-
         const getOptions = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online/api/toption`
+                    `http://localhost:5000/api/toption`
                 );
                 if (!response.ok) {
                     throw new Error("Failed to fetch options");
@@ -62,58 +58,29 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
         getOptions();
     }, []);
 
-    const handleInputChange = (value, index) => {
-        setRecords((prevValues) => {
-            const newValues = [...prevValues];
-            newValues[index].value = value;
-            return newValues;
-        });
-    };
-
-    const handleSave = async () => {
-        records.forEach(async (record) => {
-            const response = await fetch(
-                `https://csddashboard.online/api/update_record_values/${record.record_value_id}`,
-                {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ value: record.value }),
-                }
-            );
-
-            if (response.ok) {
-                const response = await fetch(
-                    `https://csddashboard.online/api/record_data/${record_data_id}`,
-                    {
-                        method: "PATCH",
-                        headers: {
-                            "Content-Type": "application/json",
-                        },
-                        body: JSON.stringify({ status: "For Approval" }),
-                    }
-                );
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    Swal.fire({
-                        icon: "success",
-                        title: "Success!",
-                        text: "Record values updated successfully!",
-                        timer: 1500,
-                    });
-                }
-
-                setShowModal(false);
-            } else {
-                console.error("Failed to update record values");
-            }
-        });
-    };
-
     const [groupedRecords, setGroupedRecords] = useState([]);
+
+    const handleInputChange = (value, index, groupIndex) => {
+        setGroupedRecords((prevGroupedRecords) => {
+            const updatedGroupedRecords = [...prevGroupedRecords];
+            const updatedGroup = { ...updatedGroupedRecords[groupIndex] };
+            const updatedRecords = [...updatedGroup.records];
+
+            // Update the value of the record
+            updatedRecords[index] = {
+                ...updatedRecords[index],
+                value: value,
+            };
+
+            // Update the records array in the group
+            updatedGroup.records = updatedRecords;
+
+            // Update the group in the grouped records array
+            updatedGroupedRecords[groupIndex] = updatedGroup;
+
+            return updatedGroupedRecords;
+        });
+    };
 
     // Whenever records change, update the grouped records
     useEffect(() => {
@@ -144,6 +111,66 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
         // Update the state with the new grouped records
         setGroupedRecords(grouped);
     }, [records]); // Trigger the effect whenever records change
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            // Iterate over the grouped records
+            for (const group of groupedRecords) {
+                // Iterate over the records in each group
+                for (const record of group.records) {
+                    const response = await fetch(
+                        `http://localhost:5000/api/update_record_values/${record.record_value_id}`,
+                        {
+                            method: "PATCH",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({ value: record.value }),
+                        }
+                    );
+
+                    if (!response.ok) {
+                        throw new Error(
+                            `Failed to update record value for record ID ${record.record_value_id}`
+                        );
+                    } else {
+                        console.log(
+                            "Record value updated successfully" +
+                                record.record_value_id
+                        );
+                    }
+                }
+            }
+
+            // Update the record data status if needed
+            // This is just an example, adjust it according to your requirements
+            await fetch(
+                `http://localhost:5000/api/record_data/${record_data_id}`,
+                {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ status: "For Approval" }),
+                }
+            );
+
+            // Show a success message
+            Swal.fire({
+                icon: "success",
+                title: "Success!",
+                text: "Record values updated successfully!",
+                timer: 1500,
+            });
+
+            // Close the modal or perform any other actions needed
+            setShowModal(false);
+        } catch (error) {
+            console.error("Error updating record values:", error);
+            // Handle errors if necessary
+        }
+    };
 
     return (
         <div
@@ -198,7 +225,7 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
                                                                 (instrument) =>
                                                                     instrument.instrument_id ===
                                                                     group.instrumentId
-                                                            ).name
+                                                            )?.name
                                                         }
                                                     </span>{" "}
                                                     <br />
@@ -209,7 +236,7 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
                                                                 (instrument) =>
                                                                     instrument.instrument_id ===
                                                                     group.instrumentId
-                                                            ).section
+                                                            )?.section
                                                         }
                                                     </span>
                                                 </div>
@@ -251,7 +278,8 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
                                                                                     e
                                                                                         .target
                                                                                         .value,
-                                                                                    recordIndex
+                                                                                    recordIndex,
+                                                                                    groupIndex
                                                                                 )
                                                                             }
                                                                             disabled={
@@ -305,7 +333,8 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
                                                                                     e
                                                                                         .target
                                                                                         .value,
-                                                                                    recordIndex
+                                                                                    recordIndex,
+                                                                                    groupIndex
                                                                                 )
                                                                             }
                                                                             disabled={
@@ -339,7 +368,8 @@ const ViewRecords = ({ setShowModal, record_data_id }) => {
                             <button
                                 type="button"
                                 className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm font-medium px-5 py-2.5"
-                                onClick={handleSave}
+                                // onClick={handleSave}
+                                onClick={handleSubmit}
                             >
                                 Save
                             </button>

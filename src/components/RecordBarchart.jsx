@@ -29,7 +29,7 @@ const RecordBarChart = () => {
         const fetchSdgs = async () => {
             try {
                 const response = await fetch(
-                    `https://csddashboard.online/api/sdg/count`
+                    `http://localhost:5000/api/sdg/count`
                 );
                 const data = await response.json();
                 // Parse the SDG IDs as integers before sorting
@@ -49,7 +49,8 @@ const RecordBarChart = () => {
             setReload(false);
         };
         fetchData();
-    }, [reload]);
+        console.log(sdgs, "adasdasd");
+    }, []);
 
     const handleSdgSelect = (sdgId) => {
         setSelectedSdg(sdgId);

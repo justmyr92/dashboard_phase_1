@@ -41,7 +41,7 @@ const Records = () => {
     // const [requests, setRequests] = useState([]);
     useEffect(() => {
         const getSDGs = async () => {
-            const response = await fetch("https://csddashboard.online/api/sdg");
+            const response = await fetch("http://localhost:5000/api/sdg");
             const data = await response.json();
             setSdgs(data);
             console.log(data, "sdg data");
@@ -55,9 +55,7 @@ const Records = () => {
             window.location.href = "/login";
         }
         const getUnit = async () => {
-            const response = await fetch(
-                `https://csddashboard.online/api/unit`
-            );
+            const response = await fetch(`http://localhost:5000/api/unit`);
             const data = await response.json();
             setUnit(data);
             setUnitCount(data.length);
@@ -72,7 +70,7 @@ const Records = () => {
         const fetchRecords = async () => {
             try {
                 const response = await fetch(
-                    "https://csddashboard.online/api/record_data/unit"
+                    "http://localhost:5000/api/record_data/unit"
                 );
                 if (!response.ok) {
                     throw new Error("Failed to fetch records");
@@ -216,7 +214,7 @@ const Records = () => {
         // run getInstruments API call
         const getInstruments = async () => {
             const response = await fetch(
-                "https://csddashboard.online/api/getInstruments/"
+                "http://localhost:5000/api/getInstruments/"
             );
             const data = await response.json();
             setInstruments(data);
@@ -297,7 +295,7 @@ const Records = () => {
                                             Add Record
                                         </button>
                                     )}
-                                    {ROLE === "unit" && <Notifications />}
+                                    {ROLE === "sdo" && <Notifications />}
                                 </div>
                                 {showAddRecord && (
                                     <AddRecord
