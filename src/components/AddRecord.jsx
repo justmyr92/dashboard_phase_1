@@ -26,11 +26,9 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
             ...prevValues,
             [record_id]: value,
         }));
-        console.log(recordValues);
     };
 
     useEffect(() => {
-        console.log("Fetching Instruments");
         const fetchInstruments = async () => {
             const response = await fetch(
                 "http://localhost:5000/api/getInstruments"
@@ -54,7 +52,6 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     }, []);
 
     useEffect(() => {
-        console.log("Fetching Records");
         const fetchData = async () => {
             const response = await fetch(`http://localhost:5000/api/record/`);
             const data = await response.json();
@@ -64,11 +61,6 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
         };
         fetchData();
     }, [sdgID]);
-
-    useEffect(() => {
-        console.log(records);
-        console.log(recordValues);
-    }, [records, recordValues]);
 
     useEffect(() => {
         setRecordValues([]);
@@ -125,12 +117,10 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                         body: JSON.stringify(formJSON),
                     }
                 );
-                console.log(response);
 
                 const data = await response.json();
                 if (data.record_data_id) {
                     const recordDataID = data.record_data_id;
-                    console.log(recordDataID);
 
                     for (const key in recordValues) {
                         const value = recordValues[key];
@@ -140,7 +130,6 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                             record_id: key,
                         };
 
-                        console.log(values, "Values");
                         const response = await fetch(
                             "http://localhost:5000/api/record_value",
                             {
@@ -152,7 +141,6 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                             }
                         );
                         const responseData = await response.json();
-                        console.log(responseData);
                     }
                     recordFiles.map(async (fileEntry) => {
                         const file = fileEntry.file; // Accessing the file object from the fileEntry
@@ -167,10 +155,6 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                                 .toLowerCase(),
                         };
 
-                        console.log(
-                            "File Payload:",
-                            JSON.stringify(filePayload)
-                        );
                         if (file) {
                             try {
                                 const storageRef = ref(
@@ -181,7 +165,6 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                                     storageRef,
                                     file
                                 );
-                                console.log("File Uploaded");
 
                                 const fileResponse = await fetch(
                                     "http://localhost:5000/api/file",
@@ -201,7 +184,6 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                                 }
 
                                 const fileData = await fileResponse.json();
-                                console.log(fileData);
                             } catch (error) {
                                 console.error("Error uploading file:", error);
                             }
@@ -226,11 +208,6 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
 
         getOptions();
     }, []);
-
-    useEffect(() => {
-        console.log(recordValues);
-        console.log(recordFiles);
-    }, [recordValues, recordFiles]);
 
     return (
         <div

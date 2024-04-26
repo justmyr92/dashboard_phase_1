@@ -122,7 +122,7 @@ const InstrumentForm = () => {
                         }
                     );
                     const data = await response.json();
-                    console.log(data);
+
                     if (response.ok) {
                         if (instrumentName !== "") {
                             record.map(async (recordItem) => {

@@ -49,7 +49,6 @@ const RecordBarChart = () => {
             setReload(false);
         };
         fetchData();
-        console.log(sdgs, "adasdasd");
     }, []);
 
     const handleSdgSelect = (sdgId) => {

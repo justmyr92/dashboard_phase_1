@@ -218,7 +218,6 @@ const Records = () => {
             );
             const data = await response.json();
             setInstruments(data);
-            console.log(data);
         };
         getInstruments();
     }, []);

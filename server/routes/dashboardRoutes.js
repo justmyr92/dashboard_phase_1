@@ -13,7 +13,6 @@ router.post("/sdo_officer", async (req, res) => {
             sdo_officer_password,
             campus_id,
         } = req.body;
-        console.log(req.body);
         const salt = await bcrypt.genSalt(10);
         const encryptedPassword = await bcrypt.hash(sdo_officer_password, salt);
         const newSdoOfficer = await pool.query(
@@ -194,7 +193,6 @@ router.post("/unit", async (req, res) => {
             sdo_officer_id,
             campus_id,
         } = req.body;
-        console.log(req.body);
         const salt = await bcrypt.genSalt(10);
         const encryptedPassword = await bcrypt.hash(unit_password, salt);
         const newUnit = await pool.query(
@@ -279,7 +277,6 @@ router.post("/request", async (req, res) => {
 router.post("/notification", async (req, res) => {
     try {
         const { sdo_officer_id, notification_date, message } = req.body; // Change unit_id to sdo_officer_id
-        console.log(req.body);
         const newNotification = await pool.query(
             "INSERT INTO notification_table (notification_date, message, sdo_officer_id) VALUES($1, $2, $3) RETURNING *",
             [notification_date, message, sdo_officer_id] // Change unit_id to sdo_officer_id
@@ -548,7 +545,6 @@ router.get("/record_data/:id", async (req, res) => {
 router.get("/record_data/approved/:id/:unit_id", async (req, res) => {
     try {
         const { id, unit_id } = req.params;
-        console.log(id, unit_id);
         const recordData = await pool.query(
             "SELECT record_data_table.*, unit_table.* FROM record_data_table INNER JOIN unit_table ON record_data_table.unit_id = unit_table.unit_id WHERE record_data_table.record_id = $1 AND record_data_table.record_status = 'Approved' AND unit_table.sdo_officer_id = $2",
             [id, unit_id]
@@ -589,11 +585,7 @@ router.patch("/record_data/:id", async (req, res) => {
 router.post("/file", async (req, res) => {
     try {
         const { file, record_data_id, file_extension } = req.body;
-
         const id = Math.floor(Math.random() * 100000);
-
-        console.log(req.body);
-
         const newFile = await pool.query(
             "INSERT INTO file_table (file_id, file_name, file_extension, record_data_id) VALUES($1, $2, $3, $4) RETURNING *",
             [id, file, file_extension, record_data_id]
@@ -609,7 +601,6 @@ router.post("/record_value", async (req, res) => {
     try {
         const record_value_id = "RV" + Math.floor(Math.random() * 100000);
         const { record_data_id, record_data_value, record_id } = req.body;
-        console.log(req.body, "asdasd");
         const newRecordValue = await pool.query(
             "INSERT INTO record_value_table (record_value_id, record_data_id, value, record_id) VALUES($1, $2, $3, $4) RETURNING *",
             [record_value_id, record_data_id, record_data_value, record_id]
@@ -628,26 +619,10 @@ router.get("/record_value/:id", async (req, res) => {
             [id]
         );
         res.json(recordValue.rows);
-        console.log(recordValue.rows);
     } catch (err) {
         console.error(err.message);
     }
 });
-
-// router.get("/record_value/sdg/:sdg_id/", async (req, res) => {
-//     try {
-//         const { sdg_id } = req.params;
-//         console.log(sdg_id, "asdasd");
-//         const recordValue = await pool.query(
-//             "SELECT record_value_table.*, record_table.*, sdg_table.* , sdo_officer_table.* FROM record_value_table INNER JOIN record_table ON record_value_table.record_id = record_table.record_id INNER JOIN sdg_table ON record_table.sdg_id = sdg_table.sdg_id INNER JOIN record_data_table ON record_value_table.record_data_id = record_data_table.record_data_id INNER JOIN sdo_officer_table ON record_data_table.sdo_officer_id = sdo_officer_table.sdo_officer_id WHERE sdg_table.sdg_id = $1",
-//             [sdg_id]
-//         );
-//         res.json(recordValue.rows);
-//         console.log(recordValue.rows);
-//     } catch (err) {
-//         console.error(err.message);
-//     }
-// });
 
 router.patch("/update_record_values/:id", async (req, res) => {
     try {
@@ -658,7 +633,6 @@ router.patch("/update_record_values/:id", async (req, res) => {
             "UPDATE record_value_table SET value = $1 WHERE record_value_id = $2",
             [value, id]
         );
-        console.log("adasdas");
         res.json("Record Value was updated");
     } catch (err) {
         console.error(err.message);
@@ -719,12 +693,10 @@ router.get("/campus/:id", async (req, res) => {
 router.get("/record/sdg/:id/:instrument_id", async (req, res) => {
     try {
         const { id, instrument_id } = req.params;
-        console.log(id, instrument_id);
         const record = await pool.query(
             "SELECT * FROM record_table WHERE sdg_id = $1 AND instrument_id = $2",
             [id, instrument_id]
         );
-        console.log(record.rows);
         res.json(record.rows);
     } catch (err) {
         console.error(err.message);
@@ -734,14 +706,10 @@ router.get("/record/sdg/:id/:instrument_id", async (req, res) => {
 router.get("/record/sdg/:id/", async (req, res) => {
     try {
         const { id } = req.params;
-        console.log(id);
         const record = await pool.query(
             "SELECT * FROM record_table WHERE sdg_id = $1",
             [id]
         );
-
-        //record_status  | character varying(50) |           |          |
-        console.log(record.rows);
         res.json(record.rows);
     } catch (err) {
         console.error(err.message);
@@ -994,7 +962,6 @@ router.post("/instruments", async (req, res) => {
             "INSERT INTO instrument_table(instrument_id, name, status, date_posted, section, sdg_id) VALUES($1, $2, $3, $4, $5, $6) RETURNING *",
             [id, name, status, date_posted, section, sdg_id]
         );
-        console.log(instrument);
         res.status(200).json(instrument.rows[0]);
     } catch (error) {
         console.error(error);
@@ -1059,7 +1026,6 @@ router.get("/getRecords/:instrument_id", async (req, res) => {
             "SELECT * FROM record_table WHERE instrument_id = $1",
             [instrument_id]
         );
-        console.log(records.rows);
         res.status(200).json(records.rows);
     } catch (err) {
         console.error(err.message);
@@ -1070,7 +1036,6 @@ router.patch("/updateRecords", async (req, res) => {
     try {
         const { record_id, record_name, sdg_id, instrument_id, record_status } =
             req.body;
-        console.log(req.body);
 
         const result = await pool.query(
             "UPDATE record_table SET record_name = $1 , record_status = $2 WHERE record_id = $3",
@@ -1087,7 +1052,6 @@ router.patch("/updateRecords", async (req, res) => {
 router.patch("/updateInstrumentStatus", async (req, res) => {
     try {
         const { instrument_id, status } = req.body;
-        console.log(req.body);
 
         const result = await pool.query(
             "UPDATE instrument_table SET status = $1 WHERE instrument_id = $2",
@@ -1187,7 +1151,6 @@ router.delete("/deleteNotification", async (req, res) => {
 router.post("/record_data", async (req, res) => {
     try {
         const { record_data_id, record_status, unit_id } = req.body;
-        console.log(req.body);
 
         const newRecordData = await pool.query(
             "INSERT INTO record_data_table (record_data_id, record_status, sdo_officer_id) VALUES($1, $2, $3) RETURNING *",

@@ -119,9 +119,6 @@ const AnnualReports = () => {
                     body: JSON.stringify(requestBody),
                 }
             );
-
-            console.log(response);
-
             if (response.status === 200) {
                 const storageRef = ref(storage, `reports/${newFileName}`);
                 await uploadBytes(storageRef, annualReport.annual_report_file);

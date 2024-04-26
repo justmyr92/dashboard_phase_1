@@ -12,7 +12,6 @@ const SetNotification = ({
     const [unit, setUnit] = useState({});
     const [ID, setID] = useState(localStorage.getItem("ID"));
     const [nmessage, setnMessage] = useState("");
-    console.log(selected);
     useEffect(() => {
         setSelected(selectedRecords);
 
@@ -23,7 +22,6 @@ const SetNotification = ({
                 );
                 const jsonData = await response.json();
                 setUnit(jsonData);
-                console.log(jsonData);
             } catch (err) {
                 console.error(err.message);
             }

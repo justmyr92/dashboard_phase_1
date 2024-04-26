@@ -64,13 +64,10 @@ const Units = () => {
                 );
                 const data = await response.json();
                 searchUnit(data);
-
-                console.log(data);
             } else {
                 const response = await fetch(`http://localhost:5000/api/unit`);
                 const data = await response.json();
                 searchUnit(data);
-                console.log(data);
             }
         };
         getUnits();

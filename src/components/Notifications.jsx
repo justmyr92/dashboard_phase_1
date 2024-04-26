@@ -13,6 +13,22 @@ const Notifications = () => {
 
     const id = localStorage.getItem("ID");
 
+    // useEffect(() => {
+    //     const getNotifications = async () => {
+    //         try {
+    //             const response = await fetch(
+    //                 `http://localhost:5000/api/notification/${id}`
+    //             );
+    //             const jsonData = await response.json();
+    //             setNotifications(jsonData);
+    //         } catch (err) {
+    //             console.error(err.message);
+    //         }
+    //     };
+
+    //     getNotifications();
+    // }, []);
+
     useEffect(() => {
         const getNotifications = async () => {
             try {
@@ -24,10 +40,17 @@ const Notifications = () => {
             } catch (err) {
                 console.error(err.message);
             }
+
+            // Call getNotifications again after 3 seconds
+            setTimeout(getNotifications, 3000);
         };
 
+        // Initial call
         getNotifications();
-    }, []);
+
+        // Cleanup function to prevent recursive setTimeout after unmount or dependency change
+        return () => clearTimeout();
+    }, [id]);
 
     return (
         <div className="notifications">
@@ -50,32 +73,38 @@ const Notifications = () => {
                         className="py-2 text-sm text-gray-700"
                         aria-labelledby="dropdownDefaultButton"
                     >
-                        {notifications.map((notification) => (
-                            <li
-                                className="px-4 py-2 border-b border-gray-100"
-                                key={notification.id}
-                            >
-                                <h3 className="px-4 py-2 font-bold">
-                                    SD Officer
-                                </h3>
-                                <small className="px-4 py-2 text-gray-500">
-                                    {new Date(
-                                        notification.notification_date
-                                    ).toLocaleDateString("en-US", {
-                                        weekday: "short",
-                                        year: "numeric",
-                                        month: "long",
-                                        day: "numeric",
-                                    })}
-                                    {new Date(
-                                        notification.notification_date
-                                    ).toLocaleTimeString("en-US")}
-                                </small>
-                                <p className="px-4 py-2">
-                                    {notification.message}
-                                </p>
+                        {notifications.length ? (
+                            notifications.map((notification) => (
+                                <li
+                                    className="px-4 py-2 border-b border-gray-100"
+                                    key={notification.id}
+                                >
+                                    <h3 className="px-4 py-2 font-bold">
+                                        SD Officer
+                                    </h3>
+                                    <small className="px-4 py-2 text-gray-500">
+                                        {new Date(
+                                            notification.notification_date
+                                        ).toLocaleDateString("en-US", {
+                                            weekday: "short",
+                                            year: "numeric",
+                                            month: "long",
+                                            day: "numeric",
+                                        })}
+                                        {new Date(
+                                            notification.notification_date
+                                        ).toLocaleTimeString("en-US")}
+                                    </small>
+                                    <p className="px-4 py-2">
+                                        {notification.message}
+                                    </p>
+                                </li>
+                            ))
+                        ) : (
+                            <li className="px-4 py-2 text-center text-red-500">
+                                No notifications
                             </li>
-                        ))}
+                        )}
                     </ul>
                 </div>
             )}

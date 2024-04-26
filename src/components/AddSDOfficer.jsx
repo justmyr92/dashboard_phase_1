@@ -17,7 +17,6 @@ const AddSDOfficer = ({ setReload, setModal }) => {
             const response = await fetch("http://localhost:5000/api/campus");
             const data = await response.json();
             setCampus(data);
-            console.log(data);
         };
         getCampus();
     }, []);
@@ -68,7 +67,6 @@ const AddSDOfficer = ({ setReload, setModal }) => {
             return;
         }
 
-        console.log(sdo_officer);
         const response = await fetch("http://localhost:5000/api/sdo_officer", {
             method: "POST",
             headers: {

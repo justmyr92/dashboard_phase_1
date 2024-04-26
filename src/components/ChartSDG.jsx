@@ -102,14 +102,12 @@ const ChartSDG = () => {
 
     const handleOfficerClick = (selectedOfficer) => {
         localStorage.setItem("sdo", selectedOfficer.sdo_officer_id);
-        console.log(selectedOfficer.sdo_officer_id);
         setReloadKey(reloadKey + 1);
         setReload(!reload);
     };
 
     const handleInstrumentClick = (event) => {
         const selectedInstrument = instruments[event.target.value];
-        console.log(selectedInstrument);
         setInstrument(selectedInstrument);
         setReloadKey(reloadKey + 1);
         setReload(!reload);
@@ -125,7 +123,6 @@ const ChartSDG = () => {
                 setSdOfficers(
                     jsonData.sort((a, b) => a.campus_id - b.campus_id)
                 );
-                console.log(jsonData.sort((a, b) => a.campus_id - b.campus_id));
                 if (role !== "sdo") {
                     localStorage.setItem("sdo", jsonData[0].sdo_officer_id);
                 }

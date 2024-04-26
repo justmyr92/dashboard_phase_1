@@ -15,7 +15,6 @@ const Card = ({ sdg }) => {
                 );
                 const jsonData = await response.json();
                 setInstruments(jsonData);
-                console.log(jsonData);
             } catch (err) {
                 console.error(err.message);
             }
@@ -59,7 +58,6 @@ const Card = ({ sdg }) => {
                 }
                 const data = await response.json();
                 setRecordData(data);
-                console.log("Record Data", data);
             } catch (error) {
                 console.error("Error fetching record data:", error);
             }
@@ -72,11 +70,6 @@ const Card = ({ sdg }) => {
     }, [sdg]);
 
     useEffect(() => {
-        // console.log("Records", records);
-        // console.log("Options", tOptions);
-        // console.log("Instruments", instruments);
-        console.log("asdasd", recordData);
-
         const fetchData = async () => {
             try {
                 const getRecordValue = async (id) => {
@@ -85,9 +78,7 @@ const Card = ({ sdg }) => {
                             `http://localhost:5000/api/getRecordValue/${id}/${sid}`
                         );
                         const jsonData = await response.json();
-                        console.log(
-                            `http://localhost:5000/api/getRecordValue/${id}/${sid}`
-                        );
+
                         return jsonData;
                     } catch (err) {
                         console.error(err.message);
@@ -116,9 +107,6 @@ const Card = ({ sdg }) => {
                         const recordValues = await Promise.all(
                             recordValuesPromises
                         );
-
-                        console.log("Record Values", recordValues.length);
-
                         // Add record values to each record in filteredRecords
                         const filteredRecordsWithValues = filteredRecords.map(
                             (record, index) => ({
@@ -147,10 +135,6 @@ const Card = ({ sdg }) => {
 
         fetchData();
     }, [instruments, records, tOptions, recordData]);
-
-    useEffect(() => {
-        console.log("Grouped Instruments2", groupedInstruments);
-    }, [groupedInstruments]);
 
     return (
         <div className="card w-full border">
