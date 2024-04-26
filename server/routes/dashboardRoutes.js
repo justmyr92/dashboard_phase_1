@@ -639,6 +639,21 @@ router.patch("/update_record_values/:id", async (req, res) => {
     }
 });
 
+//get the record_data_id from record_date and sdo_officer
+router.get("/recordy_data/:year/:sdo_id", async (req, res) => {
+    try {
+        const { year, sdo_id } = req.params;
+        const recordData = await pool.query(
+            "SELECT record_data_id FROM record_data_table WHERE EXTRACT(YEAR FROM record_date) = $1 AND sdo_officer_id = $2",
+            [year, sdo_id]
+        );
+        res.json(recordData.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 router.get("/record_name/:id", async (req, res) => {
     try {
         const { id } = req.params;
@@ -651,6 +666,8 @@ router.get("/record_name/:id", async (req, res) => {
         console.error(err.message);
     }
 });
+
+//get
 
 router.get("/record_value/record_data/:id", async (req, res) => {
     try {
@@ -1150,11 +1167,12 @@ router.delete("/deleteNotification", async (req, res) => {
 
 router.post("/record_data", async (req, res) => {
     try {
-        const { record_data_id, record_status, unit_id } = req.body;
+        const { record_data_id, record_status, unit_id, record_date } =
+            req.body;
 
         const newRecordData = await pool.query(
-            "INSERT INTO record_data_table (record_data_id, record_status, sdo_officer_id) VALUES($1, $2, $3) RETURNING *",
-            [record_data_id, record_status, unit_id]
+            "INSERT INTO record_data_table (record_data_id, record_status, sdo_officer_id, record_date) VALUES($1, $2, $3, $4) RETURNING *",
+            [record_data_id, record_status, unit_id, record_date]
         );
 
         res.json(newRecordData.rows[0]);

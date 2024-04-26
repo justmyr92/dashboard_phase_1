@@ -3,7 +3,7 @@ import Swal from "sweetalert2";
 import { storage } from "../firebase";
 import { uploadBytes, ref } from "firebase/storage";
 
-const AddRecord = ({ showModal, setShowModal, setReload }) => {
+const AddRecord = ({ selectedYear }) => {
     const [ID, setID] = useState(localStorage.getItem("ID"));
     const [sdgs, setSdgs] = useState([]);
     const [records, setRecords] = useState([]);
@@ -96,6 +96,10 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
             record_data_id: record_data_id,
             record_status: "For Approval",
             unit_id: ID,
+            //get the currenct date but the year is the selected year
+            record_date: `${selectedYear}-${new Date()
+                .toISOString()
+                .slice(5, 10)}`,
         };
         Swal.fire({
             title: "Are you sure?",
@@ -210,260 +214,197 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
     }, []);
 
     return (
-        <div
-            id="default-modal"
-            tabIndex="-1"
-            aria-hidden="true"
-            className="z-50 w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300"
-        >
-            <div className="relative w-full max-w-2xl max-h-full">
-                <div className="relative bg-white rounded-lg shadow">
-                    <div className="flex items-start justify-between p-4 border-b rounded-t">
-                        <h3 className="text-xl font-semibold text-gray-900">
-                            Add Record
-                        </h3>
-                        <button
-                            type="button"
-                            className="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center"
-                            data-modal-hide="default-modal"
-                            onClick={() => setShowModal(false)}
-                        >
-                            <svg
-                                className="w-3 h-3"
-                                aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 14 14"
-                            >
-                                <path
-                                    stroke="currentColor"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"
-                                />
-                            </svg>
-                            <span className="sr-only">Close modal</span>
-                        </button>
-                    </div>
-                    <form onSubmit={handleSubmit} encType="multipart/form-data">
-                        <div className="p-6 space-y-6">
-                            <div className="flex flex-col">
-                                <h5 className="font-medium">Instrument</h5>
-                            </div>
-                            <div className="flex flex-col">
-                                SDG
-                                <select
-                                    id="sdg"
-                                    name="sdg"
-                                    className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                                    onChange={(e) => {
-                                        setSdgID(e.target.value);
-                                    }}
-                                >
-                                    <option value="" disabled selected>
-                                        Select SDG
-                                    </option>
-                                    {sdgs.map((sdg, index) => (
-                                        <option
-                                            key={sdg.sdg_id}
-                                            value={sdg.sdg_id}
-                                        >
-                                            SDG {index + 1}: {sdg.sdg_name}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
+        <form onSubmit={handleSubmit} encType="multipart/form-data">
+            <div className="p-6 space-y-6">
+                <div className="flex flex-col">
+                    <h5 className="font-medium">Instrument</h5>
+                </div>
+                <div className="flex flex-col">
+                    SDG
+                    <select
+                        id="sdg"
+                        name="sdg"
+                        className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                        onChange={(e) => {
+                            setSdgID(e.target.value);
+                        }}
+                    >
+                        <option value="" disabled selected>
+                            Select SDG
+                        </option>
+                        {sdgs.map((sdg, index) => (
+                            <option key={sdg.sdg_id} value={sdg.sdg_id}>
+                                SDG {index + 1}: {sdg.sdg_name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
 
-                            {sdgID &&
-                                instruments.map(
-                                    (instrument) =>
-                                        instrument.status === "Active" &&
-                                        instrument.sdg_id === sdgID && (
+                {sdgID &&
+                    instruments.map(
+                        (instrument) =>
+                            instrument.status === "Active" &&
+                            instrument.sdg_id === sdgID && (
+                                <div
+                                    key={instrument.instrument_id}
+                                    className="mb-4"
+                                >
+                                    <h5 className="font-medium">
+                                        Subtitle: {instrument.name}
+                                    </h5>
+                                    <p className="text-gray-600">
+                                        Section: {instrument.section}
+                                    </p>
+                                    {/* Filter questions for this subtitle and section */}
+                                    {records
+                                        .filter(
+                                            (record) =>
+                                                record.instrument_id ===
+                                                instrument.instrument_id
+                                        )
+                                        .map((record) => (
                                             <div
-                                                key={instrument.instrument_id}
+                                                key={record.record_id}
                                                 className="mb-4"
                                             >
-                                                <h5 className="font-medium">
-                                                    Subtitle: {instrument.name}
-                                                </h5>
-                                                <p className="text-gray-600">
-                                                    Section:{" "}
-                                                    {instrument.section}
-                                                </p>
-                                                {/* Filter questions for this subtitle and section */}
-                                                {records
-                                                    .filter(
-                                                        (record) =>
-                                                            record.instrument_id ===
-                                                            instrument.instrument_id
-                                                    )
-                                                    .map((record) => (
-                                                        <div
-                                                            key={
-                                                                record.record_id
-                                                            }
-                                                            className="mb-4"
+                                                {record.rtype === "number" ? (
+                                                    <>
+                                                        {" "}
+                                                        <label
+                                                            htmlFor={`record-${record.record_id}`}
+                                                            className="text-sm font-semibold text-gray-600"
                                                         >
-                                                            {record.rtype ===
-                                                            "number" ? (
-                                                                <>
-                                                                    {" "}
-                                                                    <label
-                                                                        htmlFor={`record-${record.record_id}`}
-                                                                        className="text-sm font-semibold text-gray-600"
-                                                                    >
-                                                                        {
-                                                                            record.record_name
-                                                                        }
-                                                                    </label>
-                                                                    <input
-                                                                        type="number"
-                                                                        id={`record-${record.record_id}`}
-                                                                        name={`record-${record.record_id}`}
-                                                                        className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                                                                        min="0"
-                                                                        onChange={(
-                                                                            e
-                                                                        ) =>
-                                                                            handleInputChange(
-                                                                                record.record_id,
-                                                                                parseInt(
-                                                                                    e
-                                                                                        .target
-                                                                                        .value,
-                                                                                    10
-                                                                                )
-                                                                            )
+                                                            {record.record_name}
+                                                        </label>
+                                                        <input
+                                                            type="number"
+                                                            id={`record-${record.record_id}`}
+                                                            name={`record-${record.record_id}`}
+                                                            className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                                                            min="0"
+                                                            onChange={(e) =>
+                                                                handleInputChange(
+                                                                    record.record_id,
+                                                                    parseInt(
+                                                                        e.target
+                                                                            .value,
+                                                                        10
+                                                                    )
+                                                                )
+                                                            }
+                                                            value={
+                                                                recordValues[
+                                                                    record
+                                                                        .record_id
+                                                                ] !== undefined
+                                                                    ? recordValues[
+                                                                          record
+                                                                              .record_id
+                                                                      ]
+                                                                    : 0
+                                                            }
+                                                            required
+                                                        />
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <label
+                                                            htmlFor={`record-${record.record_id}`}
+                                                            className="text-sm font-semibold text-gray-600"
+                                                        >
+                                                            {record.record_name}
+                                                        </label>
+                                                        <select
+                                                            id={`record-${record.record_id}`}
+                                                            name={`record-${record.record_id}`}
+                                                            className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                                                            onChange={(e) =>
+                                                                handleInputChange(
+                                                                    record.record_id,
+                                                                    e.target
+                                                                        .value
+                                                                )
+                                                            }
+                                                            value={
+                                                                recordValues[
+                                                                    record
+                                                                        .record_id
+                                                                ] !== undefined
+                                                                    ? recordValues[
+                                                                          record
+                                                                              .record_id
+                                                                      ]
+                                                                    : ""
+                                                            }
+                                                            required
+                                                        >
+                                                            <option
+                                                                value=""
+                                                                disabled
+                                                                selected
+                                                            >
+                                                                Select an option
+                                                            </option>
+                                                            {tags
+                                                                .filter(
+                                                                    (tag) =>
+                                                                        tag.record_id ===
+                                                                        record.record_id
+                                                                )
+                                                                .map((tag) => (
+                                                                    <option
+                                                                        key={
+                                                                            tag.option_id
                                                                         }
                                                                         value={
-                                                                            recordValues[
-                                                                                record
-                                                                                    .record_id
-                                                                            ] !==
-                                                                            undefined
-                                                                                ? recordValues[
-                                                                                      record
-                                                                                          .record_id
-                                                                                  ]
-                                                                                : 0
+                                                                            tag.option_value
                                                                         }
-                                                                        required
-                                                                    />
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <label
-                                                                        htmlFor={`record-${record.record_id}`}
-                                                                        className="text-sm font-semibold text-gray-600"
                                                                     >
                                                                         {
-                                                                            record.record_name
+                                                                            tag.option_value
                                                                         }
-                                                                    </label>
-                                                                    <select
-                                                                        id={`record-${record.record_id}`}
-                                                                        name={`record-${record.record_id}`}
-                                                                        className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                                                                        onChange={(
-                                                                            e
-                                                                        ) =>
-                                                                            handleInputChange(
-                                                                                record.record_id,
-                                                                                e
-                                                                                    .target
-                                                                                    .value
-                                                                            )
-                                                                        }
-                                                                        value={
-                                                                            recordValues[
-                                                                                record
-                                                                                    .record_id
-                                                                            ] !==
-                                                                            undefined
-                                                                                ? recordValues[
-                                                                                      record
-                                                                                          .record_id
-                                                                                  ]
-                                                                                : ""
-                                                                        }
-                                                                        required
-                                                                    >
-                                                                        <option
-                                                                            value=""
-                                                                            disabled
-                                                                            selected
-                                                                        >
-                                                                            Select
-                                                                            an
-                                                                            option
-                                                                        </option>
-                                                                        {tags
-                                                                            .filter(
-                                                                                (
-                                                                                    tag
-                                                                                ) =>
-                                                                                    tag.record_id ===
-                                                                                    record.record_id
-                                                                            )
-                                                                            .map(
-                                                                                (
-                                                                                    tag
-                                                                                ) => (
-                                                                                    <option
-                                                                                        key={
-                                                                                            tag.option_id
-                                                                                        }
-                                                                                        value={
-                                                                                            tag.option_value
-                                                                                        }
-                                                                                    >
-                                                                                        {
-                                                                                            tag.option_value
-                                                                                        }
-                                                                                    </option>
-                                                                                )
-                                                                            )}
-                                                                    </select>
-                                                                </>
-                                                            )}
-                                                        </div>
-                                                    ))}
-
-                                                <div className="mb-4">
-                                                    <label
-                                                        htmlFor={`file-${instrument.instrument_id}`}
-                                                        className="text-sm font-semibold text-gray-600"
-                                                    >
-                                                        Upload Evidence
-                                                    </label>
-                                                    <input
-                                                        type="file"
-                                                        id={`file-${instrument.instrument_id}`}
-                                                        name={`file-${instrument.instrument_id}`}
-                                                        className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                                                        onChange={(e) =>
-                                                            handleFileInputChange(
-                                                                e.target.files,
-                                                                instrument.instrument_id
-                                                            )
-                                                        }
-                                                    />
-                                                </div>
+                                                                    </option>
+                                                                ))}
+                                                        </select>
+                                                    </>
+                                                )}
                                             </div>
-                                        )
-                                )}
-                        </div>
+                                        ))}
 
-                        <div className="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b">
-                            <button
-                                data-modal-hide="default-modal"
-                                type="submit"
-                                className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                            >
-                                {/* Display count of non-NaN, undefined, and null values in recordValues over totalCount */}
-                                Submit
-                                {/* (
+                                    <div className="mb-4">
+                                        <label
+                                            htmlFor={`file-${instrument.instrument_id}`}
+                                            className="text-sm font-semibold text-gray-600"
+                                        >
+                                            Upload Evidence
+                                        </label>
+                                        <input
+                                            type="file"
+                                            id={`file-${instrument.instrument_id}`}
+                                            name={`file-${instrument.instrument_id}`}
+                                            className="block w-full px-4 py-2 mt-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                                            onChange={(e) =>
+                                                handleFileInputChange(
+                                                    e.target.files,
+                                                    instrument.instrument_id
+                                                )
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                            )
+                    )}
+            </div>
+
+            <div className="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b">
+                <button
+                    data-modal-hide="default-modal"
+                    type="submit"
+                    className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                >
+                    {/* Display count of non-NaN, undefined, and null values in recordValues over totalCount */}
+                    Submit
+                    {/* (
                                 {
                                     Object.keys(recordValues).filter(
                                         (key) =>
@@ -473,21 +414,18 @@ const AddRecord = ({ showModal, setShowModal, setReload }) => {
                                     ).length
                                 }
                                 {/* divdetotacl count of record per selected sdg */}
-                                {/* /{totalCount}) */}
-                            </button>
-                            <button
-                                data-modal-hide="default-modal"
-                                type="button"
-                                className="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
-                                onClick={() => setShowModal(false)}
-                            >
-                                Cancel
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    {/* /{totalCount}) */}
+                </button>
+                <button
+                    data-modal-hide="default-modal"
+                    type="button"
+                    className="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                    onClick={() => setShowModal(false)}
+                >
+                    Cancel
+                </button>
             </div>
-        </div>
+        </form>
     );
 };
 
