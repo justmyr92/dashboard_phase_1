@@ -8,20 +8,6 @@ const Records = () => {
     const [selectedYear, setSelectedYear] = useState("2024");
     const [recordDataId, setRecordDataId] = useState("");
     useEffect(() => {
-        // router.get("/recordy_data/:year/:sdo_id", async (req, res) => {
-        //     try {
-        //         const { year, sdo_id } = req.params;
-        //         const recordData = await pool.query(
-        //             "SELECT record_data_id FROM record_data_table WHERE EXTRACT(YEAR FROM record_date) = $1 AND sdo_officer_id = $2",
-        //             [year, sdo_id]
-        //         );
-        //         res.json(recordData.rows);
-        //     } catch (err) {
-        //         console.error(err.message);
-        //         res.status(500).json({ error: "Internal server error" });
-        //     }
-        // });
-
         const getRecordDataId = async () => {
             try {
                 const response = await fetch(

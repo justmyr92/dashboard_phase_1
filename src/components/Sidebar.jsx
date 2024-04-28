@@ -54,7 +54,7 @@ const Sidebar = () => {
                     icon: faTools,
                 },
                 {
-                    url: "/csd/records",
+                    url: "/csd/admin/records",
                     text: "Records",
                     icon: faFileAlt,
                 },
@@ -66,13 +66,9 @@ const Sidebar = () => {
                     text: "Dashboard",
                     icon: faDashboard,
                 },
-                // {
-                //     url: "/csd/units",
-                //     text: "Units",
-                //     icon: faBuilding,
-                // },
+
                 {
-                    url: "/csd/records",
+                    url: "/csd/sd/records",
                     text: "Records",
                     icon: faFileAlt,
                 },

@@ -51,10 +51,6 @@ const RecordBarChart = () => {
         fetchData();
     }, []);
 
-    const handleSdgSelect = (sdgId) => {
-        setSelectedSdg(sdgId);
-    };
-
     const data = {
         labels: sdgs.map((sdg) => `SDG ${sdg.sdg_id}`),
         datasets: [
