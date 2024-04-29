@@ -986,6 +986,22 @@ router.post("/instruments", async (req, res) => {
     }
 });
 
+router.patch("/updateInstrumentNum", async (req, res) => {
+    //upate instrument_number
+    const { instrument_id, instrument_number } = req.body;
+    console.log(instrument_id, instrument_number);
+    try {
+        const result = await pool.query(
+            "UPDATE instrument_table SET instrument_number = $1 WHERE instrument_id = $2",
+            [instrument_number, instrument_id]
+        );
+        res.json(result.rows[0]);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+});
+
 router.get("/getInstruments/:id", async (req, res) => {
     try {
         const { id } = req.params;

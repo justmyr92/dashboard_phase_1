@@ -404,6 +404,7 @@ const Instruments = () => {
                                                 </p>
                                             </div>
                                         ),
+                                        sortable: true,
                                     },
                                     {
                                         name: "Name",

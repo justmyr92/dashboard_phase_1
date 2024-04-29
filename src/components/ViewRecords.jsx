@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
+import AddRecord from "./AddRecord";
 
-const ViewRecords = ({ selectedYear, record_data_id }) => {
+const ViewRecords = ({ selectedYear, record_data_id, selectedSDG }) => {
     const role = localStorage.getItem("ROLE");
     const [instruments, setInstruments] = useState([]);
     const [records, setRecords] = useState([]);
@@ -17,7 +18,12 @@ const ViewRecords = ({ selectedYear, record_data_id }) => {
                     throw new Error("Failed to fetch instruments");
                 }
                 const data = await response.json();
-                setInstruments(data);
+                setInstruments(
+                    data.sort(
+                        (a, b) => a.instrument_number - b.instrument_number
+                    )
+                );
+                console.log(data);
             } catch (error) {
                 console.error("Error fetching instruments:", error);
             }
@@ -104,6 +110,10 @@ const ViewRecords = ({ selectedYear, record_data_id }) => {
                 grouped.push({
                     instrumentId: instrumentId,
                     records: [record],
+                    sdg_id: instruments?.find(
+                        (instrument) =>
+                            instrument.instrument_id === instrumentId
+                    ).sdg_id,
                 });
             } else {
                 // If a group for this instrument ID already exists, add the record to it
@@ -112,7 +122,9 @@ const ViewRecords = ({ selectedYear, record_data_id }) => {
         });
 
         // Update the state with the new grouped records
-        setGroupedRecords(grouped);
+        setGroupedRecords(
+            grouped.filter((group) => group.sdg_id === selectedSDG)
+        );
     }, [records]); // Trigger the effect whenever records change
 
     const handleSubmit = async (e) => {
@@ -173,166 +185,189 @@ const ViewRecords = ({ selectedYear, record_data_id }) => {
     };
 
     return (
-        <div className="bg-white rounded-lg shadow">
-            <div className="p-6 space-y-6">
-                <table className="table-auto w-full">
-                    <tbody>
-                        <tbody>
-                            {groupedRecords.map((group, groupIndex) => (
-                                <tr key={group.instrumentId}>
-                                    <td className="text-sm font-semibold text-gray-600 p-4">
-                                        <div className="mb-4">
-                                            <span className="text-lg">
-                                                {/* find the instrument name from instruments */}
-                                                {
-                                                    instruments.find(
-                                                        (instrument) =>
-                                                            instrument.instrument_id ===
-                                                            group.instrumentId
-                                                    )?.name
-                                                }
-                                            </span>{" "}
-                                            <br />
-                                            <span className="text-gray-500">
-                                                Section:{" "}
-                                                {
-                                                    instruments.find(
-                                                        (instrument) =>
-                                                            instrument.instrument_id ===
-                                                            group.instrumentId
-                                                    )?.section
-                                                }
-                                            </span>
-                                        </div>
-
-                                        <div className="border border-gray-200 rounded-md p-4">
-                                            {group.records.map(
-                                                (record, recordIndex) => (
-                                                    <div
-                                                        key={
-                                                            record.record_value_id
+        <>
+            {groupedRecords.length === 0 ? (
+                <tr>
+                    <td className="p-4">
+                        <AddRecord
+                            selectedYear={selectedYear}
+                            selectedSDG={selectedSDG}
+                        />
+                    </td>
+                </tr>
+            ) : (
+                <div className="bg-white rounded-lg shadow">
+                    <div className="p-6 space-y-6">
+                        <table className="table-auto w-full">
+                            <tbody>
+                                {groupedRecords
+                                    .filter(
+                                        (group) => group.sdg_id === selectedSDG
+                                    )
+                                    .map((group, groupIndex) => (
+                                        <tr key={group.instrumentId}>
+                                            <td className="text-sm font-semibold text-gray-600 p-4">
+                                                <div className="mb-4">
+                                                    <span className="text-lg">
+                                                        {/* find the instrument name from instruments */}
+                                                        {
+                                                            instruments.find(
+                                                                (instrument) =>
+                                                                    instrument.instrument_id ===
+                                                                    group.instrumentId
+                                                            )?.name
                                                         }
-                                                        className="flex items-center justify-between mb-2"
-                                                    >
-                                                        <div className="text-sm font-semibold text-gray-600">
-                                                            {recordIndex + 1}.{" "}
-                                                            {record.record_name}
-                                                        </div>
-                                                        <div>
-                                                            {record.rtype ===
-                                                            "choice" ? (
-                                                                <select
-                                                                    id={`record-${record.record_value_id}`}
-                                                                    name={`record-${record.record_value_id}`}
-                                                                    className="block px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                                                                    value={
-                                                                        record.value
+                                                    </span>{" "}
+                                                    <br />
+                                                    <span className="text-gray-500">
+                                                        Section:{" "}
+                                                        {
+                                                            instruments.find(
+                                                                (instrument) =>
+                                                                    instrument.instrument_id ===
+                                                                    group.instrumentId
+                                                            )?.section
+                                                        }
+                                                    </span>
+                                                </div>
+
+                                                <div className="border border-gray-200 rounded-md p-4">
+                                                    {group.records.map(
+                                                        (
+                                                            record,
+                                                            recordIndex
+                                                        ) => (
+                                                            <div
+                                                                key={
+                                                                    record.record_value_id
+                                                                }
+                                                                className="flex items-center justify-between mb-2"
+                                                            >
+                                                                <div className="text-sm font-semibold text-gray-600">
+                                                                    {recordIndex +
+                                                                        1}
+                                                                    .{" "}
+                                                                    {
+                                                                        record.record_name
                                                                     }
-                                                                    onChange={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleInputChange(
-                                                                            e
-                                                                                .target
-                                                                                .value,
-                                                                            recordIndex,
-                                                                            groupIndex
-                                                                        )
-                                                                    }
-                                                                    disabled={
-                                                                        role ===
-                                                                        "csd"
-                                                                    }
-                                                                >
-                                                                    {toptions
-                                                                        .filter(
-                                                                            (
-                                                                                option
-                                                                            ) => {
-                                                                                return (
-                                                                                    option.record_id ===
-                                                                                    record.record_id
-                                                                                );
+                                                                </div>
+                                                                <div>
+                                                                    {record.rtype ===
+                                                                    "choice" ? (
+                                                                        <select
+                                                                            id={`record-${record.record_value_id}`}
+                                                                            name={`record-${record.record_value_id}`}
+                                                                            className="block px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                                                                            value={
+                                                                                record.value
                                                                             }
-                                                                        )
-                                                                        .map(
-                                                                            (
-                                                                                option
-                                                                            ) => (
-                                                                                <option
-                                                                                    key={
-                                                                                        option.option_id
+                                                                            onChange={(
+                                                                                e
+                                                                            ) =>
+                                                                                handleInputChange(
+                                                                                    e
+                                                                                        .target
+                                                                                        .value,
+                                                                                    recordIndex,
+                                                                                    groupIndex
+                                                                                )
+                                                                            }
+                                                                            disabled={
+                                                                                role ===
+                                                                                "csd"
+                                                                            }
+                                                                        >
+                                                                            {toptions
+                                                                                .filter(
+                                                                                    (
+                                                                                        option
+                                                                                    ) => {
+                                                                                        return (
+                                                                                            option.record_id ===
+                                                                                            record.record_id
+                                                                                        );
                                                                                     }
-                                                                                    value={
-                                                                                        option.option_id
-                                                                                    }
-                                                                                >
-                                                                                    {
-                                                                                        option.option_value
-                                                                                    }
-                                                                                </option>
-                                                                            )
-                                                                        )}
-                                                                </select>
-                                                            ) : (
-                                                                <input
-                                                                    type="number"
-                                                                    id={`record-${record.record_value_id}`}
-                                                                    name={`record-${record.record_value_id}`}
-                                                                    className="block w-24 px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                                                                    value={
-                                                                        record.value
-                                                                    }
-                                                                    onChange={(
-                                                                        e
-                                                                    ) =>
-                                                                        handleInputChange(
-                                                                            e
-                                                                                .target
-                                                                                .value,
-                                                                            recordIndex,
-                                                                            groupIndex
-                                                                        )
-                                                                    }
-                                                                    disabled={
-                                                                        role ===
-                                                                        "csd"
-                                                                    }
-                                                                />
-                                                            )}
-                                                        </div>
-                                                    </div>
-                                                )
-                                            )}
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </tbody>
-                </table>
-            </div>
-            <div className="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b">
-                <button
-                    data-modal-hide="default-modal"
-                    type="button"
-                    className="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
-                    onClick={() => setShowModal(false)}
-                >
-                    Close
-                </button>
-                {role !== "csd" && (
-                    <button
-                        type="button"
-                        className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm font-medium px-5 py-2.5"
-                        // onClick={handleSave}
-                        onClick={handleSubmit}
-                    >
-                        Save
-                    </button>
-                )}
-            </div>
-        </div>
+                                                                                )
+                                                                                .map(
+                                                                                    (
+                                                                                        option
+                                                                                    ) => (
+                                                                                        <option
+                                                                                            key={
+                                                                                                option.option_id
+                                                                                            }
+                                                                                            value={
+                                                                                                option.option_id
+                                                                                            }
+                                                                                        >
+                                                                                            {
+                                                                                                option.option_value
+                                                                                            }
+                                                                                        </option>
+                                                                                    )
+                                                                                )}
+                                                                        </select>
+                                                                    ) : (
+                                                                        <input
+                                                                            type="number"
+                                                                            id={`record-${record.record_value_id}`}
+                                                                            name={`record-${record.record_value_id}`}
+                                                                            className="block w-24 px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                                                                            value={
+                                                                                record.value
+                                                                            }
+                                                                            onChange={(
+                                                                                e
+                                                                            ) =>
+                                                                                handleInputChange(
+                                                                                    e
+                                                                                        .target
+                                                                                        .value,
+                                                                                    recordIndex,
+                                                                                    groupIndex
+                                                                                )
+                                                                            }
+                                                                            disabled={
+                                                                                role ===
+                                                                                "csd"
+                                                                            }
+                                                                        />
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        )
+                                                    )}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div className="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b">
+                        <button
+                            data-modal-hide="default-modal"
+                            type="button"
+                            className="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10"
+                            onClick={() => setShowModal(false)}
+                        >
+                            Close
+                        </button>
+                        {role !== "csd" && (
+                            <button
+                                type="button"
+                                className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg text-sm font-medium px-5 py-2.5"
+                                // onClick={handleSave}
+                                onClick={handleSubmit}
+                            >
+                                Save
+                            </button>
+                        )}
+                    </div>
+                </div>
+            )}
+        </>
     );
 };
 

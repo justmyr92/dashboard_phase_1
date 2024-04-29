@@ -3,11 +3,11 @@ import Swal from "sweetalert2";
 import { storage } from "../firebase";
 import { uploadBytes, ref } from "firebase/storage";
 
-const AddRecord = ({ selectedYear }) => {
+const AddRecord = ({ selectedYear, selectedSDG, setShowModal }) => {
     const [ID, setID] = useState(localStorage.getItem("ID"));
     const [sdgs, setSdgs] = useState([]);
     const [records, setRecords] = useState([]);
-    const [sdgID, setSdgID] = useState("");
+    const [sdgID, setSdgID] = useState(selectedSDG);
     const [instruments, setInstruments] = useState([]);
 
     const [instrumentID, setInstrumentID] = useState("");
@@ -35,7 +35,12 @@ const AddRecord = ({ selectedYear }) => {
             );
             const data = await response.json();
             if (response.ok) {
-                setInstruments(data);
+                //srot by instrument number
+                setInstruments(
+                    data.sort(
+                        (a, b) => a.instrument_number - b.instrument_number
+                    )
+                );
             }
         };
 
@@ -219,7 +224,7 @@ const AddRecord = ({ selectedYear }) => {
                 <div className="flex flex-col">
                     <h5 className="font-medium">Instrument</h5>
                 </div>
-                <div className="flex flex-col">
+                {/* <div className="flex flex-col">
                     SDG
                     <select
                         id="sdg"
@@ -238,7 +243,7 @@ const AddRecord = ({ selectedYear }) => {
                             </option>
                         ))}
                     </select>
-                </div>
+                </div> */}
 
                 {sdgID &&
                     instruments.map(
