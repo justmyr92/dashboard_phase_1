@@ -9,6 +9,7 @@ import DashboardAdmin from "./pages/DashboardAdmin";
 import Instruments from "./pages/Instruments";
 import InstrumentForm from "./pages/InstrumentForm";
 import RecordAdmin from "./pages/RecordAdmin";
+import SampleCode from "./components/SampleCode";
 
 function App() {
     return (
@@ -23,7 +24,7 @@ function App() {
                 <Route path="/csd/sd-officers" element={<SDOfficer />} />
                 <Route path="/csd/sd/dashboard" element={<DashboardAdmin />} />
                 <Route path="/csd/instruments" element={<Instruments />} />
-                <Route path="*" element={<Login />} />
+                <Route path="*" element={<SampleCode />} />
                 <Route
                     path="/csd/instruments-form"
                     element={<InstrumentForm />}
