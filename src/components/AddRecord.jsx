@@ -65,7 +65,7 @@ const AddRecord = ({ selectedYear, selectedSDG, setShowModal }) => {
             }
         };
         fetchData();
-    }, [sdgID]);
+    }, []);
 
     useEffect(() => {
         setRecordValues([]);
@@ -82,7 +82,11 @@ const AddRecord = ({ selectedYear, selectedSDG, setShowModal }) => {
                 }));
             }
         });
-    }, [sdgID]);
+    }, [sdgID, selectedYear, records]);
+
+    useEffect(() => {
+        console.log(recordValues);
+    }, [recordValues]);
 
     const handleFileInputChange = (files, instrument_id) => {
         const newFileEntry = { file: files[0], instrument_id };
@@ -198,8 +202,6 @@ const AddRecord = ({ selectedYear, selectedSDG, setShowModal }) => {
                             }
                         }
                     });
-
-                    window.location.reload();
                 }
             }
         });

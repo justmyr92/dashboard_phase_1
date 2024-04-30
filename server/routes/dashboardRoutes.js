@@ -383,6 +383,7 @@ router.get("/record", async (req, res) => {
 router.post("/login", async (req, res) => {
     try {
         const { username, password } = req.body;
+
         const sdoOfficer = await pool.query(
             "SELECT * FROM sdo_officer_table WHERE sdo_officer_email = $1",
             [username]
@@ -391,12 +392,17 @@ router.post("/login", async (req, res) => {
             "SELECT * FROM csd_officer_table WHERE csd_officer_email = $1",
             [username]
         );
-        const unit = await pool.query(
-            "SELECT * FROM unit_table WHERE unit_email = $1",
-            [username]
-        );
+        // const unit = await pool.query(
+        //     "SELECT * FROM unit_table WHERE unit_email = $1",
+        //     [username]
+        // );
         if (sdoOfficer.rows.length > 0) {
             const validPassword = await bcrypt.compare(
+                password,
+                sdoOfficer.rows[0].sdo_officer_password
+            );
+            console.log(
+                validPassword,
                 password,
                 sdoOfficer.rows[0].sdo_officer_password
             );
@@ -410,21 +416,23 @@ router.post("/login", async (req, res) => {
                 password,
                 csdOfficer.rows[0].csd_officer_password
             );
+            console.log(validPassword, "sd");
+
             if (validPassword) {
                 res.json(csdOfficer.rows[0]);
             } else {
                 res.json({ message: "Invalid Password" });
             }
-        } else if (unit.rows.length > 0) {
-            const validPassword = await bcrypt.compare(
-                password,
-                unit.rows[0].unit_password
-            );
-            if (validPassword) {
-                res.json(unit.rows[0]);
-            } else {
-                res.json({ message: "Invalid Password" });
-            }
+            // } else if (unit.rows.length > 0) {
+            //     const validPassword = await bcrypt.compare(
+            //         password,
+            //         unit.rows[0].unit_password
+            //     );
+            //     if (validPassword) {
+            //         res.json(unit.rows[0]);
+            //     } else {
+            //         res.json({ message: "Invalid Password" });
+            //     }
         } else {
             res.json({ message: "User does not exist" });
         }
@@ -827,14 +835,16 @@ router.patch("/sdo_officer/:id", async (req, res) => {
             campus_id,
             sdo_officer_password,
         } = req.body;
+
         if (sdo_officer_password) {
             const salt = await bcrypt.genSalt(10);
             const encryptedPassword = await bcrypt.hash(
                 sdo_officer_password,
                 salt
             );
+
             const updateSdoOfficer = await pool.query(
-                "UPDATE sdo_officer_table SET sdo_officer_name = $1, sdo_officer_email = $2, sdo_officer_phone = $3, campus_id = $4, sdo_officer_password = $5 WHERE sdo_officer_id = $6 returning *",
+                "UPDATE sdo_officer_table SET sdo_officer_name = $1, sdo_officer_email = $2, sdo_officer_phone = $3, campus_id = $4, sdo_officer_password = $5 WHERE sdo_officer_id = $6 RETURNING *",
                 [
                     sdo_officer_name,
                     sdo_officer_email,
@@ -844,10 +854,12 @@ router.patch("/sdo_officer/:id", async (req, res) => {
                     id,
                 ]
             );
+            console.log(updateSdoOfficer.rows[0]);
+            console.log(encryptedPassword);
             res.json(updateSdoOfficer.rows[0]);
         } else {
             const updateSdoOfficer = await pool.query(
-                "UPDATE sdo_officer_table SET sdo_officer_name = $1, sdo_officer_email = $2, sdo_officer_phone = $3, campus_id = $4 WHERE sdo_officer_id = $5 returning *",
+                "UPDATE sdo_officer_table SET sdo_officer_name = $1, sdo_officer_email = $2, sdo_officer_phone = $3, campus_id = $4 WHERE sdo_officer_id = $5 RETURNING *",
                 [
                     sdo_officer_name,
                     sdo_officer_email,
@@ -860,6 +872,7 @@ router.patch("/sdo_officer/:id", async (req, res) => {
         }
     } catch (err) {
         console.error(err.message);
+        res.status(500).send("Server Error");
     }
 });
 
@@ -1047,6 +1060,31 @@ router.get("/getInstruments", async (req, res) => {
             "SELECT * FROM instrument_table order by date_posted desc"
         );
         res.json(instruments.rows);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+router.get("/getInstrumentsSDG", async (req, res) => {
+    try {
+        const instruments = await pool.query(
+            "SELECT instrument_table.*, sdg_table.sdg_no from instrument_table INNER JOIN sdg_table ON instrument_table.sdg_id = sdg_table.sdg_id order by date_posted desc"
+        );
+        res.json(instruments.rows);
+    } catch (err) {
+        console.error(err.message);
+    }
+});
+
+router.get("/getSDGA/:id/", async (req, res) => {
+    //record_table to eget sdg_id column from record_table inner join with record_data_table sing consditoin record data id
+    try {
+        const { id } = req.params;
+        const sdg = await pool.query(
+            "SELECT record_table.sdg_id, record_value_table.record_data_id FROM record_table INNER JOIN record_value_table ON record_table.record_id = record_value_table.record_id WHERE record_value_table.record_data_id = $1",
+            [id]
+        );
+        res.json(sdg.rows);
     } catch (err) {
         console.error(err.message);
     }

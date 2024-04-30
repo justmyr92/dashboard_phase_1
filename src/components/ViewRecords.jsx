@@ -2,7 +2,12 @@ import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import AddRecord from "./AddRecord";
 
-const ViewRecords = ({ selectedYear, record_data_id, selectedSDG }) => {
+const ViewRecords = ({
+    selectedYear,
+    record_data_id,
+    selectedSDG,
+    setRecordDataId,
+}) => {
     const role = localStorage.getItem("ROLE");
     const [instruments, setInstruments] = useState([]);
     const [records, setRecords] = useState([]);
@@ -113,7 +118,7 @@ const ViewRecords = ({ selectedYear, record_data_id, selectedSDG }) => {
                     sdg_id: instruments?.find(
                         (instrument) =>
                             instrument.instrument_id === instrumentId
-                    ).sdg_id,
+                    )?.sdg_id,
                 });
             } else {
                 // If a group for this instrument ID already exists, add the record to it

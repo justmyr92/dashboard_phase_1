@@ -5,10 +5,13 @@ import ViewRecords from "../components/ViewRecords";
 import AddRecord from "../components/AddRecord";
 
 const Records = () => {
-    const [selectedYear, setSelectedYear] = useState("2024");
+    const [selectedYear, setSelectedYear] = useState("2023");
     const [recordDataId, setRecordDataId] = useState("");
     const [selectedSDG, setSelectedSDG] = useState("SDG1");
 
+    useEffect(() => {
+        console.log(selectedYear, selectedSDG);
+    }, [selectedYear, selectedSDG]);
     useEffect(() => {
         const getRecordDataId = async () => {
             try {
@@ -21,11 +24,48 @@ const Records = () => {
                     throw new Error("Failed to fetch record data");
                 }
                 const data = await response.json();
-                if (data.length > 0) {
-                    setRecordDataId(data[0].record_data_id);
-                } else {
-                    setRecordDataId("");
-                }
+                setRecordDataId(data[0].record_data_id);
+
+                data.map(async (record) => {
+                    console.log(record, "record");
+
+                    // router.get("/getSDGA/:id/:sdg_id", async (req, res) => {
+                    //     //record_table to eget sdg_id column from record_table inner join with record_data_table sing consditoin record data id
+                    //     try {
+                    //         const { id, sdg_id } = req.params;
+                    //         const sdg = await pool.query(
+                    //             "SELECT record_table.sdg_id inner join record_data_table on record_table.record_id = record_data_table.record_id where record_data_table.record_data_id = $1 and record_table.sdg_id = $2",
+                    //             [id, sdg_id]
+                    //         );
+                    //         res.json(sdg.rows);
+                    //     } catch (err) {
+                    //         console.error(err.message);
+                    //     }
+                    // });
+
+                    const getSDGA = async (id, sdg_id) => {
+                        try {
+                            const response = await fetch(
+                                `http://localhost:5000/api/getSDGA/${id}`
+                            );
+                            if (!response.ok) {
+                                throw new Error("Failed to fetch record data");
+                            }
+                            const data2 = await response.json();
+                            data2.map((record2) => {
+                                console.log(record2, "record2");
+                                if (record2.sdg_id === selectedSDG) {
+                                    setRecordDataId(record2.record_data_id);
+                                    return;
+                                }
+                            });
+                        } catch (error) {
+                            console.error("Error fetching record data:", error);
+                        }
+                    };
+
+                    await getSDGA(record.record_data_id, selectedSDG);
+                });
             } catch (error) {
                 console.error("Error fetching record data:", error);
             }
@@ -33,6 +73,9 @@ const Records = () => {
 
         getRecordDataId();
     }, [selectedYear, selectedSDG]);
+    useEffect(() => {
+        console.log(recordDataId, "recordDataId");
+    }, [recordDataId]);
     const sdgOptions = [
         { value: "SDG1", label: "SDG 1 - No Poverty" },
         { value: "SDG2", label: "SDG 2 - Zero Hunger" },
@@ -65,7 +108,6 @@ const Records = () => {
         { value: "SDG17", label: "SDG 17 - Partnerships for the Goals" },
     ];
 
-    const [isThereRecord, setIsThereRecord] = useState(false);
     const [reloadKey, setReloadKey] = useState(0);
 
     useEffect(() => {
@@ -82,30 +124,30 @@ const Records = () => {
                         View Record
                     </h3>
                     <div className="flex items-center justify-between mt-4 w-full">
-                        <div className="flex items-center justify-between p-4 border border-gray-200 rounded-md">
-                            {/* Year Selection */}
+                        <div className="flex items-center justify-between p-4 gap-2a border border-gray-200 rounded-md">
                             <select
                                 className="w-32 px-4 py-2 text-gray-700 bg-white border rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                                value={selectedYear}
+                                value={selectedYear || "2023"}
                                 onChange={(e) =>
                                     setSelectedYear(e.target.value)
                                 }
                             >
-                                <option value="2024">2024</option>
-                                <option value="2023">2023</option>
+                                <option value="2023" selected>
+                                    2023
+                                </option>
                                 <option value="2022">2022</option>
                                 <option value="2021">2021</option>
                             </select>
-                            {/* SDG Selection */}
                             <select
-                                className="w-32 px-4 py-2 text-gray-700 bg-white border rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
-                                value={selectedSDG}
+                                className="px-4 py-2 text-gray-700 bg-white border rounded-md focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50"
+                                value={selectedSDG || "SDG1"}
                                 onChange={(e) => setSelectedSDG(e.target.value)}
                             >
-                                {sdgOptions.map((option) => (
+                                {sdgOptions.map((option, index) => (
                                     <option
                                         key={option.value}
                                         value={option.value}
+                                        selected={index === 0}
                                     >
                                         {option.label}
                                     </option>
@@ -119,6 +161,7 @@ const Records = () => {
                             selectedYear={selectedYear}
                             record_data_id={recordDataId}
                             selectedSDG={selectedSDG}
+                            setRecordDataId={setRecordDataId}
                         />
                     ) : (
                         <AddRecord

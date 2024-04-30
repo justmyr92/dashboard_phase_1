@@ -3,7 +3,7 @@ import Sidebar from "../components/Sidebar";
 import AddRecord from "../components/AddRecord";
 import ViewFiles from "../components/ViewFiles";
 import DataTable from "react-data-table-component";
-import ViewRecords from "../components/ViewRecords";
+import V from "../components/V";
 import SetNotification from "../components/SetNotification";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -224,12 +224,6 @@ const RecordAdmin = () => {
 
     return (
         <section className="dashboard">
-            {viewRecordModal && (
-                <ViewRecords
-                    setShowModal={setViewRecordModal}
-                    record_data_id={record_data_id}
-                />
-            )}
             {showUpdateStatus && (
                 <SetNotification
                     showModal={showUpdateStatus}
@@ -265,7 +259,6 @@ const RecordAdmin = () => {
                                 <h3 className="text-3xl font-bold text-gray-700">
                                     <FontAwesomeIcon icon={faFile} /> Records
                                 </h3>
-
                                 <div className="control-container flex items-center space-x-2">
                                     <div className="relative">
                                         <input
@@ -296,6 +289,7 @@ const RecordAdmin = () => {
                                     )}
                                     {ROLE === "sdo" && <Notifications />}
                                 </div>
+
                                 {showAddRecord && (
                                     <AddRecord
                                         showModal={showAddRecord}
@@ -307,16 +301,24 @@ const RecordAdmin = () => {
                             <hr className="my-5 border-gray-300 border-1" />
 
                             <div className="border border-gray-200 rounded-lg max-w-[100vw] overflow-x-auto">
-                                <DataTable
-                                    columns={columns}
-                                    data={searchedRecords}
-                                    pagination
-                                    striped
-                                    highlightOnHover
-                                    responsive
-                                    defaultSortFieldId={2}
-                                    className="w-[100%] overflow-x-auto"
-                                />
+                                {viewRecordModal ? (
+                                    <V
+                                        // setShowModal={setViewRecordModal}
+                                        record_data_id={record_data_id}
+                                        setViewRecordModal={setViewRecordModal}
+                                    />
+                                ) : (
+                                    <DataTable
+                                        columns={columns}
+                                        data={searchedRecords}
+                                        pagination
+                                        striped
+                                        highlightOnHover
+                                        responsive
+                                        defaultSortFieldId={2}
+                                        className="w-[100%] overflow-x-auto"
+                                    />
+                                )}
                             </div>
                         </>
                     )}

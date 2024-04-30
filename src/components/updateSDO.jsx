@@ -30,7 +30,7 @@ const UpdateSDOfficer = ({ officer, setReload, setModal }) => {
         try {
             const data = {
                 ...updatedOfficer,
-                password: password, // Include password in the data object
+                sdo_officer_password: password, // Include password in the data object
             };
 
             const response = await fetch(

@@ -24,7 +24,7 @@ function App() {
                 <Route path="/csd/sd-officers" element={<SDOfficer />} />
                 <Route path="/csd/sd/dashboard" element={<DashboardAdmin />} />
                 <Route path="/csd/instruments" element={<Instruments />} />
-                <Route path="*" element={<SampleCode />} />
+                <Route path="*" element={<Login />} />
                 <Route
                     path="/csd/instruments-form"
                     element={<InstrumentForm />}

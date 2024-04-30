@@ -16,6 +16,7 @@ import {
     faTools,
     faGear,
 } from "@fortawesome/free-solid-svg-icons";
+import bsuLOGO from "../assets/bsu-logo.png";
 
 const Sidebar = () => {
     const location = useLocation();
@@ -100,14 +101,20 @@ const Sidebar = () => {
             className="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0"
             aria-label="Sidebar"
         >
-            <div className="h-full px-3 py-4 overflow-y-auto bg-[#E6243B] shadow-xl">
-                <img src={logo} alt="logo" className="w-32 h-32 mx-auto mb-5" />
+            <div className="h-full px-3 py-4 overflow-y-auto bg-[#E6243B] shadow-xl relative">
+                <div className="flex items-center justify-between mb-5">
+                    <img src={logo} alt="logo" className="w-16 h-16 mx-auto" />
+                    <h3 className="text-2xl font-semibold text-white">
+                        CSD Dashboard
+                    </h3>
+                </div>
+                <hr className="my-5" />
                 <ul className="space-y-2">
                     {links.map((link, index) => (
                         <li key={index}>
                             <a
                                 href={link.url}
-                                className={`flex items-center p-2 rounded-lg text-base transition-colors duration-200 ${
+                                className={`flex items-center py-2 px-3 rounded-md text-base transition-colors duration-200 ${
                                     location.pathname === link.url ||
                                     (location.pathname.includes("instrument") &&
                                         link.url.includes("instrument"))
@@ -142,7 +149,7 @@ const Sidebar = () => {
                             </h6>
                         </button>
                         <div
-                            className={`w-full p-2 rounded-lg shadow-lg mt-2 top-0 right-0 transition-all duration-300 ${
+                            className={`w-full p-2 rounded-lg shadow-lg mt-2 z-2 top-0 right-0 transition-all duration-300 ${
                                 sideMenu ? "bg-white" : "bg-transparent"
                             }`}
                             style={{
@@ -165,6 +172,11 @@ const Sidebar = () => {
                         </div>
                     </li>
                 </ul>
+                <img
+                    src={bsuLOGO}
+                    alt="bsu-logo"
+                    className="opacity-20 w-[150px] absolute bottom-10 right-1/2 transform translate-x-1/2 z-1"
+                />
             </div>
         </aside>
     );

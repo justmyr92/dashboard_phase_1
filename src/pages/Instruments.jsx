@@ -89,32 +89,41 @@ const Instruments = () => {
         const getInstruments = async () => {
             try {
                 const response = await fetch(
-                    "http://localhost:5000/api/getInstruments"
+                    "http://localhost:5000/api/getInstrumentsSDG"
                 );
                 const jsonData = await response.json();
                 if (search !== "") {
                     setInstruments(
-                        jsonData.filter(
-                            (instrument) =>
-                                instrument.name
-                                    .toLowerCase()
-                                    .includes(search.toLowerCase()) ||
-                                instrument.status
-                                    .toLowerCase()
-                                    .includes(search.toLowerCase()) ||
-                                new Date(instrument.date_posted)
-                                    .toLocaleDateString("en-US", {
-                                        weekday: "long",
-                                        year: "numeric",
-                                        month: "long",
-                                        day: "numeric",
-                                    })
-                                    .toLowerCase()
-                                    .includes(search.toLowerCase())
-                        )
+                        jsonData
+                            .filter(
+                                (instrument) =>
+                                    instrument.name
+                                        .toLowerCase()
+                                        .includes(search.toLowerCase()) ||
+                                    instrument.status
+                                        .toLowerCase()
+                                        .includes(search.toLowerCase()) ||
+                                    new Date(instrument.date_posted)
+                                        .toLocaleDateString("en-US", {
+                                            weekday: "long",
+                                            year: "numeric",
+                                            month: "long",
+                                            day: "numeric",
+                                        })
+                                        .toLowerCase()
+                                        .includes(search.toLowerCase())
+                            )
+                            .sort((a, b) => {
+                                // Sort by sdg_no from lowest to highest
+                                return a.sdg_no - b.sdg_no;
+                            })
                     );
                 } else {
-                    setInstruments(jsonData);
+                    setInstruments(
+                        jsonData.sort((a, b) => a.sdg_no - b.sdg_no)
+                    );
+
+                    console.log(jsonData);
                 }
             } catch (err) {
                 console.error(err.message);
@@ -466,11 +475,10 @@ const Instruments = () => {
                                         ),
                                     },
                                 ]}
-                                data={instruments.filter(
-                                    (instrument) =>
-                                        instrument.status ===
-                                        (tab === 1 ? "Active" : "Inactive")
-                                )}
+                                data={instruments.sort((a, b) => {
+                                    // Sort by sdg_no from lowest to highest
+                                    return a.sdg_no - b.sdg_no;
+                                })}
                                 pagination
                                 highlightOnHover
                                 pointerOnHover
