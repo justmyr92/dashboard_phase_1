@@ -260,20 +260,27 @@ const RecordAdmin = () => {
                                     <FontAwesomeIcon icon={faFile} /> Records
                                 </h3>
                                 <div className="control-container flex items-center space-x-2">
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            className="block w-full border border-gray-300 rounded bg-white outline-none px-3 py-2.5 text-sm"
-                                            placeholder="Search"
-                                            value={search}
-                                            onChange={(e) =>
-                                                setSearch(e.target.value)
-                                            }
-                                        />
-                                        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                                            <FontAwesomeIcon icon={faSearch} />{" "}
-                                        </div>
-                                    </div>
+                                    {ROLE === "csd" &&
+                                        viewRecordModal !== true && (
+                                            <div className="relative">
+                                                <input
+                                                    type="text"
+                                                    className="block w-full border border-gray-300 rounded bg-white outline-none px-3 py-2.5 text-sm"
+                                                    placeholder="Search"
+                                                    value={search}
+                                                    onChange={(e) =>
+                                                        setSearch(
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                />
+                                                <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                                    <FontAwesomeIcon
+                                                        icon={faSearch}
+                                                    />{" "}
+                                                </div>
+                                            </div>
+                                        )}
                                     {ROLE === "sdo" && (
                                         <button
                                             data-modal-target="default-modal"

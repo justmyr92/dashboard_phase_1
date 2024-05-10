@@ -76,7 +76,7 @@ const Login = () => {
     return (
         <section className="login__section h-screen">
             <div className="flex h-full w-full">
-                <div className="login__form__container w-1/2 flex flex-col justify-center items-center">
+                <div className="login__form__container w-[40%] flex flex-col justify-center items-center">
                     <div className="login__form__header mb-5 w-[400px] gap-2">
                         <h1 className="text-3xl">Sign In</h1>
                         <p className="text-xl text-gray-500">
@@ -159,7 +159,7 @@ const Login = () => {
                         </button>
                     </form>
                 </div>
-                <div className="login__image__container w-1/2">
+                <div className="login__image__container w-[60%]">
                     <img
                         className="login__image w-full h-full object-cover"
                         src={loginCover}

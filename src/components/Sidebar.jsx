@@ -44,11 +44,11 @@ const Sidebar = () => {
                 //     text: "Units",
                 //     icon: faBuilding,
                 // },
-                {
-                    url: "/csd/annual-reports",
-                    text: "Annual Reports",
-                    icon: faBook,
-                },
+                // {
+                //     url: "/csd/annual-reports",
+                //     text: "Annual Reports",
+                //     icon: faBook,
+                // },
                 {
                     url: "/csd/instruments",
                     text: "Instruments",
@@ -73,11 +73,11 @@ const Sidebar = () => {
                     text: "Records",
                     icon: faFileAlt,
                 },
-                {
-                    url: "/csd/annual-reports",
-                    text: "Annual Reports",
-                    icon: faBook,
-                },
+                // {
+                //     url: "/csd/annual-reports",
+                //     text: "Annual Reports",
+                //     icon: faBook,
+                // },
             ]);
         } else if (role === "unit") {
             setLinks([
@@ -114,7 +114,7 @@ const Sidebar = () => {
                         <li key={index}>
                             <a
                                 href={link.url}
-                                className={`flex items-center py-2 px-3 rounded-md text-base transition-colors duration-200 ${
+                                className={`flex items-center py-2 px-3 rounded-sm text-base transition-colors duration-200 ${
                                     location.pathname === link.url ||
                                     (location.pathname.includes("instrument") &&
                                         link.url.includes("instrument"))
@@ -133,7 +133,7 @@ const Sidebar = () => {
                     {/* Add logout item here */}
                     <li>
                         <button
-                            className={`flex flex-col items-start border-gray-500 p-2 rounded-lg text-gray-100 hover:bg-white hover:text-gray-800 w-full text-base transition-colors duration-200 ${
+                            className={`flex flex-col items-start border-gray-500 p-2 rounded-sm text-gray-100 hover:bg-white hover:text-gray-800 w-full text-base transition-colors duration-200 ${
                                 sideMenu ? "" : "bg-white text-gray-800"
                             }`}
                             onClick={() => {
@@ -149,7 +149,7 @@ const Sidebar = () => {
                             </h6>
                         </button>
                         <div
-                            className={`w-full p-2 rounded-lg shadow-lg mt-2 z-2 top-0 right-0 transition-all duration-300 ${
+                            className={`w-full p-2 rounded-sm shadow-lg mt-2 z-2 top-0 right-0 transition-all duration-300 ${
                                 sideMenu ? "bg-white" : "bg-transparent"
                             }`}
                             style={{
